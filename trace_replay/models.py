@@ -49,11 +49,16 @@ class Mutation:
     new_value: Optional[str] = None
     added: list[NodeInfo] = field(default_factory=list)
     removed: list[NodeInfo] = field(default_factory=list)
+    added_count: int = 0        # ← new
+    removed_count: int = 0      # ← new
 
     @classmethod
     def from_dict(cls, d: dict) -> "Mutation":
         added = [n for n in (NodeInfo.from_dict(x) for x in d.get("added") or []) if n]
         removed = [n for n in (NodeInfo.from_dict(x) for x in d.get("removed") or []) if n]
+
+        ac_raw = d.get("addedCount")
+        rc_raw = d.get("removedCount")
         return cls(
             t=int(d.get("t", 0)),
             type=d.get("type", ""),
@@ -63,8 +68,9 @@ class Mutation:
             new_value=d.get("newValue"),
             added=added,
             removed=removed,
+            added_count=int(ac_raw) if ac_raw is not None else len(added),
+            removed_count=int(rc_raw) if rc_raw is not None else len(removed),
         )
-
 
 @dataclass
 class TraceMeta:

@@ -1,16 +1,23 @@
-"""
-trace_replay — Replay a MutationObserver trace on a live page.
-
-Example:
-    from trace_replay import Trace, Replayer, ReplayConfig
-
-    trace = Trace.load("trace.json")
-    Replayer(trace, ReplayConfig(speed=2.0)).run()
-"""
 from .models import Mutation, NodeInfo, Target, Trace, TraceMeta
 from .locators import ElementLocator
 from .third_party import ThirdPartyDetector
 from .appliers import ApplierRegistry, ApplyResult
+from .filters import (
+    CompositeFilter,
+    FilterResult,
+    MutationFilter,
+    StructureOnlyFilter,
+    ThirdPartyFilter,
+)
+from .timing import (
+    CappedTimePolicy,
+    FaithfulTimePolicy,
+    InstantTimePolicy,
+    SkipAwareTimePolicy,
+    TimeContext,
+    TimePolicy,
+    build_policy,
+)
 from .replayer import Replayer, ReplayConfig, ReplayStats
 
 __all__ = [
@@ -18,7 +25,13 @@ __all__ = [
     "ElementLocator",
     "ThirdPartyDetector",
     "ApplierRegistry", "ApplyResult",
+    "MutationFilter", "FilterResult", "CompositeFilter",
+    "ThirdPartyFilter", "StructureOnlyFilter",
+    "TimePolicy", "TimeContext",
+    "FaithfulTimePolicy", "InstantTimePolicy",
+    "CappedTimePolicy", "SkipAwareTimePolicy",
+    "build_policy",
     "Replayer", "ReplayConfig", "ReplayStats",
 ]
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"

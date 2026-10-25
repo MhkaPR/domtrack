@@ -1,14 +1,22 @@
 from __future__ import annotations
 
 import time
+from collections import Counter
 from dataclasses import dataclass, field
 
 from playwright.sync_api import Browser, Page, sync_playwright
 
 from .appliers import ApplierRegistry
+from .filters import (
+    CompositeFilter,
+    MutationFilter,
+    StructureOnlyFilter,
+    ThirdPartyFilter,
+)
 from .locators import ElementLocator
 from .models import Mutation, Trace
 from .third_party import ThirdPartyDetector
+from .timing import TimeContext, TimePolicy, build_policy
 
 
 @dataclass
@@ -24,13 +32,18 @@ class ReplayStats:
     applied: int = 0
     skipped: int = 0
     failed: int = 0
+    skip_reasons: Counter = field(default_factory=Counter)
     failures: list[Failure] = field(default_factory=list)
 
 
 @dataclass
 class ReplayConfig:
     speed: float = 1.0
-    mode: str = "all"  # "all" | "clean"
+    mode: str = "all"
+    structure_only: bool = False
+    time_policy: str = "skip-aware"
+    gap_cap_ms: int | None = None
+    fast_load: bool = False
     headless: bool = False
     wait_for_ids_ms: int = 2000
     close_delay_ms: int = 5000
@@ -54,6 +67,22 @@ class Replayer:
         self.third_party = third_party_detector or ThirdPartyDetector()
         self.stats = ReplayStats()
         self._strategies: dict[str, int] = {}
+        self._pre_filter: MutationFilter = self._build_pre_filter()
+        self._policy: TimePolicy = build_policy(
+            self.config.time_policy,
+            self.config.speed,
+            self.config.gap_cap_ms,
+        )
+
+    def _build_pre_filter(self) -> MutationFilter:
+        filters: list[MutationFilter] = []
+        if self.config.structure_only:
+            filters.append(StructureOnlyFilter())
+        if self.config.mode == "clean":
+            filters.append(ThirdPartyFilter(self.third_party))
+        return CompositeFilter(filters)
+
+    # ── public ──
 
     def run(self) -> ReplayStats:
         with sync_playwright() as p:
@@ -65,17 +94,22 @@ class Replayer:
                 browser.close()
         return self.stats
 
-    # ────────── internals ──────────
+    # ── internals ──
 
     def _setup_page(self, browser: Browser) -> Page:
         print(f"Loading page: {self.trace.meta.url}")
         page = browser.new_page(viewport=self.trace.meta.viewport)
         page.goto(self.trace.meta.url, wait_until="domcontentloaded", timeout=60000)
-        try:
-            page.wait_for_load_state("networkidle", timeout=15000)
-        except Exception:
-            pass
-        page.wait_for_timeout(1500)
+
+        if self.config.fast_load:
+            page.wait_for_timeout(500)
+        else:
+            try:
+                page.wait_for_load_state("networkidle", timeout=15000)
+            except Exception:
+                pass
+            page.wait_for_timeout(1500)
+
         print("Page loaded.")
         self._wait_for_target_ids(page)
         return page
@@ -114,12 +148,21 @@ class Replayer:
         by_t = self.trace.group_by_time()
         times = sorted(by_t.keys())
 
-        print("Starting replay...")
+        print(f"Starting replay (time_policy={self.config.time_policy})...")
         prev_t = 0
         for i, t in enumerate(times):
-            wait_ms = max(1, int((t - prev_t) / self.config.speed))
-            page.wait_for_timeout(wait_ms)
+            # Does this bucket contain anything that will actually run?
+            has_work = any(
+                not self._pre_filter.check(m).skip for m in by_t[t]
+            )
+
+            wait_ms = self._policy.compute_wait(
+                TimeContext(prev_t=prev_t, curr_t=t, bucket_has_work=has_work)
+            )
+            if wait_ms > 0:
+                page.wait_for_timeout(wait_ms)
             prev_t = t
+
             for mutation in by_t[t]:
                 self._apply_one(page, mutation, registry)
 
@@ -134,16 +177,16 @@ class Replayer:
         self._strategies = locator.strategy_stats
         delay_s = self.config.close_delay_ms / 1000
         print(f"Replay finished. Browser closes in {delay_s:.0f}s...")
-        page.wait_for_timeout(self.config.close_delay_ms)
+        if self.config.close_delay_ms:
+            page.wait_for_timeout(self.config.close_delay_ms)
 
     def _apply_one(
         self, page: Page, mutation: Mutation, registry: ApplierRegistry
     ) -> None:
-        sel = mutation.target.selector or ""
-        el_id = mutation.target.id or ""
-
-        if self.config.mode == "clean" and self.third_party.is_third_party(sel, el_id):
+        pre = self._pre_filter.check(mutation)
+        if pre.skip:
             self.stats.skipped += 1
+            self.stats.skip_reasons[pre.reason] += 1
             return
 
         result = registry.apply(page, mutation)
@@ -152,9 +195,13 @@ class Replayer:
             self.stats.applied += 1
             return
 
-        if result.strategy == "not found" and self.third_party.is_third_party(sel, el_id):
-            self.stats.skipped += 1
-            return
+        if result.strategy == "not found":
+            sel = mutation.target.selector or ""
+            el_id = mutation.target.id or ""
+            if self.third_party.is_third_party(sel, el_id):
+                self.stats.skipped += 1
+                self.stats.skip_reasons["third-party widget"] += 1
+                return
 
         reason = result.strategy
         if result.error:
@@ -164,18 +211,19 @@ class Replayer:
             Failure(
                 time_ms=mutation.t,
                 mutation_type=mutation.type,
-                selector=sel[:100],
+                selector=(mutation.target.selector or "")[:100],
                 reason=reason,
             )
         )
-
-    # ────────── reporting ──────────
 
     def print_report(self) -> None:
         s = self.stats
         print("\n" + "=" * 60)
         print(f"Applied : {s.applied}")
-        print(f"Skipped : {s.skipped}  (third-party widget)")
+        print(f"Skipped : {s.skipped}")
+        if s.skip_reasons:
+            for reason, cnt in s.skip_reasons.most_common():
+                print(f"  · {cnt:>4}  {reason}")
         print(f"Failed  : {s.failed}")
         print("=" * 60)
 
