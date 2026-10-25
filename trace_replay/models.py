@@ -97,6 +97,7 @@ class TraceMeta:
 class Trace:
     meta: TraceMeta
     mutations: list[Mutation]
+    events: list[Event] = field(default_factory=list)
 
     @classmethod
     def load(cls, path: str) -> "Trace":
@@ -112,3 +113,85 @@ class Trace:
         for m in self.mutations:
             by_t[m.t].append(m)
         return dict(by_t)
+
+@dataclass
+class EventTarget:
+    tag: Optional[str] = None
+    id: Optional[str] = None
+    selector: Optional[str] = None
+    text: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, d: Optional[dict]) -> Optional["EventTarget"]:
+        if not d:
+            return None
+        return cls(
+            tag=d.get("tag"),
+            id=d.get("id"),
+            selector=d.get("selector"),
+            text=d.get("text"),
+        )
+
+
+@dataclass
+class Event:
+    t: int
+    kind: str  # click / mousedown / mouseup / keydown / keyup / input /
+               # change / scroll / wheel / mousemove / pointermove /
+               # focus / blur / submit / dblclick / contextmenu
+    target: Optional[EventTarget] = None
+
+    # Pointer
+    client_x: Optional[int] = None
+    client_y: Optional[int] = None
+    button: Optional[int] = None
+    buttons: Optional[int] = None
+
+    # Keyboard
+    key: Optional[str] = None
+    code: Optional[str] = None
+    repeat: bool = False
+
+    # Input
+    value: Optional[str] = None
+
+    # Scroll
+    scroll_x: Optional[int] = None
+    scroll_y: Optional[int] = None
+    is_document_scroll: bool = False
+
+    # Wheel
+    delta_x: Optional[float] = None
+    delta_y: Optional[float] = None
+
+    # Modifiers
+    ctrl: bool = False
+    shift: bool = False
+    alt: bool = False
+    meta: bool = False
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "Event":
+        m = d.get("modifiers") or {}
+        return cls(
+            t=int(d.get("t", 0)),
+            kind=d.get("kind", ""),
+            target=EventTarget.from_dict(d.get("target")),
+            client_x=d.get("clientX"),
+            client_y=d.get("clientY"),
+            button=d.get("button"),
+            buttons=d.get("buttons"),
+            key=d.get("key"),
+            code=d.get("code"),
+            repeat=bool(d.get("repeat", False)),
+            value=d.get("value"),
+            scroll_x=d.get("scrollX"),
+            scroll_y=d.get("scrollY"),
+            is_document_scroll=bool(d.get("isDocument", False)),
+            delta_x=d.get("deltaX"),
+            delta_y=d.get("deltaY"),
+            ctrl=bool(m.get("ctrl", False)),
+            shift=bool(m.get("shift", False)),
+            alt=bool(m.get("alt", False)),
+            meta=bool(m.get("meta", False)),
+        )
