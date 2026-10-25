@@ -28,6 +28,12 @@ class TracerConfig:
     # Recording mode: None → interactive page.pause(); int → auto-stop after N ms
     duration_ms: int | None = None
 
+
+    capture_events: bool = True
+    move_throttle_ms: int = 40
+    scroll_throttle_ms: int = 100
+
+    
     output_dir: str = "traces"
 
     def __post_init__(self) -> None:

@@ -30,6 +30,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-nodes", type=int, default=50)
     p.add_argument("--dynamic-class", action="append", default=None,
                    help="Dynamic class name (repeatable; overrides defaults)")
+    p.add_argument("--no-events", action="store_true",
+               help="Disable event capture (mutations only)")
+    p.add_argument("--no-mutations", action="store_true",
+                help="Disable mutation capture (events only)")
+    p.add_argument("--move-throttle-ms", type=int, default=40,
+                help="Mousemove throttle in ms (default: 40 = ~25 Hz)")
+    p.add_argument("--scroll-throttle-ms", type=int, default=100,
+                help="Scroll throttle in ms (default: 100 = 10 Hz)")
     return p
 
 

@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from playwright.sync_api import Browser, Page, sync_playwright
 
 from .appliers import ApplierRegistry
+from .event_replayer import EventReplayer
 from .filters import (
     CompositeFilter,
     MutationFilter,
@@ -40,6 +41,7 @@ class ReplayStats:
 class ReplayConfig:
     speed: float = 1.0
     mode: str = "all"
+    replay_mode: str = "events"            # ← NEW: events | mutations | both
     structure_only: bool = False
     time_policy: str = "skip-aware"
     gap_cap_ms: int | None = None
@@ -47,10 +49,16 @@ class ReplayConfig:
     headless: bool = False
     wait_for_ids_ms: int = 2000
     close_delay_ms: int = 5000
+    wait_before_replay_ms: int = 0         # ← NEW: pause after load, before events
 
     def __post_init__(self):
         if self.mode not in ("all", "clean"):
             raise ValueError(f"mode must be 'all' or 'clean', got {self.mode!r}")
+        if self.replay_mode not in ("events", "mutations", "both"):
+            raise ValueError(
+                f"replay_mode must be 'events', 'mutations' or 'both', "
+                f"got {self.replay_mode!r}"
+            )
         if self.speed <= 0:
             raise ValueError(f"speed must be > 0, got {self.speed}")
 
@@ -94,12 +102,16 @@ class Replayer:
                 browser.close()
         return self.stats
 
-    # ── internals ──
+    # ── setup ──
 
     def _setup_page(self, browser: Browser) -> Page:
         print(f"Loading page: {self.trace.meta.url}")
         page = browser.new_page(viewport=self.trace.meta.viewport)
-        page.goto(self.trace.meta.url, wait_until="domcontentloaded", timeout=60000)
+        page.goto(
+            self.trace.meta.url,
+            wait_until="domcontentloaded",
+            timeout=60000,
+        )
 
         if self.config.fast_load:
             page.wait_for_timeout(500)
@@ -112,6 +124,10 @@ class Replayer:
 
         print("Page loaded.")
         self._wait_for_target_ids(page)
+
+        if self.config.wait_before_replay_ms > 0:
+            page.wait_for_timeout(self.config.wait_before_replay_ms)
+
         return page
 
     def _wait_for_target_ids(self, page: Page) -> None:
@@ -138,24 +154,53 @@ class Replayer:
             if missing:
                 page.wait_for_timeout(100)
         if missing:
-            print(f"  Note: {len(missing)} IDs absent at start (may be created during replay)")
+            print(
+                f"  Note: {len(missing)} IDs absent at start "
+                f"(may be created during replay)"
+            )
         else:
             print("  All target IDs present.")
 
+    # ── orchestrator ──
+
     def _replay(self, page: Page) -> None:
+        if self.config.replay_mode in ("events", "both") and self.trace.events:
+            print(f"Replaying {len(self.trace.events)} events...")
+            ev_replayer = EventReplayer(self.trace.events, self._policy)
+            ev_stats = ev_replayer.replay(page)
+            print(
+                f"  Events applied: {ev_stats.applied} | "
+                f"failed: {ev_stats.failed}"
+            )
+            for f in ev_stats.failures[:5]:
+                print(f"    ! {f}")
+        elif self.config.replay_mode in ("events", "both"):
+            print("No events in trace — skipping event replay.")
+
+        if self.config.replay_mode == "mutations":
+            self._replay_mutations_only(page)
+        elif self.config.replay_mode == "both":
+            self._verify_mutations(page)
+
+        if self.config.close_delay_ms:
+            delay_s = self.config.close_delay_ms / 1000
+            print(f"\nReplay finished. Browser closes in {delay_s:.0f}s...")
+            page.wait_for_timeout(self.config.close_delay_ms)
+
+    # ── legacy: force-apply mutations (kept for 'mutations' mode) ──
+
+    def _replay_mutations_only(self, page: Page) -> None:
         locator = ElementLocator(page)
         registry = ApplierRegistry(page, locator)
         by_t = self.trace.group_by_time()
         times = sorted(by_t.keys())
 
-        print(f"Starting replay (time_policy={self.config.time_policy})...")
+        print(f"Starting mutation replay (time_policy={self.config.time_policy})...")
         prev_t = 0
         for i, t in enumerate(times):
-            # Does this bucket contain anything that will actually run?
             has_work = any(
                 not self._pre_filter.check(m).skip for m in by_t[t]
             )
-
             wait_ms = self._policy.compute_wait(
                 TimeContext(prev_t=prev_t, curr_t=t, bucket_has_work=has_work)
             )
@@ -175,10 +220,6 @@ class Replayer:
                 )
 
         self._strategies = locator.strategy_stats
-        delay_s = self.config.close_delay_ms / 1000
-        print(f"Replay finished. Browser closes in {delay_s:.0f}s...")
-        if self.config.close_delay_ms:
-            page.wait_for_timeout(self.config.close_delay_ms)
 
     def _apply_one(
         self, page: Page, mutation: Mutation, registry: ApplierRegistry
@@ -216,9 +257,42 @@ class Replayer:
             )
         )
 
+    # ── verification (for 'both' mode) ──
+
+    def _verify_mutations(self, page: Page) -> None:
+        print(f"Verifying {len(self.trace.mutations)} mutations...")
+        matched = 0
+        for m in self.trace.mutations:
+            if self._verify_one(page, m):
+                matched += 1
+        total = len(self.trace.mutations)
+        print(f"  Matched: {matched}/{total}")
+
+    def _verify_one(self, page: Page, m: Mutation) -> bool:
+        sel = m.target.selector
+        if not sel:
+            return True
+        try:
+            ok = page.evaluate(
+                """([sel, attr, oldV, newV]) => {
+                    const el = document.querySelector(sel);
+                    if (!el) return false;
+                    if (!attr) return true;
+                    const cur = el.getAttribute(attr);
+                    return cur === newV || (oldV !== newV && cur !== oldV);
+                }""",
+                [sel, m.attribute_name, m.old_value, m.new_value],
+            )
+            return bool(ok)
+        except Exception:
+            return False
+
+    # ── report ──
+
     def print_report(self) -> None:
         s = self.stats
         print("\n" + "=" * 60)
+        print(f"Mode    : {self.config.replay_mode}")
         print(f"Applied : {s.applied}")
         print(f"Skipped : {s.skipped}")
         if s.skip_reasons:

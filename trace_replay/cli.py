@@ -38,6 +38,16 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Keep browser open after replay before closing.")
     p.add_argument("--third-party-hint", action="append", default=[],
                    help="Extra third-party widget name (repeatable).")
+    p.add_argument("--replay-mode",
+               choices=("events", "mutations", "both"),
+               default="events",
+               help="'events': real interactions (default); "
+                    "'mutations': legacy DOM patching; "
+                    "'both': events + verification")
+    p.add_argument("--event-speed", type=float, default=1.0,
+                help="Speed multiplier for event replay (default: 1.0)")
+    p.add_argument("--wait-before-replay-ms", type=int, default=2000,
+                help="Stabilization wait after page load before events (default: 2000)")
     return p
 
 
