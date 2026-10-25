@@ -97,7 +97,7 @@ class TraceMeta:
 class Trace:
     meta: TraceMeta
     mutations: list[Mutation]
-    events: list[Event] = field(default_factory=list)
+    events: list[Event] = field(default_factory=list)   # ← NEW
 
     @classmethod
     def load(cls, path: str) -> "Trace":
@@ -106,6 +106,7 @@ class Trace:
         return cls(
             meta=TraceMeta.from_dict(raw.get("meta")),
             mutations=[Mutation.from_dict(m) for m in raw.get("mutations", [])],
+            events=[Event.from_dict(e) for e in raw.get("events", [])],   # ← THE FIX
         )
 
     def group_by_time(self) -> dict[int, list[Mutation]]:
@@ -136,35 +137,33 @@ class EventTarget:
 @dataclass
 class Event:
     t: int
-    kind: str  # click / mousedown / mouseup / keydown / keyup / input /
-               # change / scroll / wheel / mousemove / pointermove /
-               # focus / blur / submit / dblclick / contextmenu
+    kind: str
     target: Optional[EventTarget] = None
 
-    # Pointer
+    # pointer
     client_x: Optional[int] = None
     client_y: Optional[int] = None
     button: Optional[int] = None
     buttons: Optional[int] = None
 
-    # Keyboard
+    # keyboard
     key: Optional[str] = None
     code: Optional[str] = None
     repeat: bool = False
 
-    # Input
+    # input
     value: Optional[str] = None
 
-    # Scroll
+    # scroll
     scroll_x: Optional[int] = None
     scroll_y: Optional[int] = None
     is_document_scroll: bool = False
 
-    # Wheel
+    # wheel
     delta_x: Optional[float] = None
     delta_y: Optional[float] = None
 
-    # Modifiers
+    # modifiers
     ctrl: bool = False
     shift: bool = False
     alt: bool = False
