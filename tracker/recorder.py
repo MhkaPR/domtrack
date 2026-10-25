@@ -19,7 +19,7 @@ class CaptureResult:
     json_path: str
     csv_path: str
     mutation_count: int
-    event_count: int
+    event_count: int = 0
 
 
 class Recorder:
@@ -32,7 +32,7 @@ class Recorder:
             try:
                 page = browser.new_page(viewport=self.config.viewport)
 
-                # Console/page errors are cheap and catch exactly this class of bug.
+                # Surface JS errors that would otherwise silently drop events
                 page.on("pageerror", lambda err: print(f"[pageerror] {err}"))
                 page.on("console",
                         lambda msg: print(f"[console:{msg.type}] {msg.text}")
@@ -44,30 +44,30 @@ class Recorder:
                     timeout=self.config.goto_timeout_ms,
                 )
 
-                self._install_capture(page)        # ← THE FIX
+                self._install_capture(page)
 
                 self._wait_for_user(page)
+
                 payload = page.evaluate(COLLECT_SCRIPT)
             finally:
                 browser.close()
         return payload
 
     def _install_capture(self, page: Page) -> None:
-        # 1) HELPERS_INIT must run FIRST — defines window.__cssPath,
-        #    which EVENT_INIT's targetInfo() calls.
+        # 1) HELPERS_INIT first — defines window.__cssPath for EVENT_INIT
         page.evaluate(HELPERS_INIT, list(self.config.dynamic_classes))
 
-        # 2) Mutation observer (self-contained; defines its own local cssPath)
+        # 2) Mutation observer
         page.evaluate(
             build_init_script(self.config),
             self.config.target_selector,
         )
 
-        # 3) Event listeners — depend on window.__cssPath
-        page.evaluate(EVENT_INIT, {
-            "moveThrottleMs": self.config.move_throttle_ms,
-            "scrollThrottleMs": self.config.scroll_throttle_ms,
-        })
+        # 3) Event listeners (no mousemove)
+        if self.config.capture_events:
+            page.evaluate(EVENT_INIT, {
+                "scrollThrottleMs": self.config.scroll_throttle_ms,
+            })
 
     def _wait_for_user(self, page: Page) -> None:
         if self.config.duration_ms is not None:
@@ -82,13 +82,10 @@ class Recorder:
             print("Trace started. Interact with the page, then press Resume.")
             page.pause()
 
-        # Sanity check: prove the listeners are actually recording.
+        # Sanity check — proves the listeners are alive before collection
         n_ev = page.evaluate("() => (window.__events || []).length")
         n_mu = page.evaluate("() => (window.capturedMutations || []).length")
         print(f"  pre-collect: {n_ev} events, {n_mu} mutations recorded")
-        if n_ev == 0 and not self.config.headless:
-            print("  WARNING: no events captured — HELPERS_INIT / EVENT_INIT "
-                  "may have failed. Check [pageerror] lines above.")
 
     def save(self, payload: dict, stamp: str | None = None) -> tuple[str, str]:
         stamp = stamp or timestamp()

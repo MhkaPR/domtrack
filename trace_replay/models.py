@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Optional
 
 
 @dataclass
@@ -49,8 +49,8 @@ class Mutation:
     new_value: Optional[str] = None
     added: list[NodeInfo] = field(default_factory=list)
     removed: list[NodeInfo] = field(default_factory=list)
-    added_count: int = 0        # ← new
-    removed_count: int = 0      # ← new
+    added_count: int = 0
+    removed_count: int = 0
 
     @classmethod
     def from_dict(cls, d: dict) -> "Mutation":
@@ -72,48 +72,6 @@ class Mutation:
             removed_count=int(rc_raw) if rc_raw is not None else len(removed),
         )
 
-@dataclass
-class TraceMeta:
-    url: str
-    viewport: dict[str, int]
-    title: Optional[str] = None
-    captured_at: Optional[str] = None
-
-    @classmethod
-    def from_dict(cls, d: Optional[dict]) -> "TraceMeta":
-        d = d or {}
-        vp = d.get("viewport") or {}
-        width = int(vp.get("width") or vp.get("w") or 1440)
-        height = int(vp.get("height") or vp.get("h") or 900)
-        return cls(
-            url=d.get("url", ""),
-            viewport={"width": width, "height": height},
-            title=d.get("title"),
-            captured_at=d.get("capturedAt"),
-        )
-
-
-@dataclass
-class Trace:
-    meta: TraceMeta
-    mutations: list[Mutation]
-    events: list[Event] = field(default_factory=list)   # ← NEW
-
-    @classmethod
-    def load(cls, path: str) -> "Trace":
-        with open(path, encoding="utf-8") as f:
-            raw = json.load(f)
-        return cls(
-            meta=TraceMeta.from_dict(raw.get("meta")),
-            mutations=[Mutation.from_dict(m) for m in raw.get("mutations", [])],
-            events=[Event.from_dict(e) for e in raw.get("events", [])],   # ← THE FIX
-        )
-
-    def group_by_time(self) -> dict[int, list[Mutation]]:
-        by_t: dict[int, list[Mutation]] = defaultdict(list)
-        for m in self.mutations:
-            by_t[m.t].append(m)
-        return dict(by_t)
 
 @dataclass
 class EventTarget:
@@ -194,3 +152,47 @@ class Event:
             alt=bool(m.get("alt", False)),
             meta=bool(m.get("meta", False)),
         )
+
+
+@dataclass
+class TraceMeta:
+    url: str
+    viewport: dict[str, int]
+    title: Optional[str] = None
+    captured_at: Optional[str] = None
+
+    @classmethod
+    def from_dict(cls, d: Optional[dict]) -> "TraceMeta":
+        d = d or {}
+        vp = d.get("viewport") or {}
+        width = int(vp.get("width") or vp.get("w") or 1440)
+        height = int(vp.get("height") or vp.get("h") or 900)
+        return cls(
+            url=d.get("url", ""),
+            viewport={"width": width, "height": height},
+            title=d.get("title"),
+            captured_at=d.get("capturedAt"),
+        )
+
+
+@dataclass
+class Trace:
+    meta: TraceMeta
+    mutations: list[Mutation]
+    events: list[Event] = field(default_factory=list)
+
+    @classmethod
+    def load(cls, path: str) -> "Trace":
+        with open(path, encoding="utf-8") as f:
+            raw = json.load(f)
+        return cls(
+            meta=TraceMeta.from_dict(raw.get("meta")),
+            mutations=[Mutation.from_dict(m) for m in raw.get("mutations", [])],
+            events=[Event.from_dict(e) for e in raw.get("events", [])],
+        )
+
+    def group_by_time(self) -> dict[int, list[Mutation]]:
+        by_t: dict[int, list[Mutation]] = defaultdict(list)
+        for m in self.mutations:
+            by_t[m.t].append(m)
+        return dict(by_t)

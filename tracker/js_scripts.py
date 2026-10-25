@@ -129,6 +129,7 @@ INIT_TEMPLATE = r"""
 }
 """
 
+
 COLLECT_SCRIPT = """
 () => {
     if (window.scrapeObserver) window.scrapeObserver.disconnect();
@@ -193,31 +194,44 @@ EVENT_INIT = r"""
     };
 
     const push = (kind, e) => {
-        const entry = { t: Math.round(performance.now() - t0), kind };
-        const el = e.target;
-        if (el && el.nodeType === 1) entry.target = targetInfo(el);
-        if ('clientX' in e) {
-            entry.clientX = Math.round(e.clientX);
-            entry.clientY = Math.round(e.clientY);
+        try {
+            const entry = { t: Math.round(performance.now() - t0), kind };
+            const el = e.target;
+            if (el && el.nodeType === 1) {
+                try {
+                    entry.target = targetInfo(el);
+                } catch (_) {
+                    entry.target = null;
+                }
+            }
+            if ('clientX' in e) {
+                entry.clientX = Math.round(e.clientX);
+                entry.clientY = Math.round(e.clientY);
+            }
+            entry.modifiers = {
+                ctrl: !!e.ctrlKey, shift: !!e.shiftKey,
+                alt: !!e.altKey,  meta: !!e.metaKey,
+            };
+            if (kind === 'keydown' || kind === 'keyup') {
+                entry.key = e.key; entry.code = e.code; entry.repeat = !!e.repeat;
+            }
+            if (kind === 'input' || kind === 'change') {
+                entry.value = (el && el.value !== undefined) ? el.value : null;
+            }
+            if (kind === 'mousedown' || kind === 'mouseup' || kind === 'click'
+                || kind === 'dblclick' || kind === 'contextmenu') {
+                entry.button = e.button; entry.buttons = e.buttons;
+            }
+            if (kind === 'wheel') { entry.deltaX = e.deltaX; entry.deltaY = e.deltaY; }
+            window.__events.push(entry);
+        } catch (_) {
+            // never let a listener exception silently drop a real event
         }
-        entry.modifiers = {
-            ctrl: !!e.ctrlKey, shift: !!e.shiftKey,
-            alt: !!e.altKey,  meta: !!e.metaKey,
-        };
-        if (kind === 'keydown' || kind === 'keyup') {
-            entry.key = e.key; entry.code = e.code; entry.repeat = !!e.repeat;
-        }
-        if (kind === 'input' || kind === 'change') {
-            entry.value = (el && el.value !== undefined) ? el.value : null;
-        }
-        if (kind === 'mousedown' || kind === 'mouseup' || kind === 'click'
-            || kind === 'dblclick' || kind === 'contextmenu') {
-            entry.button = e.button; entry.buttons = e.buttons;
-        }
-        if (kind === 'wheel') { entry.deltaX = e.deltaX; entry.deltaY = e.deltaY; }
-        window.__events.push(entry);
     };
 
+    // NOTE: 'mousemove' is deliberately NOT captured — it produces the
+    // most entries per second with the least semantic value, and Playwright
+    // synthesizes its own mousemove for every click coordinate anyway.
     const kinds = [
         'click', 'dblclick', 'contextmenu',
         'mousedown', 'mouseup',
@@ -230,16 +244,7 @@ EVENT_INIT = r"""
         document.addEventListener(k, (e) => push(k, e), { capture: true, passive: true });
     }
 
-    // Mousemove — throttled to ~25 Hz
-    let lastMove = 0;
-    document.addEventListener('mousemove', (e) => {
-        const now = performance.now();
-        if (now - lastMove < config.moveThrottleMs) return;
-        lastMove = now;
-        push('mousemove', e);
-    }, { capture: true, passive: true });
-
-    // Scroll — throttled to ~10 Hz (captures bubbling element scrolls too)
+    // Scroll — throttled
     let lastScroll = 0;
     document.addEventListener('scroll', (e) => {
         const now = performance.now();
@@ -258,6 +263,7 @@ EVENT_INIT = r"""
     }, { capture: true, passive: true });
 }
 """
+
 
 def build_init_script(cfg: TracerConfig) -> str:
     return INIT_TEMPLATE % {

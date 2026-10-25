@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 
 
 DEFAULT_DYNAMIC_CLASSES: tuple[str, ...] = (
-
+    "d-none", "d-tablecell", "d-block", "active", "addctived",
+    "show", "hidden", "fade", "collapse", "collapsing", "open", "closed",
 )
 
 
@@ -25,15 +26,13 @@ class TracerConfig:
     max_nodes: int = 50
     dynamic_classes: tuple[str, ...] = DEFAULT_DYNAMIC_CLASSES
 
-    # Recording mode: None → interactive page.pause(); int → auto-stop after N ms
-    duration_ms: int | None = None
-
-
+    # Event capture — mousemove intentionally excluded
     capture_events: bool = True
-    move_throttle_ms: int = 40
     scroll_throttle_ms: int = 100
 
-    
+    # Recording mode
+    duration_ms: int | None = None
+
     output_dir: str = "traces"
 
     def __post_init__(self) -> None:

@@ -1,14 +1,13 @@
-# trace_replay/event_replayer.py
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+
 from playwright.sync_api import Page
 
 from .models import Event
 from .timing import TimeContext, TimePolicy
 
 
-# Playwright expects these exact names for special keys
 _KEY_MAP: dict[str, str] = {
     " ": "Space", "Esc": "Escape", "Del": "Delete",
     "Left": "ArrowLeft", "Right": "ArrowRight",
@@ -31,7 +30,7 @@ class EventReplayer:
         self.policy = policy
         self.stats = EventReplayStats()
 
-    # ── public ──────────────────────────────────────────────
+    # ── public ───────────────────────────────────────────────
 
     def replay(self, page: Page) -> EventReplayStats:
         prev_t = 0
@@ -51,23 +50,19 @@ class EventReplayer:
                 self.stats.failures.append(f"t={ev.t} {ev.kind}: {e}")
         return self.stats
 
-    # ── dispatch ────────────────────────────────────────────
-
     def _dispatch(self, page: Page, ev: Event) -> None:
         handler = getattr(self, f"_on_{ev.kind}", None)
         if handler is None:
-            return  # unsupported event kind — silently skip
+            return
         handler(page, ev)
 
-    # ── pointer ─────────────────────────────────────────────
-
-    def _on_mousemove(self, page: Page, ev: Event) -> None:
-        if ev.client_x is None or ev.client_y is None:
-            return
-        page.mouse.move(ev.client_x, ev.client_y)
-
-    def _on_pointermove(self, page: Page, ev: Event) -> None:
-        self._on_mousemove(page, ev)
+    # ── pointer ──────────────────────────────────────────────
+    # Only mouse.down() / mouse.up() are dispatched. Chromium then fires
+    # the full gesture (pointerdown, mousedown for the former;
+    # pointerup, mouseup, click for the latter). Adding explicit
+    # _on_click / _on_dblclick / _on_contextmenu handlers would fire
+    # the gesture a second time. mousemove and pointermove are not
+    # captured at all (see js_scripts.EVENT_INIT).
 
     def _on_mousedown(self, page: Page, ev: Event) -> None:
         if ev.client_x is not None:
@@ -79,46 +74,23 @@ class EventReplayer:
         self._with_modifiers(page, ev, lambda: page.mouse.up(
             button=_BUTTON_NAME.get(ev.button or 0, "left")))
 
-    def _on_click(self, page: Page, ev: Event) -> None:
-        if ev.client_x is None or ev.client_y is None:
-            return
-        page.mouse.move(ev.client_x, ev.client_y)
-        self._with_modifiers(page, ev, lambda: page.mouse.click(
-            ev.client_x, ev.client_y,
-            button=_BUTTON_NAME.get(ev.button or 0, "left"),
-        ))
-
-    def _on_dblclick(self, page: Page, ev: Event) -> None:
-        if ev.client_x is None:
-            return
-        page.mouse.move(ev.client_x, ev.client_y)
-        self._with_modifiers(page, ev,
-            lambda: page.mouse.dblclick(ev.client_x, ev.client_y))
-
-    def _on_contextmenu(self, page: Page, ev: Event) -> None:
-        if ev.client_x is None:
-            return
-        page.mouse.move(ev.client_x, ev.client_y)
-        page.mouse.click(ev.client_x, ev.client_y, button="right")
-
     def _on_wheel(self, page: Page, ev: Event) -> None:
         page.mouse.wheel(ev.delta_x or 0, ev.delta_y or 0)
 
-    # ── keyboard ────────────────────────────────────────────
+    # ── keyboard ─────────────────────────────────────────────
 
     def _on_keydown(self, page: Page, ev: Event) -> None:
         if ev.repeat:
-            return  # already held; Playwright would double-press
+            return
         page.keyboard.down(_KEY_MAP.get(ev.key or "", ev.key or ""))
 
     def _on_keyup(self, page: Page, ev: Event) -> None:
         page.keyboard.up(_KEY_MAP.get(ev.key or "", ev.key or ""))
 
-    # ── input / form ────────────────────────────────────────
+    # ── input / form ─────────────────────────────────────────
 
     def _on_input(self, page: Page, ev: Event) -> None:
-        # Keydown events already regenerate the input; this is a safety net
-        # for paste / autofill / IME where no keydowns were recorded.
+        # Safety net for IME / paste where no keydowns were recorded
         if ev.value is None or ev.target is None or not ev.target.selector:
             return
         try:
@@ -129,10 +101,10 @@ class EventReplayer:
             pass
 
     def _on_change(self, page: Page, ev: Event) -> None:
-        # change fires after blur/enter; page produces it automatically.
+        # change is synthesized by the browser after blur/enter
         pass
 
-    # ── scroll ──────────────────────────────────────────────
+    # ── scroll ───────────────────────────────────────────────
 
     def _on_scroll(self, page: Page, ev: Event) -> None:
         if ev.is_document_scroll:
@@ -150,7 +122,7 @@ class EventReplayer:
             [sel, ev.scroll_x or 0, ev.scroll_y or 0],
         )
 
-    # ── helpers ─────────────────────────────────────────────
+    # ── helpers ──────────────────────────────────────────────
 
     @staticmethod
     def _with_modifiers(page: Page, ev: Event, fn) -> None:

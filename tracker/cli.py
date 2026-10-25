@@ -10,7 +10,7 @@ from .recorder import Recorder
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="trace_capture",
-        description="Capture DOM mutations from a live page via Playwright.",
+        description="Capture DOM mutations and user events from a live page.",
     )
     p.add_argument("url", help="URL to open and trace")
     p.add_argument("-s", "--selector", default=None,
@@ -28,16 +28,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--max-text", type=int, default=500)
     p.add_argument("--max-html", type=int, default=2000)
     p.add_argument("--max-nodes", type=int, default=50)
+    p.add_argument("--scroll-throttle-ms", type=int, default=100,
+                   help="Scroll throttle in ms (default: 100)")
+    p.add_argument("--no-events", action="store_true",
+                   help="Disable event capture (mutations only)")
     p.add_argument("--dynamic-class", action="append", default=None,
                    help="Dynamic class name (repeatable; overrides defaults)")
-    p.add_argument("--no-events", action="store_true",
-               help="Disable event capture (mutations only)")
-    p.add_argument("--no-mutations", action="store_true",
-                help="Disable mutation capture (events only)")
-    p.add_argument("--move-throttle-ms", type=int, default=40,
-                help="Mousemove throttle in ms (default: 40 = ~25 Hz)")
-    p.add_argument("--scroll-throttle-ms", type=int, default=100,
-                help="Scroll throttle in ms (default: 100 = 10 Hz)")
     return p
 
 
@@ -61,6 +57,8 @@ def main(argv: list[str] | None = None) -> int:
         max_html=args.max_html,
         max_nodes=args.max_nodes,
         dynamic_classes=dynamic_classes,
+        capture_events=not args.no_events,
+        scroll_throttle_ms=args.scroll_throttle_ms,
         duration_ms=duration_ms,
         output_dir=args.output_dir,
     )
