@@ -41,7 +41,7 @@ class ReplayStats:
 class ReplayConfig:
     speed: float = 1.0
     mode: str = "all"
-    replay_mode: str = "events"            # ← NEW: events | mutations | both
+    replay_mode: str = "events"
     structure_only: bool = False
     time_policy: str = "skip-aware"
     gap_cap_ms: int | None = None
@@ -49,7 +49,8 @@ class ReplayConfig:
     headless: bool = False
     wait_for_ids_ms: int = 2000
     close_delay_ms: int = 5000
-    wait_before_replay_ms: int = 0         # ← NEW: pause after load, before events
+    wait_before_replay_ms: int = 0
+    skip_events: tuple[str, ...] = ()          # ← NEW
 
     def __post_init__(self):
         if self.mode not in ("all", "clean"):
@@ -164,18 +165,20 @@ class Replayer:
     # ── orchestrator ──
 
     def _replay(self, page: Page) -> None:
-        if self.config.replay_mode in ("events", "both") and self.trace.events:
-            print(f"Replaying {len(self.trace.events)} events...")
-            ev_replayer = EventReplayer(self.trace.events, self._policy)
-            ev_stats = ev_replayer.replay(page)
-            print(
-                f"  Events applied: {ev_stats.applied} | "
-                f"failed: {ev_stats.failed}"
-            )
-            for f in ev_stats.failures[:5]:
-                print(f"    ! {f}")
-        elif self.config.replay_mode in ("events", "both"):
-            print("No events in trace — skipping event replay.")
+        if self.config.replay_mode in ("events", "both"):
+            events = self._select_events()
+            if events:
+                print(f"Replaying {len(events)} events...")
+                ev_replayer = EventReplayer(events, self._policy)
+                ev_stats = ev_replayer.replay(page)
+                print(
+                    f"  Events applied: {ev_stats.applied} | "
+                    f"failed: {ev_stats.failed}"
+                )
+                for f in ev_stats.failures[:5]:
+                    print(f"    ! {f}")
+            else:
+                print("No events to replay.")
 
         if self.config.replay_mode == "mutations":
             self._replay_mutations_only(page)
@@ -186,6 +189,22 @@ class Replayer:
             delay_s = self.config.close_delay_ms / 1000
             print(f"\nReplay finished. Browser closes in {delay_s:.0f}s...")
             page.wait_for_timeout(self.config.close_delay_ms)
+
+    def _select_events(self):
+        all_events = self.trace.events
+        if not all_events:
+            return []
+        skip = set(self.config.skip_events)
+        if not skip:
+            return all_events
+        kept = [e for e in all_events if e.kind not in skip]
+        dropped = len(all_events) - len(kept)
+        if dropped:
+            print(
+                f"Filtered out {dropped} event(s) — "
+                f"skipped kinds: {', '.join(sorted(skip))}"
+            )
+        return kept
 
     # ── legacy: force-apply mutations (kept for 'mutations' mode) ──
 
@@ -293,6 +312,8 @@ class Replayer:
         s = self.stats
         print("\n" + "=" * 60)
         print(f"Mode    : {self.config.replay_mode}")
+        if self.config.skip_events:
+            print(f"Skip    : {', '.join(self.config.skip_events)}")
         print(f"Applied : {s.applied}")
         print(f"Skipped : {s.skipped}")
         if s.skip_reasons:

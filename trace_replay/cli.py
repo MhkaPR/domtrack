@@ -11,11 +11,11 @@ from .third_party import ThirdPartyDetector
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="trace_replay",
-        description="Replay a MutationObserver trace on a live page.",
+        description="Replay a captured trace on a live page.",
     )
     p.add_argument("trace_file", help="Path to trace JSON file")
     p.add_argument("-s", "--speed", type=float, default=1.0,
-                   help="Speed multiplier for the faithful policy (default: 1.0)")
+                   help="Speed multiplier (default: 1.0)")
     p.add_argument("-m", "--mode", choices=("all", "clean"), default="all",
                    help="'clean' skips third-party widgets")
     p.add_argument("--structure-only", action="store_true",
@@ -38,16 +38,22 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Keep browser open after replay before closing.")
     p.add_argument("--third-party-hint", action="append", default=[],
                    help="Extra third-party widget name (repeatable).")
+
     p.add_argument("--replay-mode",
-               choices=("events", "mutations", "both"),
-               default="events",
-               help="'events': real interactions (default); "
-                    "'mutations': legacy DOM patching; "
-                    "'both': events + verification")
-    p.add_argument("--event-speed", type=float, default=1.0,
-                help="Speed multiplier for event replay (default: 1.0)")
-    p.add_argument("--wait-before-replay-ms", type=int, default=2000,
-                help="Stabilization wait after page load before events (default: 2000)")
+                   choices=("events", "mutations", "both"),
+                   default="events",
+                   help="'events': real interactions (default); "
+                        "'mutations': legacy DOM patching; "
+                        "'both': events + mutation verification")
+    p.add_argument("--wait-before-replay-ms", type=int, default=0,
+                   help="Pause after page load before replay (default: 0)")
+
+    p.add_argument("--skip-event", action="append", default=[],
+                   metavar="KIND",
+                   help="Do not replay events of this kind (repeatable). "
+                        "Common: scroll, wheel, mousedown, mouseup, "
+                        "keydown, keyup, input. "
+                        "Example: --skip-event scroll --skip-event wheel")
     return p
 
 
@@ -67,13 +73,30 @@ def main(argv: list[str] | None = None) -> int:
         print("ERROR: URL not found in trace", file=sys.stderr)
         return 1
 
+    skip = tuple(args.skip_event)
+    if any(k in ("mousedown", "mouseup") for k in skip):
+        print(
+            "WARNING: skipping mousedown/mouseup prevents click generation "
+            "on the page — buttons and links will not fire.",
+            file=sys.stderr,
+        )
+    if any(k in ("keydown", "keyup") for k in skip):
+        print(
+            "WARNING: skipping keydown/keyup prevents text input and "
+            "shortcut handling on the page.",
+            file=sys.stderr,
+        )
+
     print(f"File      : {args.trace_file}")
     print(f"URL       : {trace.meta.url}")
     print(
         f"Mutations : {len(trace.mutations)} | "
+        f"Events    : {len(trace.events)} | "
         f"speed={args.speed}x | mode={args.mode} | "
-        f"time={args.time_policy}"
+        f"time={args.time_policy} | replay={args.replay_mode}"
     )
+    if skip:
+        print(f"Skip      : {', '.join(skip)}")
     if args.structure_only:
         print("Filter    : structure-only")
     if args.gap_cap_ms is not None:
@@ -83,6 +106,7 @@ def main(argv: list[str] | None = None) -> int:
     config = ReplayConfig(
         speed=args.speed,
         mode=args.mode,
+        replay_mode=args.replay_mode,
         structure_only=args.structure_only,
         time_policy=args.time_policy,
         gap_cap_ms=args.gap_cap_ms,
@@ -90,6 +114,8 @@ def main(argv: list[str] | None = None) -> int:
         headless=args.headless,
         wait_for_ids_ms=args.wait_for_ids_ms,
         close_delay_ms=0 if args.no_close_delay else args.close_delay_ms,
+        wait_before_replay_ms=args.wait_before_replay_ms,
+        skip_events=skip,
     )
     detector = ThirdPartyDetector(hints=args.third_party_hint or None)
     replayer = Replayer(trace, config=config, third_party_detector=detector)
