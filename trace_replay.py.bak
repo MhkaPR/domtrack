@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+"""
+trace_replay.py — Generic replay of a MutationObserver trace.
+Works on any site without hardcoded class lists.
+"""
+import json
+import re
+import sys
+import time
+from collections import defaultdict
+from playwright.sync_api import sync_playwright
+
+TRACE_FILE = sys.argv[1] if len(sys.argv) > 1 else "trace.json"
+SPEED      = float(sys.argv[2]) if len(sys.argv) > 2 else 1.0
+MODE       = sys.argv[3] if len(sys.argv) > 3 else "all"  # "clean" skips third-party
+
+THIRD_PARTY_HINTS = [
+]
+
+def is_third_party(sel, el_id=''):
+    text = ((sel or '') + ' ' + (el_id or '')).lower()
+    return any(h in text for h in THIRD_PARTY_HINTS)
+
+def mutation_dynamic_classes(m):
+    """Classes added/removed by this class-mutation."""
+    if m.get('type') != 'attributes' or m.get('attributeName') != 'class':
+        return set()
+    old = set((m.get('oldValue') or '').split())
+    new = set((m.get('newValue') or '').split())
+    return old.symmetric_difference(new)
+
+def strip_classes(sel, classes):
+    """Remove only the specified classes from a selector."""
+    if not sel or not classes:
+        return sel
+    out = []
+    for part in sel.split(' > '):
+        for cls in classes:
+            part = re.sub(rf'\.{re.escape(cls)}(?=[.:#\s>]|$)', '', part)
+        if part.strip('.'):
+            out.append(part)
+    return ' > '.join(out) if out else None
+
+def strip_all_classes(sel):
+    """Universal fallback: strip every .class token."""
+    if not sel:
+        return None
+    out = []
+    for part in sel.split(' > '):
+        stripped = re.sub(r'\.[\w-]+', '', part)
+        if stripped and stripped != '.':
+            out.append(stripped)
+    return ' > '.join(out) if out else None
+
+def find_element(page, m):
+    target = m.get('target') or {}
+    sel = target.get('selector')
+    tag = (target.get('tag') or '').lower()
+
+    # 1) By id
+    if target.get('id'):
+        try:
+            el = page.query_selector('#' + target['id'])
+            if el:
+                return el, 'id'
+        except Exception:
+            pass
+
+    # 2) Original selector
+    if sel:
+        try:
+            el = page.query_selector(sel)
+            if el:
+                return el, 'orig'
+        except Exception:
+            pass
+
+    # 3) Strip only the classes that changed in THIS mutation
+    dyn = mutation_dynamic_classes(m)
+    if sel and dyn:
+        san = strip_classes(sel, dyn)
+        if san and san != sel:
+            try:
+                els = page.query_selector_all(san)
+                if len(els) == 1:
+                    return els[0], 'dyn'
+                if tag:
+                    tm = [e for e in els if e.evaluate('(n) => n.tagName.toLowerCase()') == tag]
+                    if len(tm) == 1:
+                        return tm[0], 'dyn+tag'
+            except Exception:
+                pass
+
+    # 4) Universal fallback: strip all classes
+    if sel:
+        stripped = strip_all_classes(sel)
+        if stripped and stripped != sel:
+            try:
+                els = page.query_selector_all(stripped)
+                if len(els) == 1:
+                    return els[0], 'all'
+                if tag:
+                    tm = [e for e in els if e.evaluate('(n) => n.tagName.toLowerCase()') == tag]
+                    if len(tm) == 1:
+                        return tm[0], 'all+tag'
+            except Exception:
+                pass
+
+    return None, None
+
+def apply_attributes(page, m):
+    el, how = find_element(page, m)
+    if not el:
+        return False, 'not found', None
+    attr    = m.get('attributeName')
+    new_val = m.get('newValue')
+    try:
+        if attr == 'class':
+            old_set = set((m.get('oldValue') or '').split())
+            new_set = set((new_val or '').split())
+            add     = list(new_set - old_set)
+            remove  = list(old_set - new_set)
+            if add or remove:
+                el.evaluate(
+                    '(n, p) => { p[0].forEach(c => n.classList.add(c)); p[1].forEach(c => n.classList.remove(c)); }',
+                    [add, remove]
+                )
+        else:
+            if new_val is None:
+                el.evaluate('(n, a) => n.removeAttribute(a)', attr)
+            else:
+                el.evaluate('(n, p) => n.setAttribute(p[0], p[1])', [attr, new_val])
+        return True, how, None
+    except Exception as e:
+        return False, how or 'apply-error', str(e)[:80]
+
+def apply_child_list(page, m):
+    removed = m.get('removed') or []
+    added   = m.get('added')   or []
+    errors  = []
+
+    for r in removed:
+        if not r:
+            continue
+        query = ('#' + r['id']) if r.get('id') else r.get('selector')
+        if not query:
+            continue
+        try:
+            page.evaluate(
+                '(s) => { const e = document.querySelector(s); if (e) e.remove(); }',
+                query
+            )
+        except Exception as e:
+            errors.append(str(e)[:80])
+
+    for a in added:
+        if not a:
+            continue
+        aid = a.get('id')
+        if aid:
+            try:
+                if page.query_selector('#' + aid):
+                    continue  # already present
+            except Exception:
+                pass
+        html = a.get('html')
+        if not html:
+            continue
+        target_sel = (m.get('target') or {}).get('selector')
+        if not target_sel:
+            continue
+        try:
+            page.evaluate("""
+                ([pSel, html]) => {
+                    const parent = document.querySelector(pSel);
+                    if (!parent) return;
+                    const tmp = document.createElement('template');
+                    tmp.innerHTML = html.trim();
+                    if (tmp.content.firstChild) parent.appendChild(tmp.content.firstChild);
+                }
+            """, [target_sel, html])
+        except Exception as e:
+            errors.append(str(e)[:80])
+
+    msg = f"rem={len(removed)} add={len(added)}"
+    if errors:
+        msg += f" err={errors[0]}"
+    return not errors, msg, None
+
+def apply_char_data(page, m):
+    el, how = find_element(page, m)
+    if not el:
+        return False, 'not found', None
+    try:
+        el.evaluate(
+            '(n, v) => { const c = n.firstChild; if (c && c.nodeType === 3) c.nodeValue = v; }',
+            m.get('newValue', '')
+        )
+        return True, how, None
+    except Exception as e:
+        return False, how or 'apply-error', str(e)[:80]
+
+def wait_for_target_ids(page, mutations, timeout_ms=2000):
+    ids = set()
+    for m in mutations:
+        tid = (m.get('target') or {}).get('id')
+        if not tid or is_third_party('', tid):
+            continue
+        ids.add(tid)
+    if not ids:
+        return
+    print(f"Waiting up to {timeout_ms}ms for {len(ids)} target IDs...")
+    deadline = time.time() + timeout_ms / 1000.0
+    missing = set(ids)
+    while missing and time.time() < deadline:
+        for tid in list(missing):
+            try:
+                if page.query_selector('#' + tid):
+                    missing.discard(tid)
+            except Exception:
+                pass
+        if missing:
+            page.wait_for_timeout(100)
+    if missing:
+        print(f"  Note: {len(missing)} IDs absent at start (may be created by replay)")
+    else:
+        print("  All target IDs present.")
+
+def main():
+    with open(TRACE_FILE, encoding='utf-8') as f:
+        trace = json.load(f)
+
+    meta      = trace.get('meta', {})
+    mutations = trace.get('mutations', [])
+    url       = meta.get('url')
+    if not url:
+        print('ERROR: URL not found in trace')
+        return
+
+    print(f"File      : {TRACE_FILE}")
+    print(f"URL       : {url}")
+    print(f"Mutations : {len(mutations)} | speed={SPEED}x | mode={MODE}\n")
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        vp = meta.get('viewport') or {}
+        viewport = {
+            'width':  int(vp.get('width')  or vp.get('w')  or 1440),
+            'height': int(vp.get('height') or vp.get('h')  or 900),
+        }
+        page = browser.new_page(viewport=viewport)
+
+        print("Loading page...")
+        page.goto(url, wait_until='domcontentloaded', timeout=60000)
+        try:
+            page.wait_for_load_state('networkidle', timeout=15000)
+        except Exception:
+            pass
+        page.wait_for_timeout(1500)
+        print("Page loaded.")
+
+        wait_for_target_ids(page, mutations, timeout_ms=2000)
+        print("Starting replay...\n")
+
+        by_t = defaultdict(list)
+        for m in mutations:
+            by_t[m['t']].append(m)
+        times = sorted(by_t.keys())
+
+        stats = {'ok': 0, 'fail': 0, 'skip': 0}
+        strategy_count = defaultdict(int)
+        fails = []
+        prev = 0
+
+        for i, t in enumerate(times):
+            wait_ms = max(1, int((t - prev) / SPEED))
+            page.wait_for_timeout(wait_ms)
+            prev = t
+
+            for m in by_t[t]:
+                typ = m['type']
+                target = m.get('target') or {}
+                sel = target.get('selector', '') or ''
+                el_id = target.get('id')
+
+                if MODE == 'clean' and is_third_party(sel, el_id):
+                    stats['skip'] += 1
+                    continue
+
+                if   typ == 'attributes':     ok, info, err = apply_attributes(page, m)
+                elif typ == 'childList':      ok, info, err = apply_child_list(page, m)
+                elif typ == 'characterData':  ok, info, err = apply_char_data(page, m)
+                else:                          ok, info, err = False, 'unknown', None
+
+                if ok:
+                    stats['ok'] += 1
+                    if info:
+                        strategy_count[info] += 1
+                else:
+                    if info == 'not found' and is_third_party(sel, el_id):
+                        stats['skip'] += 1
+                        continue
+                    stats['fail'] += 1
+                    fails.append((t, typ, sel[:100], info + ((': ' + err) if err else '')))
+
+            if (i + 1) % 25 == 0:
+                print(f"  [{i+1}/{len(times)}] t={t}ms  ok={stats['ok']}  fail={stats['fail']}  skip={stats['skip']}")
+
+        print("\n" + "=" * 60)
+        print(f"Applied : {stats['ok']}")
+        print(f"Skipped : {stats['skip']}  (third-party widget)")
+        print(f"Failed  : {stats['fail']}")
+        print("=" * 60)
+
+        if strategy_count:
+            print("\nLookup strategies used:")
+            for name, cnt in sorted(strategy_count.items(), key=lambda x: -x[1]):
+                print(f"  {cnt:>4}  {name}")
+
+        if fails:
+            print(f"\nRemaining failures: {len(fails)}")
+            for t, typ, sel, info in fails[:10]:
+                print(f"  t={t}ms [{typ}] {info}")
+                print(f"    {sel}")
+
+        print("\nReplay finished. Closing browser in 5 seconds...")
+        page.wait_for_timeout(5000)
+        browser.close()
+
+if __name__ == '__main__':
+    main()
