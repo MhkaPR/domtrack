@@ -22,6 +22,7 @@ from domtrack.replay import Replayer, ReplayConfig, ReplayStats
 | `close_delay_ms` | `int` | `5000` | Keep the browser open after replay |
 | `wait_before_replay_ms` | `int` | `0` | Pause after load before replaying |
 | `skip_events` | `tuple[str, ...]` | `()` | Event kinds not to replay |
+| `recording` | `RecordingConfig or None` | `None` | Record the replayed page as a trace (see below) |
 
 Validation: `mode`, `replay_mode`, and `speed` are checked in `__post_init__`.
 
@@ -59,6 +60,79 @@ replays according to the mode, and returns `ReplayStats`.
 
 `print_report()` prints applied/skipped/failed counts, skip reasons, the lookup
 strategies used, and up to ten failures.
+
+## Recording during a replay
+
+A replay is automation, so you often want to know whether it produced the same
+page a human did. Enable recording and the replay captures the live page with
+the **exact same** scripts a human capture uses (shared
+`domtrack.recorder.CaptureSession`), writing a normal domtrack trace file:
+
+```python
+from domtrack.replay import Replayer, ReplayConfig, RecordingConfig
+
+cfg = ReplayConfig(
+    speed=2.0,
+    recording=RecordingConfig(enabled=True, output_dir="traces"),
+)
+replayer = Replayer.from_file("traces/before.json", config=cfg)
+replayer.run()
+print(replayer.record_result.json_path, replayer.record_result.mutation_count)
+```
+
+Capture scripts are installed right after the page loads (before any replayed
+event), so the recorded `FullSnapshot` is the loaded page and the records are
+everything the replay caused. `replayer.record_result` is a
+`CaptureResult(json_path, csv_path, mutation_count, event_count)`.
+
+### RecordingConfig
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `enabled` | `bool` | `False` | Turn recording on |
+| `output_dir` | `str` | `"traces"` | Where to write the recorded trace |
+| `target_selector` | `str or None` | `None` | Subtree to observe (default: `body`) |
+| `capture_events` | `bool` | `False` | Also record user events (a replay generates synthetic ones) |
+| `max_text` | `int` | `500` | Max chars of text per snapshot node |
+| `max_nodes` | `int` | `50` | Max added/removed nodes per childList record |
+| `snapshot_max_depth` | `int` | `20` | Max depth of the recorded snapshot |
+| `snapshot_max_nodes` | `int` | `20000` | Max nodes in the recorded snapshot |
+| `tracer` | `TracerConfig or None` | `None` | Reuse a full capture config (wins over the trace's url/viewport) |
+
+### ReplayRecorder
+
+The lower-level primitive, if you want to drive the browser yourself:
+
+```python
+from domtrack.replay.recording import ReplayRecorder, RecordingConfig
+
+recorder = ReplayRecorder(RecordingConfig(enabled=True))
+recorder.start(page, url=trace.meta.url, viewport=trace.meta.viewport)
+#   ... drive the page ...
+result = recorder.finish_and_save(page)      # or finish(page) then save(payload)
+```
+
+## Replay → record → diff (compare)
+
+`domtrack.replay.compare` runs the whole automation loop: replay the *before*
+trace, record the automated run as an *after* trace, then content-diff the two
+(see `domtrack.diff`).
+
+```python
+from domtrack.replay import ReplayConfig, compare_replay
+
+result = compare_replay("traces/before.json", ReplayConfig(speed=2.0, headless=True))
+print(result.summary)          # replay counts + diff tallies
+print(result.after_path)       # the recorded replay trace
+for path, entry in result.diff.added:
+    print("+", path, entry.text)
+```
+
+`CompareResult` fields: `before_path`, `after_path`, `after_csv_path`, `stats`
+(`ReplayStats`), `diff` (`DiffResult`), `replay_mutations`,
+`recorded_mutations`, `recorded_events`; `summary` merges the replay counts with
+`diff.summary`. Use `compare_traces(before_path, after_path)` when you already
+have both trace files and only want the diff.
 
 ## Element lookup (`ElementLocator`)
 

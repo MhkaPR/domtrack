@@ -23,9 +23,102 @@ class CaptureResult:
     event_count: int = 0
 
 
+class CaptureSession:
+    """Install the capture scripts on a live page and collect a trace payload.
+
+    This is the piece shared by the human capture (:class:`Recorder`) and the
+    replay-time recorder (:class:`domtrack.replay.recording.ReplayRecorder`):
+    the same helpers, the same ``MutationObserver`` and event listeners, the
+    same ``COLLECT_SCRIPT``. A trace captured while a replay drives the page is
+    therefore the exact same shape as one captured by hand.
+
+    Typical use separates installation (before the page is driven) from
+    collection (afterwards)::
+
+        session = CaptureSession(config)
+        session.install(page)     # snapshot + observers start here
+        ...                       # drive the page (human or replay)
+        payload = session.build_payload(session.collect(page))
+        session.save(payload)
+    """
+
+    def __init__(self, config: TracerConfig):
+        self.config = config
+
+    def install(self, page: Page) -> None:
+        """Install helpers, the mutation observer, and event listeners."""
+        # 1) HELPERS_INIT first — defines window.__cssPath for EVENT_INIT
+        page.evaluate(HELPERS_INIT, list(self.config.dynamic_classes))
+
+        # 2) Mutation observer + full snapshot
+        page.evaluate(
+            build_init_script(self.config),
+            self.config.target_selector,
+        )
+
+        # 3) Event listeners (no mousemove)
+        if self.config.capture_events:
+            page.evaluate(EVENT_INIT, {
+                "scrollThrottleMs": self.config.scroll_throttle_ms,
+            })
+
+    def collect(self, page: Page) -> dict:
+        """Disconnect the observer and return the raw browser payload."""
+        return page.evaluate(COLLECT_SCRIPT)
+
+    def capture(self, page: Page) -> dict:
+        """Install and immediately collect (single-shot capture)."""
+        self.install(page)
+        return self.collect(page)
+
+    @staticmethod
+    def build_payload(raw: dict) -> dict:
+        """Wrap the browser payload in the rrweb-style trace layout."""
+        snapshot = raw.get("snapshot")
+        records = list(raw.get("records") or [])
+        payload: dict = {
+            "meta": raw.get("meta") or {},
+            "version": 2,
+            "snapshot": None,
+            "records": records,
+            "events": list(raw.get("events") or []),
+        }
+        if snapshot:
+            payload["snapshot"] = {
+                "type": RecordType.FULL_SNAPSHOT,
+                "node": snapshot.get("node"),
+                "initialOffset": snapshot.get("initialOffset"),
+            }
+        payload["count"] = len(records)
+        return payload
+
+    def save(
+        self, payload: dict, out_dir: str | None = None, stamp: str | None = None
+    ) -> tuple[str, str]:
+        """Write ``payload`` as JSON + CSV and return both paths."""
+        stamp = stamp or timestamp()
+        out_dir = out_dir or self.config.output_dir
+        json_path = save_json(payload, out_dir, stamp)
+        csv_path = save_csv(payload.get("records", []), out_dir, stamp)
+        return json_path, csv_path
+
+    def save_result(
+        self, payload: dict, out_dir: str | None = None, stamp: str | None = None
+    ) -> CaptureResult:
+        """Save ``payload`` and summarise it as a :class:`CaptureResult`."""
+        json_path, csv_path = self.save(payload, out_dir, stamp)
+        return CaptureResult(
+            json_path=json_path,
+            csv_path=csv_path,
+            mutation_count=payload.get("count", len(payload.get("records") or [])),
+            event_count=len(payload.get("events") or []),
+        )
+
+
 class Recorder:
     def __init__(self, config: TracerConfig):
         self.config = config
+        self.session = CaptureSession(config)
 
     def capture(self) -> dict:
         with sync_playwright() as p:
@@ -49,26 +142,13 @@ class Recorder:
 
                 self._wait_for_user(page)
 
-                payload = page.evaluate(COLLECT_SCRIPT)
+                payload = self.session.collect(page)
             finally:
                 browser.close()
         return payload
 
     def _install_capture(self, page: Page) -> None:
-        # 1) HELPERS_INIT first — defines window.__cssPath for EVENT_INIT
-        page.evaluate(HELPERS_INIT, list(self.config.dynamic_classes))
-
-        # 2) Mutation observer
-        page.evaluate(
-            build_init_script(self.config),
-            self.config.target_selector,
-        )
-
-        # 3) Event listeners (no mousemove)
-        if self.config.capture_events:
-            page.evaluate(EVENT_INIT, {
-                "scrollThrottleMs": self.config.scroll_throttle_ms,
-            })
+        self.session.install(page)
 
     def _wait_for_user(self, page: Page) -> None:
         if self.config.duration_ms is not None:
@@ -91,33 +171,10 @@ class Recorder:
     @staticmethod
     def _build_payload(raw: dict) -> dict:
         """Wrap the browser payload in the rrweb-style trace layout."""
-        snapshot = raw.get("snapshot")
-        records = list(raw.get("records") or [])
-        payload: dict = {
-            "meta": raw.get("meta") or {},
-            "version": 2,
-            "snapshot": None,
-            "records": records,
-            "events": list(raw.get("events") or []),
-        }
-        if snapshot:
-            payload["snapshot"] = {
-                "type": RecordType.FULL_SNAPSHOT,
-                "node": snapshot.get("node"),
-                "initialOffset": snapshot.get("initialOffset"),
-            }
-        payload["count"] = len(records)
-        return payload
+        return CaptureSession.build_payload(raw)
 
     def save(self, payload: dict, stamp: str | None = None) -> tuple[str, str]:
-        stamp = stamp or timestamp()
-        json_path = save_json(payload, self.config.output_dir, stamp)
-        csv_path = save_csv(
-            payload.get("records", []),
-            self.config.output_dir,
-            stamp,
-        )
-        return json_path, csv_path
+        return self.session.save(payload, stamp=stamp)
 
     def run(self) -> CaptureResult:
         raw = self.capture()

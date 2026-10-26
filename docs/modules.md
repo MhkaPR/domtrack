@@ -8,9 +8,11 @@ surface; private helpers (leading `_`) are omitted unless useful.
 Top-level package. Re-exports `TracerConfig`, the trace constants
 (`RecordType`, `IncrementalSource`, `NodeType`), and trace helpers
 (`load_raw`, `is_rrweb_trace`, `index_snapshot`, `node_to_html`,
-`to_mutation_dicts`). Provides lazy access to `domtrack.capture` and
-`domtrack.replay` via PEP 562 `__getattr__` so importing the package does not
-import Playwright. `__version__ = "2.0.0"`.
+`to_mutation_dicts`, `DomState`, `render_node`, `rebuild_html`). Provides lazy
+access to the subpackages `domtrack.capture`, `domtrack.replay`,
+`domtrack.html`, `domtrack.diff`, and `domtrack.compare` via PEP 562
+`__getattr__` so importing the package does not import Playwright.
+`__version__ = "2.0.0"`.
 
 ## `domtrack/__main__.py`
 
@@ -65,6 +67,16 @@ serializes the full snapshot once, and pushes rrweb-style records.
 class CaptureResult:
     json_path: str; csv_path: str; mutation_count: int; event_count: int = 0
 
+class CaptureSession:
+    def __init__(self, config: TracerConfig): ...
+    def install(self, page) -> None            # helpers + observer + listeners
+    def collect(self, page) -> dict            # raw browser payload
+    def capture(self, page) -> dict            # install + collect
+    @staticmethod
+    def build_payload(raw) -> dict             # rrweb-style layout
+    def save(self, payload, out_dir=None, stamp=None) -> tuple[str, str]
+    def save_result(self, payload, out_dir=None, stamp=None) -> CaptureResult
+
 class Recorder:
     def __init__(self, config: TracerConfig): ...
     def capture(self) -> dict          # raw browser payload
@@ -72,8 +84,13 @@ class Recorder:
     def run(self) -> CaptureResult
 ```
 
-`_build_payload` wraps the raw payload into `{meta, version, snapshot,
-records, events, count}`. `_install_capture` runs helpers → observer → events.
+`CaptureSession` is the shared capture core, used both by `Recorder` (human
+capture) and by `domtrack.replay.recording.ReplayRecorder` (recording during a
+replay). `install()` runs helpers → observer → events; `collect()` disconnects
+the observer and returns the payload; `build_payload()` wraps it into
+`{meta, version, snapshot, records, events, count}`. `Recorder` delegates to a
+session, and its `_build_payload`/`_install_capture` are thin shims for
+back-compat.
 
 ## `domtrack/storage.py`
 
@@ -136,8 +153,8 @@ root by concatenating its children.
 ## `domtrack/capture/__init__.py`
 
 Re-exports `TracerConfig`, `DEFAULT_DYNAMIC_CLASSES`, `Recorder`,
-`CaptureResult`, `build_init_script`, `COLLECT_SCRIPT`, `EVENT_INIT`,
-`HELPERS_INIT`, `save_json`, `save_csv`, `timestamp`.
+`CaptureResult`, `CaptureSession`, `build_init_script`, `COLLECT_SCRIPT`,
+`EVENT_INIT`, `HELPERS_INIT`, `save_json`, `save_csv`, `timestamp`.
 
 ## `domtrack/capture/cli.py`
 
@@ -225,12 +242,33 @@ Re-exports the `core` public surface.
 
 Runs `domtrack.diff.cli.main`.
 
+## `domtrack/compare/cli.py`
+
+```python
+def build_parser() -> argparse.ArgumentParser
+def main(argv=None) -> int
+```
+
+`domtrack compare` command: replays a trace, records the run, and prints the
+content diff with the original (or `--json`). Thin front-end over
+`domtrack.replay.compare.ReplayComparer`. See [cli.md](cli.md).
+
+## `domtrack/compare/__init__.py`
+
+Re-exports `build_parser` and `main` from `domtrack.compare.cli`.
+
+## `domtrack/compare/__main__.py`
+
+Runs `domtrack.compare.cli.main`.
+
 ## `domtrack/replay/__init__.py`
 
 Re-exports the replay public surface: models (`Trace`, `TraceMeta`,
 `Mutation`, `Target`, `NodeInfo`), `ElementLocator`, `ThirdPartyDetector`,
 `ApplierRegistry`, `ApplyResult`, the filters, the time policies and
-`build_policy`, and `Replayer`/`ReplayConfig`/`ReplayStats`.
+`build_policy`, `Replayer`/`ReplayConfig`/`ReplayStats`, and the recording +
+compare helpers (`RecordingConfig`, `ReplayRecorder`, `CompareResult`,
+`ReplayComparer`, `compare_replay`, `compare_traces`).
 
 ## `domtrack/replay/models.py`
 
@@ -348,7 +386,49 @@ class Replayer:
     def from_file(cls, trace_path, config=None, third_party_detector=None) -> Replayer
     def run(self) -> ReplayStats
     def print_report(self) -> None
+    recorder: ReplayRecorder | None          # set when config.recording.enabled
+    record_result: CaptureResult | None      # the recorded trace, after run()
 ```
+
+## `domtrack/replay/recording.py`
+
+```python
+@dataclass class RecordingConfig:
+    enabled, output_dir, target_selector, capture_events,
+    max_text, max_nodes, snapshot_max_depth, snapshot_max_nodes, tracer
+    def to_tracer_config(self, url, viewport=None) -> TracerConfig
+
+class ReplayRecorder:
+    def __init__(self, config=None): ...
+    def start(self, page, url, viewport=None) -> None
+    def finish(self, page) -> dict
+    def save(self, payload, stamp=None) -> CaptureResult
+    def finish_and_save(self, page, stamp=None) -> CaptureResult
+```
+
+Installs the shared capture scripts (`CaptureSession`) on a replay page before
+the replay runs and collects afterwards, producing an ordinary trace file. See
+[replay.md](replay.md#recording-during-a-replay).
+
+## `domtrack/replay/compare.py`
+
+```python
+@dataclass class CompareResult:
+    before_path, after_path, after_csv_path, stats, diff,
+    replay_mutations, recorded_mutations, recorded_events
+    summary: dict
+
+def compare_traces(before_path, after_path) -> DiffResult
+class ReplayComparer:
+    def __init__(self, before_path, replay_config=None, recording=None,
+                 third_party_detector=None): ...
+    def run(self) -> CompareResult
+def compare_replay(before_path, replay_config=None, recording=None,
+                   third_party_detector=None) -> CompareResult
+```
+
+The replay → record → diff automation loop. See
+[replay.md](replay.md#replay-record-diff-compare).
 
 ## `domtrack/replay/cli.py`
 

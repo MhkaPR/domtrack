@@ -178,6 +178,50 @@ domtrack diff traces/before.json traces/after.json --json
 domtrack diff traces/before.json traces/after.json --no-records
 ```
 
+## 9d. Replay → record → diff (automation vs. human)
+
+Replay a human capture, record what the automated run produced, and see what
+changed — all in one call:
+
+```python
+from domtrack.replay import ReplayConfig, RecordingConfig, compare_replay
+
+result = compare_replay(
+    "traces/before.json",
+    ReplayConfig(speed=2.0, headless=True),
+    RecordingConfig(output_dir="traces"),   # optional; enabled automatically
+)
+print(result.summary)          # replay_mutations, recorded_mutations, + diff
+print(result.after_path)       # the recorded replay trace
+for path, entry in result.diff.added:
+    print("+", path, entry.tag, entry.text)
+for c in result.diff.changed:
+    if c.text_changed:
+        print("~", c.path, c.old_text, "->", c.new_text)
+```
+
+Or record during a plain replay and diff afterwards:
+
+```python
+from domtrack.replay import Replayer, ReplayConfig, RecordingConfig, compare_traces
+
+cfg = ReplayConfig(recording=RecordingConfig(enabled=True, output_dir="traces"))
+replayer = Replayer.from_file("traces/before.json", config=cfg)
+replayer.run()
+print(replayer.record_result.json_path)
+
+diff = compare_traces("traces/before.json", replayer.record_result.json_path)
+print(diff.summary)
+```
+
+Command line:
+
+```bash
+domtrack compare traces/before.json --headless -s 2          # text report
+domtrack compare traces/before.json --headless --json        # JSON
+domtrack replay traces/before.json --record --record-dir traces   # record only
+```
+
 ## 10. Write your own JSON from a raw payload
 
 ```python

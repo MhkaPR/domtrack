@@ -12,6 +12,9 @@
 ``domtrack diff <A.json> <B.json>`` → content-level diff of two captures
 (delegates to ``domtrack.diff.cli``).
 
+``domtrack compare <trace.json>`` → replay, record the run, and diff it against
+the original capture (delegates to ``domtrack.compare.cli``).
+
 Each subcommand accepts the exact same flags as its standalone
 ``domtrack-*`` entry point.
 """
@@ -28,6 +31,7 @@ Commands:
   replay  <trace.json>   Replay a captured trace on the live page.
   html    <trace.json>   Rebuild the DOM as HTML at a record point (no browser).
   diff    <A> <B>        Compare two captures at the content level (no browser).
+  compare <trace.json>   Replay a trace, record the run, and diff the result.
 
 Run `domtrack <command> --help` for options.
 """
@@ -52,6 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     if command == "diff":
         from .diff.cli import main as diff_main
         return diff_main(rest)
+    if command == "compare":
+        from .compare.cli import main as compare_main
+        return compare_main(rest)
 
     print(f"Unknown command: {command}\n", file=sys.stderr)
     print(USAGE, file=sys.stderr)

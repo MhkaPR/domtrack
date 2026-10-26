@@ -12,11 +12,12 @@ from ..js_scripts import (
     build_init_script,
 )
 from ..recorder import CaptureResult, Recorder
+from ..recorder import CaptureSession
 from ..storage import save_csv, save_json, timestamp
 
 __all__ = [
     "TracerConfig", "DEFAULT_DYNAMIC_CLASSES",
-    "Recorder", "CaptureResult",
+    "Recorder", "CaptureResult", "CaptureSession",
     "build_init_script", "COLLECT_SCRIPT", "EVENT_INIT", "HELPERS_INIT",
     "save_json", "save_csv", "timestamp",
 ]

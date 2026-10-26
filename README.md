@@ -142,6 +142,27 @@ domtrack diff traces/before.json traces/after.json
 domtrack diff traces/before.json traces/after.json --json
 ```
 
+## Replay, record, and diff (automation check)
+
+Record the page a replay drives — with the same capture scripts a human
+capture uses — then diff it against the original. One call does the whole loop:
+
+```python
+from domtrack.replay import ReplayConfig, compare_replay
+
+result = compare_replay("traces/before.json", ReplayConfig(speed=2.0, headless=True))
+print(result.summary)        # replay counts + {added, removed, changed}
+print(result.after_path)     # the trace recorded from the automated run
+for path, entry in result.diff.added:
+    print("+", path, entry.text)
+```
+
+```bash
+domtrack compare traces/before.json --headless -s 2     # replay + record + diff
+domtrack compare traces/before.json --headless --json   # JSON
+domtrack replay traces/before.json --record             # record only
+```
+
 ## Documentation
 
 All docs live in [`docs/`](docs/). They are written to be read in full by an
@@ -153,8 +174,8 @@ LLM in a single pass, with stable headings and self-contained examples.
 | [`docs/architecture.md`](docs/architecture.md) | How capture and replay fit together, data flow |
 | [`docs/trace-format.md`](docs/trace-format.md) | The trace JSON contract (rrweb-style snapshot + records) |
 | [`docs/capture.md`](docs/capture.md) | `domtrack.capture`, `TracerConfig`, `Recorder`, capture JS |
-| [`docs/replay.md`](docs/replay.md) | `domtrack.replay`, `Replayer`, `ReplayConfig`, modes, filters, timing |
-| [`docs/cli.md`](docs/cli.md) | Every command-line flag for both subcommands |
+| [`docs/replay.md`](docs/replay.md) | `domtrack.replay`, `Replayer`, `ReplayConfig`, modes, filters, timing, replay recording, compare |
+| [`docs/cli.md`](docs/cli.md) | Every command-line flag for all subcommands |
 | [`docs/modules.md`](docs/modules.md) | Per-module reference for every file in the package |
 | [`docs/examples.md`](docs/examples.md) | Copy-paste recipes (record, replay, clean mode, custom policies) |
 

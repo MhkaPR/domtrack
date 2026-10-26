@@ -4,6 +4,7 @@ import argparse
 import sys
 
 from .models import Trace
+from .recording import RecordingConfig
 from .replayer import Replayer, ReplayConfig
 from .third_party import ThirdPartyDetector
 
@@ -54,6 +55,19 @@ def build_parser() -> argparse.ArgumentParser:
                         "Common: scroll, wheel, mousedown, mouseup, "
                         "keydown, keyup, input. "
                         "Example: --skip-event scroll --skip-event wheel")
+
+    p.add_argument("--record", action="store_true",
+                   help="Record the replayed page as a trace (same format as a "
+                        "human capture), written next to the trace files.")
+    p.add_argument("--record-dir", default="traces",
+                   help="Directory for the recorded replay trace (default: traces)")
+    p.add_argument("--record-selector", default="body",
+                   help="Observe only this subtree while recording (default: body)")
+    p.add_argument("--record-events", action="store_true",
+                   help="Also capture user events in the recorded trace "
+                        "(off by default: a replay generates synthetic events)")
+    p.add_argument("--record-snapshot-max-nodes", type=int, default=20000,
+                   help="Max nodes in the recorded snapshot (default: 20000)")
     return p
 
 
@@ -101,8 +115,18 @@ def main(argv: list[str] | None = None) -> int:
         print("Filter    : structure-only")
     if args.gap_cap_ms is not None:
         print(f"Gap cap   : {args.gap_cap_ms} ms")
+    if args.record:
+        print(f"Record    : {args.record_dir} "
+              f"(selector={args.record_selector or 'body'})")
     print()
 
+    recording = RecordingConfig(
+        enabled=args.record,
+        output_dir=args.record_dir,
+        target_selector=args.record_selector,
+        capture_events=args.record_events,
+        snapshot_max_nodes=args.record_snapshot_max_nodes,
+    )
     config = ReplayConfig(
         speed=args.speed,
         mode=args.mode,
@@ -116,6 +140,7 @@ def main(argv: list[str] | None = None) -> int:
         close_delay_ms=0 if args.no_close_delay else args.close_delay_ms,
         wait_before_replay_ms=args.wait_before_replay_ms,
         skip_events=skip,
+        recording=recording,
     )
     detector = ThirdPartyDetector(hints=args.third_party_hint or None)
     replayer = Replayer(trace, config=config, third_party_detector=detector)

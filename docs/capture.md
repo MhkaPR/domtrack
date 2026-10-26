@@ -53,6 +53,32 @@ result = recorder.run()          # capture + save
 
 `CaptureResult` fields: `json_path`, `csv_path`, `mutation_count`, `event_count`.
 
+### CaptureSession (shared capture core)
+
+`Recorder` is a thin driver over `CaptureSession`, which is also what records
+the page during a replay (`domtrack.replay.recording`). Install the scripts
+before driving a page and collect after:
+
+```python
+from domtrack.capture import CaptureSession
+from domtrack import TracerConfig
+
+session = CaptureSession(TracerConfig(url="https://example.com", headless=True))
+session.install(page)                    # snapshot + observers start
+#   ... drive the page (human or replay) ...
+payload = session.build_payload(session.collect(page))
+result = session.save_result(payload, out_dir="traces")
+```
+
+| Method | Behaviour |
+| --- | --- |
+| `install(page)` | Run `HELPERS_INIT`, build the observer + snapshot, attach event listeners |
+| `collect(page)` | Disconnect the observer and return the raw browser payload |
+| `capture(page)` | `install` + `collect` |
+| `build_payload(raw)` | Wrap the raw payload into the rrweb-style trace layout |
+| `save(payload, out_dir=None, stamp=None)` | Write JSON + CSV |
+| `save_result(payload, ...)` | `save` + summarise as `CaptureResult` |
+
 ### Recording modes
 
 * `duration_ms` set -> record for that long, then stop (works headless).

@@ -25,7 +25,9 @@ from .timing import (
     TimePolicy,
     build_policy,
 )
+from .recording import RecordingConfig, ReplayRecorder
 from .replayer import Replayer, ReplayConfig, ReplayStats
+from .compare import CompareResult, ReplayComparer, compare_replay, compare_traces
 
 __all__ = [
     "Trace", "TraceMeta", "Mutation", "Target", "NodeInfo",
@@ -39,6 +41,8 @@ __all__ = [
     "CappedTimePolicy", "SkipAwareTimePolicy",
     "build_policy",
     "Replayer", "ReplayConfig", "ReplayStats",
+    "RecordingConfig", "ReplayRecorder",
+    "CompareResult", "ReplayComparer", "compare_replay", "compare_traces",
 ]
 
 __version__ = "2.0.0"

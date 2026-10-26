@@ -16,6 +16,7 @@ from .filters import (
 )
 from .locators import ElementLocator
 from .models import Mutation, Trace
+from .recording import RecordingConfig, ReplayRecorder
 from .third_party import ThirdPartyDetector
 from .timing import TimeContext, TimePolicy, build_policy
 
@@ -50,7 +51,8 @@ class ReplayConfig:
     wait_for_ids_ms: int = 2000
     close_delay_ms: int = 5000
     wait_before_replay_ms: int = 0
-    skip_events: tuple[str, ...] = ()          # ← NEW
+    skip_events: tuple[str, ...] = ()
+    recording: RecordingConfig | None = None
 
     def __post_init__(self):
         if self.mode not in ("all", "clean"):
@@ -82,6 +84,10 @@ class Replayer:
             self.config.speed,
             self.config.gap_cap_ms,
         )
+        self.recorder: ReplayRecorder | None = None
+        self.record_result = None
+        if self.config.recording is not None and self.config.recording.enabled:
+            self.recorder = ReplayRecorder(self.config.recording)
 
     def _build_pre_filter(self) -> MutationFilter:
         filters: list[MutationFilter] = []
@@ -143,6 +149,14 @@ class Replayer:
         if self.config.wait_before_replay_ms > 0:
             page.wait_for_timeout(self.config.wait_before_replay_ms)
 
+        if self.recorder is not None:
+            print("Recording enabled — capture scripts installed.")
+            self.recorder.start(
+                page,
+                url=self.trace.meta.url,
+                viewport=self.trace.meta.viewport,
+            )
+
         return page
 
     def _wait_for_target_ids(self, page: Page) -> None:
@@ -198,6 +212,16 @@ class Replayer:
             self._replay_mutations_only(page)
         elif self.config.replay_mode == "both":
             self._verify_mutations(page)
+
+        if self.recorder is not None:
+            result = self.recorder.finish_and_save(page)
+            print(
+                f"  Recorded replay trace: {result.mutation_count} records, "
+                f"{result.event_count} events"
+            )
+            print(f"    JSON: {result.json_path}")
+            print(f"    CSV : {result.csv_path}")
+            self.record_result = result
 
         if self.config.close_delay_ms:
             delay_s = self.config.close_delay_ms / 1000

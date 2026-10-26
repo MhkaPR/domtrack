@@ -443,3 +443,127 @@ def test_diff_cli_text_json_and_errors(tmp_path):
     legacy = tmp_path / "legacy.json"
     legacy.write_text(json.dumps({"mutations": []}), encoding="utf-8")
     assert cli.main([str(a), str(legacy)]) == 1
+
+
+# ── replay-time recording & compare (no browser needed) ────────────────────
+
+def _raw_payload():
+    """A browser-shaped payload as COLLECT_SCRIPT would return it."""
+    return {
+        "meta": {"url": "https://example.com", "title": "t",
+                 "viewport": {"w": 1000, "h": 700}},
+        "count": 1,
+        "snapshot": {"node": {"id": 1, "type": 0, "childNodes": []},
+                     "initialOffset": {"top": 0, "left": 0}},
+        "records": [{"t": 5, "type": 3, "data": {
+            "source": 0, "type": "attributes",
+            "target": {"nodeId": 1, "tag": "BODY", "id": None, "selector": "body"},
+            "attributes": [{"id": 1, "name": "data-x", "value": "1"}]}}],
+        "events": [{"t": 1, "kind": "click"}],
+    }
+
+
+def test_capture_session_build_payload_and_save(tmp_path):
+    from domtrack.capture import CaptureSession
+    from domtrack import TracerConfig
+
+    session = CaptureSession(TracerConfig(url="https://example.com", headless=True))
+    payload = session.build_payload(_raw_payload())
+
+    # rrweb layout with a FullSnapshot wrapper + records + events.
+    assert payload["version"] == 2
+    assert payload["snapshot"]["type"] == tf.RecordType.FULL_SNAPSHOT
+    assert payload["snapshot"]["node"]["id"] == 1
+    assert payload["count"] == 1
+    assert len(payload["records"]) == 1
+    assert payload["events"][0]["kind"] == "click"
+
+    result = session.save_result(payload, out_dir=str(tmp_path), stamp="fixed")
+    assert result.mutation_count == 1
+    assert result.event_count == 1
+    written = json.loads(open(result.json_path, encoding="utf-8").read())
+    assert written["count"] == 1
+    assert tf.is_rrweb_trace(written)
+
+
+def test_recorder_uses_shared_capture_session():
+    from domtrack import TracerConfig
+    from domtrack.recorder import CaptureSession, Recorder
+
+    cfg = TracerConfig(url="https://example.com", headless=True)
+    rec = Recorder(cfg)
+    assert isinstance(rec.session, CaptureSession)
+    # The legacy static helper still delegates to the shared payload builder.
+    assert rec._build_payload(_raw_payload()) == \
+        CaptureSession.build_payload(_raw_payload())
+
+
+def test_recording_config_builds_tracer_config():
+    from domtrack.replay.recording import RecordingConfig
+
+    rc = RecordingConfig(output_dir="out", capture_events=True, max_nodes=7)
+    cfg = rc.to_tracer_config("https://x.test", viewport={"width": 800, "height": 600})
+    assert cfg.url == "https://x.test"
+    assert cfg.viewport == {"width": 800, "height": 600}
+    assert cfg.output_dir == "out"
+    assert cfg.capture_events is True
+    assert cfg.max_nodes == 7
+    assert cfg.headless is True
+
+    # An explicit tracer wins outright.
+    from domtrack import TracerConfig
+
+    explicit = TracerConfig(url="https://y.test", headless=True)
+    rc2 = RecordingConfig(tracer=explicit)
+    assert rc2.to_tracer_config("https://ignored.test") is explicit
+
+
+def test_replay_recorder_requires_start():
+    from domtrack.replay.recording import RecordingConfig, ReplayRecorder
+
+    recorder = ReplayRecorder(RecordingConfig(enabled=True))
+    with pytest.raises(RuntimeError):
+        recorder.finish(page=None)          # session not started yet
+    with pytest.raises(RuntimeError):
+        recorder.save({})
+
+
+def test_replay_config_accepts_recording():
+    from domtrack.replay.recording import RecordingConfig
+    from domtrack.replay.replayer import ReplayConfig
+
+    assert ReplayConfig().recording is None
+    rc = RecordingConfig(enabled=True, output_dir="out")
+    assert ReplayConfig(recording=rc).recording is rc
+
+
+def test_compare_traces_and_result_summary(tmp_path):
+    from domtrack.replay.compare import compare_traces
+    from domtrack.replay.compare import CompareResult
+    from domtrack.replay.replayer import ReplayStats
+    from domtrack import diff as diff_mod
+
+    a = tmp_path / "a.json"
+    b = tmp_path / "b.json"
+    a.write_text(json.dumps(_price_trace([("Bronze", "$5")])), encoding="utf-8")
+    b.write_text(json.dumps(_price_trace([("Free", "$0")])), encoding="utf-8")
+
+    result = compare_traces(str(a), str(b))
+    assert result.summary["changed"] == 2
+
+    # A non-rrweb file is rejected.
+    legacy = tmp_path / "legacy.json"
+    legacy.write_text(json.dumps({"mutations": []}), encoding="utf-8")
+    with pytest.raises(ValueError):
+        compare_traces(str(a), str(legacy))
+
+    merged = CompareResult(
+        before_path=str(a), after_path=str(b), after_csv_path=None,
+        stats=ReplayStats(applied=3, skipped=1, failed=2),
+        diff=result,
+        replay_mutations=10, recorded_mutations=4, recorded_events=0,
+    )
+    s = merged.summary
+    assert s["replay_mutations"] == 10
+    assert s["recorded_mutations"] == 4
+    assert s["changed"] == result.summary["changed"]

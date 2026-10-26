@@ -19,6 +19,8 @@ If you are an LLM answering questions about or generating code against
 | --- | --- | --- | --- |
 | Capture | `domtrack.capture` | Drive a real page, record DOM mutations + user events into a trace | yes |
 | Replay | `domtrack.replay` | Read a trace and reproduce the session on a fresh page | yes |
+| Record during replay | `domtrack.replay.recording` | Capture the replayed page as a normal trace | yes |
+| Compare | `domtrack.replay.compare` | Replay → record → diff the result vs the original | yes |
 | Rebuild | `domtrack.html` | Fold a trace into HTML at any record point | no |
 | Diff | `domtrack.diff` | Compare the content of two captures | no |
 
@@ -43,6 +45,11 @@ browser dependency and can be used standalone. The `domtrack html` and
               [Replayer] ──► events mode: real interactions
                           ──► mutations mode: forced DOM patches
                           ──► both mode: events + verification
+                    │
+                    ├─► (recording on) capture the page ──► trace_<stamp>.json
+                    │
+                    ▼
+   domtrack.replay.compare ──► diff(before, recorded) ──► CompareResult
 ```
 
 ## 3. Package map
@@ -51,7 +58,7 @@ browser dependency and can be used standalone. The `domtrack html` and
 domtrack/
 ├── __init__.py        top-level exports + lazy `capture` / `replay` access
 ├── __main__.py        `python -m domtrack`
-├── cli.py             unified `domtrack <capture|replay|html|diff>` dispatcher
+├── cli.py             unified `domtrack <capture|replay|html|diff|compare>` dispatcher
 ├── config.py          TracerConfig, DEFAULT_DYNAMIC_CLASSES   (capture config)
 ├── js_scripts.py      browser-side JS: snapshot + mutation + event capture
 ├── recorder.py        Recorder / CaptureResult — orchestrates a capture
@@ -70,6 +77,10 @@ domtrack/
 │   ├── core.py        content view + content-level DiffResult
 │   ├── cli.py         `domtrack diff` argument parser + main()
 │   └── __main__.py    `python -m domtrack.diff`
+├── compare/
+│   ├── __init__.py    compare public surface (`build_parser`, `main`)
+│   ├── cli.py         `domtrack compare` argument parser + main()
+│   └── __main__.py    `python -m domtrack.compare`
 └── replay/
     ├── __init__.py    replay public surface
     ├── cli.py         `domtrack replay` argument parser + main()
@@ -82,7 +93,9 @@ domtrack/
     ├── third_party.py ThirdPartyDetector — widget heuristics
     ├── timing.py      TimePolicy family (faithful/instant/capped/skip-aware)
     ├── event_replayer.py EventReplayer — replays user events
-    └── replayer.py    Replayer, ReplayConfig, ReplayStats, Failure
+    ├── replayer.py    Replayer, ReplayConfig, ReplayStats, Failure
+    ├── recording.py   ReplayRecorder, RecordingConfig — record the replay
+    └── compare.py     ReplayComparer, compare_replay — replay+record+diff
 ```
 
 ## 4. Public API at a glance
@@ -156,6 +169,18 @@ cfg = TracerConfig(url="https://example.com", headless=True, duration_ms=8000,
 result = Recorder(cfg).run()
 
 Replayer.from_file(result.json_path, config=ReplayConfig(speed=3.0)).run()
+```
+
+### Replay → record → diff (automation check)
+
+```python
+from domtrack.replay import ReplayConfig, compare_replay
+
+result = compare_replay("traces/before.json", ReplayConfig(speed=2.0, headless=True))
+print(result.summary)             # replay counts + {added, removed, changed}
+print(result.after_path)          # the trace recorded from the automated run
+for path, entry in result.diff.added:
+    print("+", path, entry.text)
 ```
 
 ## 6. Trace format in one paragraph

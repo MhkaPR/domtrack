@@ -1,17 +1,19 @@
 # Command line
 
-Five entry points are installed by the package:
+Six entry points are installed by the package:
 
 | Command | Equivalent |
 | --- | --- |
-| `domtrack <capture\|replay\|html\|diff> ...` | unified dispatcher (`domtrack.cli`) |
+| `domtrack <capture\|replay\|html\|diff\|compare> ...` | unified dispatcher (`domtrack.cli`) |
 | `domtrack-capture ...` | `domtrack capture` (`domtrack.capture.cli`) |
 | `domtrack-replay ...` | `domtrack replay` (`domtrack.replay.cli`) |
 | `domtrack-html ...` | `domtrack html` (`domtrack.html.cli`) |
 | `domtrack-diff ...` | `domtrack diff` (`domtrack.diff.cli`) |
+| `domtrack-compare ...` | `domtrack compare` (`domtrack.compare.cli`) |
 
 All of them also work as modules: `python -m domtrack`, `python -m domtrack.capture`,
-`python -m domtrack.replay`, `python -m domtrack.html`, `python -m domtrack.diff`.
+`python -m domtrack.replay`, `python -m domtrack.html`, `python -m domtrack.diff`,
+`python -m domtrack.compare`.
 
 ## `domtrack capture <url>`
 
@@ -70,6 +72,11 @@ Replay a captured trace on the live page.
 | `--replay-mode` | `events` | `events`/`mutations`/`both` |
 | `--wait-before-replay-ms` | `0` | Pause after page load before replay |
 | `--skip-event` | none | Do not replay this event kind (repeatable) |
+| `--record` | off | Record the replayed page as a trace (same format as capture) |
+| `--record-dir` | `traces` | Directory for the recorded replay trace |
+| `--record-selector` | `body` | Subtree to observe while recording |
+| `--record-events` | off | Also record user events in the replayed page |
+| `--record-snapshot-max-nodes` | `20000` | Max nodes in the recorded snapshot |
 
 Examples:
 
@@ -82,6 +89,9 @@ domtrack replay traces/trace_x.json --replay-mode mutations -m clean --headless
 
 # Replay events but ignore wheel/scroll noise.
 domtrack replay traces/trace_x.json --skip-event wheel --skip-event scroll
+
+# Replay and save what the automated run produced.
+domtrack replay traces/before.json --record --record-dir traces
 ```
 
 The CLI warns when `--skip-event` includes `mousedown`/`mouseup` (clicks will
@@ -153,3 +163,44 @@ domtrack diff traces/A.json traces/B.json --no-records
 `added`/`removed` are elements present only in B / only in A; `changed` are
 matched paths whose text or data attributes differ. Paths look like
 `/html[0]/body[0]/ul[0]/li[2]/h2[0]`.
+
+## `domtrack compare <BEFORE.json>`
+
+Replay a human-captured trace, **record** the automated run as a trace, and
+print the content **diff** against the original — the whole loop in one
+command, no manual capture needed.
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `BEFORE.json` (positional) | — | Human trace to replay + compare against |
+| `-s`, `--speed` | `1.0` | Replay speed multiplier |
+| `-m`, `--mode` | `all` | `clean` skips third-party widgets |
+| `--replay-mode` | `events` | `events`/`mutations`/`both` |
+| `--time-policy` | `skip-aware` | Timing strategy |
+| `--gap-cap-ms` | none | Hard cap per wait |
+| `--fast-load` | off | Skip networkidle wait |
+| `--headless` | off | Run headless |
+| `--wait-before-replay-ms` | `0` | Pause after load before replay |
+| `--close-delay-ms` | `0` | Keep the browser open after replay |
+| `--skip-event` | none | Do not replay this event kind (repeatable) |
+| `--third-party-hint` | none | Extra widget name (repeatable) |
+| `-o`, `--record-dir` | `traces` | Directory for the recorded replay trace |
+| `--record-selector` | `body` | Subtree to observe while recording |
+| `--record-events` | off | Also record user events in the replayed page |
+| `--json` | off | Emit replay counts + the diff as JSON |
+
+Exit codes: `0` ok, `1` load/run error, `130` interrupted.
+
+Examples:
+
+```bash
+# Replay, record, and show what changed vs the human capture.
+domtrack compare traces/before.json --headless -s 2
+
+# Machine-readable, recorded trace written under traces/.
+domtrack compare traces/before.json --headless --json -o traces
+```
+
+The recorded trace is an ordinary domtrack file (same format as `domtrack
+capture`), so you can also re-run `domtrack diff traces/before.json <recorded>`
+later.

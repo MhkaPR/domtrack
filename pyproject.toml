@@ -31,6 +31,7 @@ domtrack-capture = "domtrack.capture.cli:main"
 domtrack-replay = "domtrack.replay.cli:main"
 domtrack-html = "domtrack.html.cli:main"
 domtrack-diff = "domtrack.diff.cli:main"
+domtrack-compare = "domtrack.compare.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["domtrack*"]

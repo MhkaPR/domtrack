@@ -10,6 +10,7 @@ browser-free format core. The only shared artifact is the trace file.
 | Config | `domtrack.config` | — | `TracerConfig` capture settings |
 | Browser JS | `domtrack.js_scripts` | `config` | JS installed into the page to observe and record |
 | Recorder | `domtrack.recorder` | `config`, `js_scripts`, `storage`, `trace` | Launch browser, install JS, collect, write files |
+| Capture core | `domtrack.recorder.CaptureSession` | `config`, `js_scripts`, `storage` | Install/collect a trace payload on a page (shared by capture + replay recording) |
 | Storage | `domtrack.storage` | — | `save_json`, `save_csv`, `timestamp` |
 | Trace core | `domtrack.trace` | — | rrweb constants, snapshot indexing, HTML rebuild (`DomState`), conversion |
 | Content diff | `domtrack.diff.core` | `trace` | Fold two traces into content views and compare text/attributes |
@@ -21,6 +22,8 @@ browser-free format core. The only shared artifact is the trace file.
 | Timing | `domtrack.replay.timing` | — | Wait policy between records |
 | Event replay | `domtrack.replay.event_replayer` | `models`, `timing` | Replay user events |
 | Replayer | `domtrack.replay.replayer` | all of the above | Orchestrate a replay |
+| Replay recording | `domtrack.replay.recording` | `recorder`, `config` | Record the replayed page as a trace |
+| Compare | `domtrack.replay.compare` | `replayer`, `recording`, `diff` | Replay → record → diff loop |
 
 ## Capture flow
 
@@ -70,6 +73,26 @@ attributes (dropping non-data and volatile attributes/text), and reports
 `added` / `removed` / `changed`. Because the records are folded through
 `DomState`, structural inserts (childList) and text/attribute updates are all
 reflected in the diff.
+
+## Replay → record → diff
+
+Because a replay drives a real page, domtrack can capture that page exactly as
+a human capture would, then diff the two:
+
+1. `Replayer._setup_page()` loads the page; when `ReplayConfig.recording` is
+   enabled it calls `ReplayRecorder.start()`, which installs the shared
+   `CaptureSession` scripts — a fresh `FullSnapshot` plus observers are taken
+   *before* any replayed event.
+2. The replay drives the page (events / mutations / both).
+3. `ReplayRecorder.finish_and_save()` disconnects the observer, collects the
+   payload, and writes a normal trace file; the `CaptureResult` lands on
+   `Replayer.record_result`.
+4. `domtrack.replay.compare.compare_replay()` glues this together and diffs the
+   recorded *after* trace against the original *before* trace with
+   `domtrack.diff`, returning a `CompareResult`.
+
+The recorded trace is byte-compatible with a hand capture because it flows
+through the same `CaptureSession.build_payload` / `save` code path.
 
 ## Why the rrweb shape
 
