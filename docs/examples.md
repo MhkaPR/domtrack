@@ -146,6 +146,38 @@ domtrack html traces/trace_x.json --at-ms 1200 --out at_1200.html
 domtrack html snapshot.json records.json          # split inputs
 ```
 
+## 9c. Diff two captures of the same page (no browser)
+
+```python
+from domtrack import trace, diff
+
+a = trace.load_raw("traces/before.json")
+b = trace.load_raw("traces/after.json")
+
+result = diff.diff_traces(a, b)
+print(result.summary)               # a_nodes, b_nodes, added, removed, changed
+
+for path, entry in result.added:
+    print("+", path, entry.tag, entry.text)
+for path, entry in result.removed:
+    print("-", path, entry.tag, entry.text)
+for c in result.changed:
+    if c.text_changed:
+        print("~", c.path, c.old_text, "->", c.new_text)
+
+# Snapshot-only comparison, or stop each side at a given ms:
+diff.diff_traces(a, b, apply_records=False)
+diff.diff_traces(a, b, at_ms_a=1200, at_ms_b=5000)
+```
+
+From the command line, with text or JSON output:
+
+```bash
+domtrack diff traces/before.json traces/after.json
+domtrack diff traces/before.json traces/after.json --json
+domtrack diff traces/before.json traces/after.json --no-records
+```
+
 ## 10. Write your own JSON from a raw payload
 
 ```python

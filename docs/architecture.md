@@ -11,7 +11,8 @@ browser-free format core. The only shared artifact is the trace file.
 | Browser JS | `domtrack.js_scripts` | `config` | JS installed into the page to observe and record |
 | Recorder | `domtrack.recorder` | `config`, `js_scripts`, `storage`, `trace` | Launch browser, install JS, collect, write files |
 | Storage | `domtrack.storage` | — | `save_json`, `save_csv`, `timestamp` |
-| Trace core | `domtrack.trace` | — | rrweb constants, snapshot indexing, HTML rebuild, conversion |
+| Trace core | `domtrack.trace` | — | rrweb constants, snapshot indexing, HTML rebuild (`DomState`), conversion |
+| Content diff | `domtrack.diff.core` | `trace` | Fold two traces into content views and compare text/attributes |
 | Replay models | `domtrack.replay.models` | `trace` | Dataclasses for a loaded trace |
 | Locator | `domtrack.replay.locators` | `models`, `selectors` | Find a mutation's element (id → selector → stripped classes) |
 | Appliers | `domtrack.replay.appliers` | `models`, `locators` | Apply a mutation to the live DOM |
@@ -53,6 +54,23 @@ carry ids and the minimal reference needed to re-locate the element
 4. `ReplayStats` accumulates applied/skipped/failed counts; `print_report()`
    renders them.
 
+## Offline reconstruction & diff
+
+Both are browser-free and reuse the same folding core
+(`domtrack.trace.DomState`):
+
+1. `DomState.from_trace(raw)` seeds the tree from the `FullSnapshot`.
+2. `apply_up_to(records, at_ms)` folds the incremental records (no duplicates:
+   re-adds are skipped, moves are detached first, removals unregister nodes).
+3. `to_html()` serializes the state — this is `domtrack html`.
+
+`domtrack diff` builds one such state per capture, reduces each to a path-keyed
+content view (`domtrack.diff.core.content_view`) of element text + data
+attributes (dropping non-data and volatile attributes/text), and reports
+`added` / `removed` / `changed`. Because the records are folded through
+`DomState`, structural inserts (childList) and text/attribute updates are all
+reflected in the diff.
+
 ## Why the rrweb shape
 
 The 1.x format embedded, in every record, the target's text (up to 500 chars),
@@ -70,3 +88,7 @@ identical.
 * **Filtering** — subclass `MutationFilter`; compose with `CompositeFilter`.
 * **Third-party detection** — pass `hints=[...]` to `ThirdPartyDetector`.
 * **Element lookup** — extend `ElementLocator.find()` with new strategies.
+* **Content filters** — the diff's non-data/volatile attribute and text rules
+  are plain module constants (`domtrack.diff.core.NON_DATA_ATTRS`,
+  `VOLATILE_ATTR_NAME`, `VOLATILE_TEXT`); adjust them or pass your own view to
+  `diff_views`.

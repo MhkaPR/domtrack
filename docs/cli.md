@@ -1,16 +1,17 @@
 # Command line
 
-Four entry points are installed by the package:
+Five entry points are installed by the package:
 
 | Command | Equivalent |
 | --- | --- |
-| `domtrack <capture\|replay\|html> ...` | unified dispatcher (`domtrack.cli`) |
+| `domtrack <capture\|replay\|html\|diff> ...` | unified dispatcher (`domtrack.cli`) |
 | `domtrack-capture ...` | `domtrack capture` (`domtrack.capture.cli`) |
 | `domtrack-replay ...` | `domtrack replay` (`domtrack.replay.cli`) |
 | `domtrack-html ...` | `domtrack html` (`domtrack.html.cli`) |
+| `domtrack-diff ...` | `domtrack diff` (`domtrack.diff.cli`) |
 
 All of them also work as modules: `python -m domtrack`, `python -m domtrack.capture`,
-`python -m domtrack.replay`, `python -m domtrack.html`.
+`python -m domtrack.replay`, `python -m domtrack.html`, `python -m domtrack.diff`.
 
 ## `domtrack capture <url>`
 
@@ -116,3 +117,39 @@ domtrack html traces/trace_x.json --at-index 4 --stats -o /dev/null
 # Snapshot + records stored as two files.
 domtrack html snapshot.json records.json
 ```
+
+## `domtrack diff <A.json> <B.json>`
+
+Compare the *content* of two captures of the same page, with no browser. Each
+trace is folded (snapshot + records) and reduced to a path-keyed view of
+element text plus data-bearing attributes (see
+[`modules.md`](modules.md#domtrackdiffcorepy)).
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `A.json` (positional) | — | Baseline trace |
+| `B.json` (positional) | — | Trace compared against A |
+| `--no-records` | off | Compare only the initial snapshots (skip records) |
+| `--at-ms-a` | all | Fold A only up to this ms |
+| `--at-ms-b` | all | Fold B only up to this ms |
+| `--json` | off | Emit `{summary, added, removed, changed}` as JSON |
+
+Exit codes: `0` ok, `1` load error (missing file, not an rrweb-style trace, no
+snapshot).
+
+Examples:
+
+```bash
+# What changed between two captures of the same page.
+domtrack diff traces/A.json traces/B.json
+
+# Machine-readable, for pipelines.
+domtrack diff traces/before.json traces/after.json --json
+
+# Compare the two initial DOMs, ignoring the record streams.
+domtrack diff traces/A.json traces/B.json --no-records
+```
+
+`added`/`removed` are elements present only in B / only in A; `changed` are
+matched paths whose text or data attributes differ. Paths look like
+`/html[0]/body[0]/ul[0]/li[2]/h2[0]`.

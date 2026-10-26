@@ -291,3 +291,155 @@ def test_html_cli_argument_errors(tmp_path):
     legacy = tmp_path / "legacy.json"
     legacy.write_text(json.dumps({"mutations": []}), encoding="utf-8")
     assert cli.main([str(legacy)]) == 1
+
+
+# ── content diff (domtrack.diff) ───────────────────────────────────────────
+
+def _price_trace(items, extra=None):
+    """Trace with an <h1> and a <ul> of <li><h2>name</h2><p>price</p></li>."""
+    counter = iter(range(10, 10_000))
+    children = []
+    for name, price in items:
+        children.append(
+            {"type": 2, "id": next(counter), "tagName": "LI", "attributes": {},
+             "childNodes": [
+                 {"type": 2, "id": next(counter), "tagName": "H2", "attributes": {},
+                  "childNodes": [{"type": 3, "id": next(counter), "textContent": name}]},
+                 {"type": 2, "id": next(counter), "tagName": "P", "attributes": {},
+                  "childNodes": [{"type": 3, "id": next(counter), "textContent": price}]},
+             ]}
+        )
+    body_children = [
+        {"type": 2, "id": next(counter), "tagName": "H1", "attributes": {},
+         "childNodes": [{"type": 3, "id": next(counter), "textContent": "Plans"}]},
+        {"type": 2, "id": next(counter), "tagName": "UL", "attributes": {},
+         "childNodes": children},
+    ]
+    if extra:
+        body_children.append(extra)
+    return {
+        "version": 2,
+        "snapshot": {
+            "type": tf.RecordType.FULL_SNAPSHOT,
+            "node": {"id": 1, "type": tf.NodeType.DOCUMENT, "childNodes": [
+                {"id": 2, "type": tf.NodeType.ELEMENT, "tagName": "HTML",
+                 "attributes": {}, "childNodes": [
+                     {"id": 3, "type": tf.NodeType.ELEMENT, "tagName": "BODY",
+                      "attributes": {}, "childNodes": body_children}]}]},
+        },
+        "records": [],
+    }
+
+
+def test_content_view_paths_and_filters():
+    from domtrack import diff
+
+    raw = _price_trace([("Bronze", "$5"), ("Silver", "$10")])
+    view = diff.view_of(raw)
+    # class/id/style are non-data attributes and are dropped.
+    assert "/html[0]/body[0]/h1[0]" in view
+    assert view["/html[0]/body[0]/ul[0]/li[0]/h2[0]"].text == "Bronze"
+    assert view["/html[0]/body[0]/ul[0]/li[1]/p[0]"].text == "$10"
+    # A blank/whitespace-only text node yields no entry.
+    assert all(entry.text.strip() for entry in view.values())
+
+
+def test_diff_detects_added_removed_changed():
+    from domtrack import diff
+
+    a = _price_trace([("Bronze", "$5"), ("Silver", "$10")])
+    b = _price_trace([("Free", "$0"), ("Bronze", "$5"), ("Silver", "$10")])
+    result = diff.diff_traces(a, b)
+    assert result.summary["added"] == 2
+    assert result.summary["removed"] == 0
+    assert result.summary["changed"] == 4
+
+    changed_paths = {c.path for c in result.changed}
+    assert "/html[0]/body[0]/ul[0]/li[0]/h2[0]" in changed_paths
+
+    # Removed: compare the other direction.
+    back = diff.diff_traces(b, a)
+    assert back.summary["removed"] == 2
+
+
+def _price_landmarks(raw):
+    """Locate the <ul>, its first <p> and that <p>'s text node id."""
+    from domtrack import diff
+
+    ids = {}
+    for node, path, tag in diff.iter_nodes(raw["snapshot"]["node"]):
+        if tag == "ul":
+            ids["ul"] = node["id"]
+        if tag == "p" and path.endswith("/li[0]/p[0]"):
+            ids["p"] = node["id"]
+            ids["price_text"] = node["childNodes"][0]["id"]
+    return ids
+
+
+def test_diff_applies_records_childlist_and_text():
+    from domtrack import diff
+
+    a = _price_trace([("Bronze", "$5")])
+    b = _price_trace([("Bronze", "$5")])
+    ids = _price_landmarks(b)
+    # Simulate B changing the existing price and appending a new <li>.
+    b["records"] = [
+        {"t": 100, "type": tf.RecordType.INCREMENTAL_SNAPSHOT, "data": {
+            "source": tf.IncrementalSource.MUTATION, "type": "characterData",
+            "target": {"nodeId": ids["p"], "tag": "P", "id": None, "selector": "p"},
+            "texts": [{"id": ids["price_text"], "oldValue": "$5", "value": "$0"}]}},
+        {"t": 200, "type": tf.RecordType.INCREMENTAL_SNAPSHOT, "data": {
+            "source": tf.IncrementalSource.MUTATION, "type": "childList",
+            "target": {"nodeId": ids["ul"], "tag": "UL", "id": None, "selector": "ul"},
+            "addedCount": 1, "removedCount": 0, "removes": [],
+            "adds": [{"parentId": ids["ul"], "nextId": None, "node": {
+                "type": 2, "id": 900, "tagName": "LI", "attributes": {},
+                "childNodes": [
+                    {"type": 2, "id": 901, "tagName": "H2", "attributes": {},
+                     "childNodes": [{"type": 3, "id": 902, "textContent": "Silver"}]},
+                    {"type": 2, "id": 903, "tagName": "P", "attributes": {},
+                     "childNodes": [{"type": 3, "id": 904, "textContent": "$10"}]},
+                ]}}]}},
+    ]
+    result = diff.diff_traces(a, b)
+    assert result.summary["added"] == 2          # Silver li + its p
+    assert result.summary["changed"] == 1       # $5 -> $0
+
+    # --no-records ignores the record stream.
+    snap_only = diff.diff_traces(a, b, apply_records=False)
+    assert snap_only.summary["added"] == 0
+    assert snap_only.summary["changed"] == 0
+
+
+def test_diff_at_ms_caps_records():
+    from domtrack import diff
+
+    a = _price_trace([("Bronze", "$5")])
+    b = _price_trace([("Bronze", "$5")])
+    ids = _price_landmarks(b)
+    b["records"] = [
+        {"t": 100, "type": tf.RecordType.INCREMENTAL_SNAPSHOT, "data": {
+            "source": tf.IncrementalSource.MUTATION, "type": "characterData",
+            "target": {"nodeId": ids["p"], "tag": "P", "id": None, "selector": "p"},
+            "texts": [{"id": ids["price_text"], "oldValue": "$5", "value": "$0"}]}},
+    ]
+    assert diff.diff_traces(a, b, at_ms_b=50).summary["changed"] == 0
+    assert diff.diff_traces(a, b, at_ms_b=100).summary["changed"] == 1
+
+
+def test_diff_cli_text_json_and_errors(tmp_path):
+    from domtrack.diff import cli
+
+    a = tmp_path / "a.json"
+    b = tmp_path / "b.json"
+    a.write_text(json.dumps(_price_trace([("Bronze", "$5")])), encoding="utf-8")
+    b.write_text(json.dumps(_price_trace([("Free", "$0")])), encoding="utf-8")
+
+    assert cli.main([str(a), str(b)]) == 0
+    assert cli.main([str(a), str(b), "--json"]) == 0
+    assert cli.main([str(a), str(b), "--no-records"]) == 0
+    assert cli.main([str(a), str(tmp_path / "missing.json")]) == 1
+
+    legacy = tmp_path / "legacy.json"
+    legacy.write_text(json.dumps({"mutations": []}), encoding="utf-8")
+    assert cli.main([str(a), str(legacy)]) == 1

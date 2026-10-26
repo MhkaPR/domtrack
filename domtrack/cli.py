@@ -9,6 +9,9 @@
 ``domtrack html <trace.json>`` → rebuild the DOM as HTML at a record point
 (delegates to ``domtrack.html.cli``).
 
+``domtrack diff <A.json> <B.json>`` → content-level diff of two captures
+(delegates to ``domtrack.diff.cli``).
+
 Each subcommand accepts the exact same flags as its standalone
 ``domtrack-*`` entry point.
 """
@@ -24,6 +27,7 @@ Commands:
   capture <url>          Record DOM mutations and user events from a page.
   replay  <trace.json>   Replay a captured trace on the live page.
   html    <trace.json>   Rebuild the DOM as HTML at a record point (no browser).
+  diff    <A> <B>        Compare two captures at the content level (no browser).
 
 Run `domtrack <command> --help` for options.
 """
@@ -45,6 +49,9 @@ def main(argv: list[str] | None = None) -> int:
     if command == "html":
         from .html.cli import main as html_main
         return html_main(rest)
+    if command == "diff":
+        from .diff.cli import main as diff_main
+        return diff_main(rest)
 
     print(f"Unknown command: {command}\n", file=sys.stderr)
     print(USAGE, file=sys.stderr)

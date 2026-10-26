@@ -19,10 +19,14 @@ If you are an LLM answering questions about or generating code against
 | --- | --- | --- | --- |
 | Capture | `domtrack.capture` | Drive a real page, record DOM mutations + user events into a trace | yes |
 | Replay | `domtrack.replay` | Read a trace and reproduce the session on a fresh page | yes |
+| Rebuild | `domtrack.html` | Fold a trace into HTML at any record point | no |
+| Diff | `domtrack.diff` | Compare the content of two captures | no |
 
-Both halves depend on `playwright`. The trace **format** helpers
-(`domtrack.trace`) and the storage helpers (`domtrack.storage`) have no browser
-dependency and can be used standalone.
+Capture and replay depend on `playwright`. The trace **format** helpers
+(`domtrack.trace`, including the `DomState` reconstructor), the **diff**
+helpers (`domtrack.diff`), and the storage helpers (`domtrack.storage`) have no
+browser dependency and can be used standalone. The `domtrack html` and
+`domtrack diff` subcommands are thin CLI front-ends over those.
 
 ## 2. Data flow
 
@@ -47,7 +51,7 @@ dependency and can be used standalone.
 domtrack/
 ├── __init__.py        top-level exports + lazy `capture` / `replay` access
 ├── __main__.py        `python -m domtrack`
-├── cli.py             unified `domtrack <capture|replay>` dispatcher
+├── cli.py             unified `domtrack <capture|replay|html|diff>` dispatcher
 ├── config.py          TracerConfig, DEFAULT_DYNAMIC_CLASSES   (capture config)
 ├── js_scripts.py      browser-side JS: snapshot + mutation + event capture
 ├── recorder.py        Recorder / CaptureResult — orchestrates a capture
@@ -61,6 +65,11 @@ domtrack/
 │   ├── __init__.py    html public surface (`build_parser`, `main`)
 │   ├── cli.py         `domtrack html` argument parser + main()
 │   └── __main__.py    `python -m domtrack.html`
+├── diff/
+│   ├── __init__.py    diff public surface (content view, diff, report)
+│   ├── core.py        content view + content-level DiffResult
+│   ├── cli.py         `domtrack diff` argument parser + main()
+│   └── __main__.py    `python -m domtrack.diff`
 └── replay/
     ├── __init__.py    replay public surface
     ├── cli.py         `domtrack replay` argument parser + main()
@@ -125,6 +134,14 @@ html_final   = trace.rebuild_html(raw)                  # fold all records
 state = trace.DomState.from_trace(raw)
 state.apply_up_to(raw["records"], at_ms=1200)
 print(state.to_html(), state.stats)
+
+# Compare two captures at the content level (no browser):
+from domtrack import diff
+
+result = diff.diff_traces(trace.load_raw("A.json"), trace.load_raw("B.json"))
+print(result.summary)          # {a_nodes, b_nodes, added, removed, changed}
+for path, entry in result.added:
+    print("added", path, entry.text)
 ```
 
 ## 5. Minimal end-to-end example

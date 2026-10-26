@@ -173,6 +173,58 @@ Re-exports `build_parser` and `main` from `domtrack.html.cli`.
 
 Runs `domtrack.html.cli.main`.
 
+## `domtrack/diff/core.py`
+
+Browser-free content diff. Each side is folded with
+`domtrack.trace.DomState`, reduced to a path-keyed content view, and compared.
+
+```python
+NON_DATA_ATTRS: frozenset[str]
+VOLATILE_ATTR_NAME: tuple[re.Pattern, ...]
+VOLATILE_TEXT: tuple[re.Pattern, ...]
+
+def is_volatile_attr(name) -> bool
+def is_volatile_text(text) -> bool
+def iter_nodes(node, path="", counters=None) -> Iterator[(node, path, tag)]
+def direct_text(node) -> str
+
+@dataclass class ContentEntry: node_id, tag, text, attrs
+@dataclass class Change: path, tag, old_text, new_text, attrs  (+ text_changed)
+@dataclass class DiffResult:
+    a, b, added, removed, changed
+    summary: dict           # a_nodes, b_nodes, added, removed, changed
+    to_dict() -> dict       # JSON-ready
+
+def content_view(root) -> dict[str, ContentEntry]
+def view_of(raw, at_ms=None, apply_records=True) -> dict[str, ContentEntry]
+def diff_views(a, b) -> DiffResult
+def diff_traces(raw_a, raw_b, at_ms_a=None, at_ms_b=None, apply_records=True) -> DiffResult
+def format_report(result, out) -> None
+```
+
+The path scheme is a slash-joined chain of `tag[index]` segments, e.g.
+`/html[0]/body[0]/ul[0]/li[2]/h2[0]`, where the index counts same-tag siblings.
+Only elements with non-volatile direct text survive into the view;
+`attrs` keeps the data-bearing attributes after `NON_DATA_ATTRS` and
+`VOLATILE_ATTR_NAME` are filtered out.
+
+## `domtrack/diff/cli.py`
+
+```python
+def build_parser() -> argparse.ArgumentParser
+def main(argv=None) -> int
+```
+
+Browser-free `domtrack diff` command (see [cli.md](cli.md)).
+
+## `domtrack/diff/__init__.py`
+
+Re-exports the `core` public surface.
+
+## `domtrack/diff/__main__.py`
+
+Runs `domtrack.diff.cli.main`.
+
 ## `domtrack/replay/__init__.py`
 
 Re-exports the replay public surface: models (`Trace`, `TraceMeta`,

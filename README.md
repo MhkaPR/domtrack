@@ -120,6 +120,28 @@ domtrack html traces/trace_x.json --at-ms 1200 --out at_1200.html
 domtrack html snapshot.json records.json          # split inputs
 ```
 
+## Diff two captures without a browser
+
+Compare the *content* of two captures of the same page — element text plus
+data-bearing attributes — after folding each trace's records:
+
+```python
+from domtrack import trace, diff
+
+result = diff.diff_traces(
+    trace.load_raw("traces/before.json"),
+    trace.load_raw("traces/after.json"),
+)
+print(result.summary)   # {a_nodes, b_nodes, added, removed, changed}
+for path, entry in result.added:
+    print("+", path, entry.text)
+```
+
+```bash
+domtrack diff traces/before.json traces/after.json
+domtrack diff traces/before.json traces/after.json --json
+```
+
 ## Documentation
 
 All docs live in [`docs/`](docs/). They are written to be read in full by an
