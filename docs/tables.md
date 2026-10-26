@@ -16,20 +16,39 @@ Three stages, each usable as a library call or a subcommand:
 
 ## How discovery works
 
+The algorithm is **fixed**. Everything site-specific lives in four *pluggable
+interfaces* supplied by the caller (`DiscoveryConfig.sig` / `values` /
+`path_sim` / `is_visible`); each has a sensible default, so the common case
+needs no configuration.
+
 1. **Fold** — the trace's `FullSnapshot` plus incremental records are folded
    with `DomState` and adapted to a light `Node` view (`build_tree`).
-2. **Candidates** — every container whose children repeat with a similar
-   *shape* (the set of leaf paths under them) is a candidate. Sibling shapes
-   are clustered with union-find (`find_candidates` / `cluster_siblings`).
-3. **Columns** — per-row atoms (text, `href`, `src`, `alt`, `title`, `value`)
-   are clustered into columns by path similarity; a column must cover at least
-   half the rows (`build_columns`).
-4. **Score** — `columns × √rows × avg_sim × coverage × positional_bonus`,
-   where `positional_bonus` favours tables inside `<main>` and penalises
-   `<header>`/`<footer>`/`<nav>` (`score_candidate`).
-5. **De-duplicate** — overlapping containers collapse by a data fingerprint
-   (row identities), so a table nested inside another keeps only the larger
-   one (`dedupe`).
+2. **Shape** — `shape(X)` is the set of `sig(X, n)` paths under `X` whose node
+   `n` carries `values`. Siblings whose shapes are mutually similar cluster
+   together (union-find, `cluster_children`) — the signature of a table, list,
+   or card grid.
+3. **Columns** — per-row atoms are clustered by `path_sim` (only the same
+   `atype` compares); a column must cover at least `min_coverage_ratio` of the
+   rows. A column built from several same-path atoms per row splits into
+   `slot` sub-columns so every value survives (`extract_columns`).
+4. **Assemble** — the row cluster and columns project into a table record
+   (`build_table`); the discovered container's whole subtree is then marked
+   `covered`, so an ancestor can never re-detect it. Nodes are processed
+   bottom-up and each node emits at most one table (`discover`).
+5. **De-duplicate** — overlapping tables collapse by a data fingerprint of
+   their non-empty cells (`dedupe`).
+
+### The pluggable interfaces
+
+| Interface | Signature | Default |
+| --- | --- | --- |
+| `sig` | `(root, node) -> path \| None` | `(tag, classes)` tuple from `root` down to `node`; `None` excludes a subtree |
+| `values` | `(node) -> [(type, value)]` | non-empty direct text + `href`/`src`/`alt`/`title`/`value` |
+| `path_sim` | `(p1, p2) -> [0, 1]` | mean component-wise Jaccard × length ratio |
+| `is_visible` | `(node) -> bool` | `True` (trace folding installs an ever-visible predicate) |
+
+`path` is any hashable value comparable with `path_sim` — swap in your own
+tuple/schema to teach discovery a different notion of "same structure".
 
 The result is JSON:
 
@@ -61,7 +80,9 @@ The result is JSON:
 
 ```python
 from domtrack import trace
-from domtrack.tables import discover_tables, DiscoveryConfig
+from domtrack.tables import (
+    discover_tables, discover, discover_across_documents, DiscoveryConfig,
+)
 
 raw = trace.load_raw("traces/trace_x.json")
 result = discover_tables(raw)                       # defaults
@@ -69,6 +90,25 @@ result = discover_tables(raw, DiscoveryConfig(min_rows=4, dedupe=False))
 
 for table in result["tables"]:
     print(table["meta"]["row_count"], table["meta"]["columns"])
+
+# Pure tree API — no trace folding, no visibility filter:
+from domtrack import tables
+root = tables.build_tree(raw)
+for table in discover(root, DiscoveryConfig()):
+    print(table["meta"])
+
+# Many documents, per-document state (no cross-document memory):
+multi = discover_across_documents([{"id": "a", "trace": raw}])
+print(multi["stats"])          # {"docs": 1, "docs_with_tables": 1, "total_tables": N}
+
+# Teach it your own structure: exclude price nodes from the signature.
+def sig(root, node):
+    path = tables.default_sig(root, node)
+    if path is None or (node.tag == "span" and "price" in node.classes):
+        return None
+    return path
+
+tables_ = discover(root, DiscoveryConfig(sig=sig))
 ```
 
 ### CLI

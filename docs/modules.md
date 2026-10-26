@@ -269,15 +269,18 @@ Runs `domtrack.compare.cli.main`.
 
 ## `domtrack/tables/__init__.py`
 
-Re-exports the tables public surface: `Node`, `Atom`, `Candidate`,
-`DiscoveryConfig`, `build_tree`, `discover_tables`, `LabelConfig`,
-`label_tables`, `RenderOptions`, and `render_tables`. The provider SDKs
+Re-exports the tables public surface: `Node`, `Atom`, `Document`, `Interfaces`,
+`DiscoveryConfig`, `build_tree`, `discover`, `discover_across_documents`,
+`discover_tables`, `LabelConfig`, `label_tables`, `RenderOptions`, and
+`render_tables`. The provider SDKs
 (`openai` / `anthropic`) and display helpers (`rich` / `tabulate`) are imported
 lazily by the underlying modules.
 
 ## `domtrack/tables/discovery.py`
 
-Browser-free table discovery over a folded trace.
+Browser-free table discovery over a folded trace. The algorithm is fixed; four
+pluggable interfaces (`sig`, `values`, `path_sim`, `is_visible`) carry every
+piece of site-specific knowledge and are supplied through `DiscoveryConfig`.
 
 ```python
 SKIP_TAGS: frozenset[str]
@@ -296,58 +299,79 @@ class Node:
 def build_tree(raw: dict) -> Node
 def skip_subtree(node: Node) -> bool
 
+# trace-aware visibility helper + ready-made ``is_visible``
+def compute_ever_visible(initial_root, records, final_root=None) -> set[int]
+def ever_visible_predicate(ids) -> Callable[[Node], bool]
+
 @dataclass
 class Atom:
     path: tuple; atype: str; value: str
 
-def collect_atoms(root: Node) -> list[Atom]
-
+# pluggable interfaces and their defaults
+def default_sig(root: Node, node: Node) -> tuple | None
+def default_values(node: Node) -> list[tuple[str, str]]
+def default_path_sim(p1, p2) -> float          # alias: path_similarity
+def default_is_visible(node: Node) -> bool
 def jaccard(a, b) -> float
 def component_similarity(c1, c2) -> float
-def path_similarity(p1, p2) -> float
-def shape(node: Node, depth: int = 6) -> frozenset
-def shape_similarity(s1, s2) -> float
 
-@dataclass
-class Candidate:
-    parent: Node; rows: list[Node]; avg_sim: float
+@dataclass(frozen=True)
+class Interfaces:
+    sig; values; path_sim; is_visible
 
-def cluster_siblings(children, config) -> list[list[Node]]
-def find_candidates(root: Node, config) -> list[Candidate]
-def build_columns(candidate, config) -> tuple[list[dict], list[list[Atom]]]
-def positional_bonus(candidate) -> float
-def score_candidate(candidate, columns) -> float
+# core algorithm (all phases)
+def shape(root: Node, interfaces) -> frozenset
+def shape_similarity(s1, s2, path_sim) -> float
+def group_similarity(rows, interfaces) -> float
+def cluster_children(parent, config, interfaces, covered) -> list[list[Node]]
+def extract_columns(rows, config, interfaces) -> list[dict]
+def build_table(parent, rows, columns, avg_sim) -> dict
+def mark_covered(node, covered) -> None
+def discover(root: Node, config=None) -> list[dict]
 
 def best_class(classes) -> str
 def path_str(path) -> str
 def column_id(column) -> str
 def column_label(column) -> str
-def extract_table(candidate, columns, row_atoms) -> dict
 
 def row_identity(atoms) -> tuple[str, str]
-def candidate_fingerprint(candidate) -> frozenset
+def table_fingerprint(table) -> frozenset
 def fingerprint_similarity(a, b) -> float
 def is_subset_of(a, b, ratio: float = 0.85) -> bool
 def dedupe(tables, threshold) -> list[dict]
 
 @dataclass
 class DiscoveryConfig:
-    threshold: float = 0.6
-    min_group: int = 3
     min_rows: int = 3
     min_cols: int = 2
-    min_avg_sim: float = 0.6
+    min_coverage_ratio: float = 0.5
+    shape_threshold: float = 0.6
+    path_threshold: float = 0.6
     dedupe: bool = True
     dedupe_threshold: float = 0.8
+    sig / values / path_sim / is_visible: Callable | None = None
+    ever_visible: set[int] | None = None
+    threshold: float | None = None   # legacy alias for both thresholds
+    def interfaces(self) -> Interfaces: ...
 
 def discover_tables(raw: dict, config: DiscoveryConfig | None = None) -> dict
+
+@dataclass
+class Document:
+    id: str; root: Node
+
+def discover_across_documents(documents, config=None) -> dict
 ```
 
 `build_tree` folds the trace with `DomState` and adapts it to a `Node` tree.
-`find_candidates` clusters siblings by shape; `build_columns` clusters per-row
-atoms by path; `score_candidate` ranks them; `dedupe` collapses overlapping
-tables by data fingerprint. `discover_tables` is the one-call entry point
-returning `{"total_candidates", "tables_returned", "tables"}`.
+`cluster_children` groups siblings by `shape`; `extract_columns` clusters
+per-row atoms by `path_sim`; `build_table` assembles the record; `dedupe`
+collapses overlapping tables by data fingerprint. `discover` runs the algorithm
+on a single tree; `discover_tables` folds a trace first (auto-populating the
+trace-aware `is_visible`) and returns
+`{"total_candidates", "tables_returned", "tables"}`;
+`discover_across_documents` runs the per-document driver and returns
+`{"stats", "all_tables"}`.
 
 ## `domtrack/tables/labeling.py`
 

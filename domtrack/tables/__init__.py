@@ -13,18 +13,21 @@ requires them.
 
 from .discovery import (
     Atom,
-    Candidate,
+    Document,
     DiscoveryConfig,
+    Interfaces,
     Node,
     build_tree,
+    discover,
+    discover_across_documents,
     discover_tables,
 )
 from .labeling import LabelConfig, label_tables
 from .render import RenderOptions, render as render_tables
 
 __all__ = [
-    "Node", "Atom", "Candidate", "DiscoveryConfig",
-    "build_tree", "discover_tables",
+    "Node", "Atom", "Document", "Interfaces", "DiscoveryConfig",
+    "build_tree", "discover", "discover_across_documents", "discover_tables",
     "LabelConfig", "label_tables",
     "RenderOptions", "render_tables",
 ]

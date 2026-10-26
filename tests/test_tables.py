@@ -117,6 +117,163 @@ def test_dedupe_removes_subset():
     assert kept == [big]
 
 
+# ── pluggable interfaces + multi-document driver ───────────────────────────
+
+def test_default_interfaces_resolve_to_module_defaults():
+    ifaces = discovery.DiscoveryConfig().interfaces()
+    assert ifaces.sig is discovery.default_sig
+    assert ifaces.values is discovery.default_values
+    assert ifaces.path_sim is discovery.default_path_sim
+    assert ifaces.is_visible is discovery.default_is_visible
+
+
+def test_default_sig_is_path_from_root():
+    root = discovery.build_tree(_card_trace())
+    html = root.children[0]
+    body = html.children[0]
+    ul = body.children[0]
+    li = ul.children[0]
+    path = discovery.default_sig(root, li)
+    assert path is not None
+    assert path[-1][0] == "li"
+    assert "card" in path[-1][1]
+    # A sig rooted at the <li> is just the <li> itself (A inclusive).
+    assert discovery.default_sig(li, li) == (("li", li.classes),)
+
+
+def test_default_sig_excludes_skip_tags():
+    root = discovery.build_tree(_card_trace())
+    script = discovery.Node(id=999, tag="script")
+    body = root.children[0].children[0]
+    body.children.append(script)
+    script.parent = body
+    assert discovery.default_sig(root, script) is None
+
+
+def test_custom_sig_excludes_subtree():
+    root = discovery.build_tree(_card_trace())
+
+    def sig(_root, node):
+        path = discovery.default_sig(_root, node)
+        if path is None:
+            return None
+        if node.tag == "span" and "price" in node.classes:
+            return None
+        return path
+
+    tables = discovery.discover(root, discovery.DiscoveryConfig(sig=sig))
+    assert tables
+    column_ids = [c["id"] for c in tables[0]["columns"]]
+    assert not any("price" in cid for cid in column_ids)
+
+
+def test_custom_values_selects_atoms():
+    root = discovery.build_tree(_card_trace())
+
+    def values(node):
+        href = node.attrs.get("href")
+        return [("href", href)] if href else []
+
+    tables = discovery.discover(
+        root, discovery.DiscoveryConfig(values=values, min_cols=1)
+    )
+    assert tables
+    column_ids = [c["id"] for c in tables[0]["columns"]]
+    assert all(cid.endswith("@href") for cid in column_ids)
+
+
+def test_custom_path_sim_is_used():
+    root = discovery.build_tree(_card_trace())
+    calls = []
+
+    def path_sim(p1, p2):
+        calls.append((p1, p2))
+        return discovery.default_path_sim(p1, p2)
+
+    tables = discovery.discover(root, discovery.DiscoveryConfig(path_sim=path_sim))
+    assert calls
+    assert tables
+
+
+def test_strict_path_threshold_drops_columns():
+    root = discovery.build_tree(_card_trace())
+    strict = discovery.DiscoveryConfig(path_threshold=1.01)   # nothing merges
+    # Every atom is then alone in its group, below min_cover -> no table.
+    assert discovery.discover(root, strict) == []
+
+
+def test_is_visible_false_excludes_child_row():
+    raw = _card_trace()
+    root = discovery.build_tree(raw)
+    cards = root.children[0].children[0].children[0].children
+    assert len(cards) == 3
+    hidden = {cards[2].id}
+
+    def is_visible(node):
+        return node.id not in hidden
+
+    tables = discovery.discover(
+        root, discovery.DiscoveryConfig(is_visible=is_visible, min_rows=2)
+    )
+    assert tables
+    assert tables[0]["meta"]["row_count"] == 2
+
+
+def test_multi_atom_column_splits_into_slots():
+    ids = iter(range(100, 1000))
+
+    def fresh():
+        return next(ids)
+
+    def card(title, tags):
+        children = [
+            _node(fresh(), "span", {"class": "title"}, [_text(fresh(), title)])
+        ]
+        for tag in tags:
+            children.append(
+                _node(fresh(), "span", {"class": "tag"}, [_text(fresh(), tag)])
+            )
+        return _node(fresh(), "li", {"class": "card"}, children)
+
+    cards = [card("A", ["x", "y"]), card("B", ["p"]), card("C", ["m", "n"])]
+    body = _node(3, "body", {}, [_node(4, "ul", {"class": "cards"}, cards)])
+    html = _node(2, "html", {}, [body])
+    raw = {
+        "meta": {"url": "https://example.com"},
+        "version": 2,
+        "snapshot": {"type": tf.RecordType.FULL_SNAPSHOT,
+                     "node": {"id": 1, "type": tf.NodeType.DOCUMENT,
+                              "childNodes": [html]}},
+        "records": [],
+    }
+    result = discovery.discover_tables(raw, discovery.DiscoveryConfig(min_cols=1))
+    assert result["tables_returned"] >= 1
+    table = result["tables"][0]
+    slot_cols = [c for c in table["columns"] if c["slot"] is not None]
+    assert slot_cols  # the tag column split into slots
+    # First slot carries the first tag of every row.
+    first_slot = sorted(slot_cols, key=lambda c: c["slot"])[0]
+    values = [row[first_slot["id"]] for row in table["rows"]]
+    assert values == ["x", "p", "m"]
+
+
+def test_discover_across_documents_stats_and_ids():
+    docs = [{"id": "d1", "trace": _card_trace()}, {"id": "d2", "trace": _card_trace()}]
+    result = discovery.discover_across_documents(docs)
+    assert result["stats"]["docs"] == 2
+    assert result["stats"]["docs_with_tables"] == 2
+    assert result["stats"]["total_tables"] >= 2
+    assert [d["document_id"] for d in result["all_tables"]] == ["d1", "d2"]
+
+
+def test_discover_across_documents_empty_document():
+    raw = _card_trace()
+    raw["snapshot"]["node"]["childNodes"] = []   # empty <html>-less document
+    result = discovery.discover_across_documents([{"id": "empty", "trace": raw}])
+    assert result["stats"]["docs"] == 1
+    assert result["all_tables"][0]["tables"] == []
+
+
 # ── labeling ───────────────────────────────────────────────────────────────
 
 def _labeled_input() -> dict:

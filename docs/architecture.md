@@ -84,13 +84,18 @@ pass on top:
 
 1. `discovery.build_tree(raw)` folds the trace with `DomState` and adapts the
    result to a light `Node` view.
-2. `find_candidates` clusters siblings whose *shape* (the set of leaf paths
-   under them) is mutually similar — the signature of a table, list, or card
-   grid.
-3. `build_columns` clusters the per-row atoms (text / `href` / `src` / …) into
-   columns by path similarity; `score_candidate` ranks candidates.
-4. `dedupe` collapses overlapping containers by a data fingerprint, so nested
-   tables keep only the largest.
+2. `cluster_children` groups siblings whose *shape* (the set of `sig` paths
+   under them that carry values) is mutually similar — the signature of a
+   table, list, or card grid.
+3. `extract_columns` clusters the per-row atoms (text / `href` / `src` / …)
+   into columns by `path_sim`; `build_table` assembles the record and the whole
+   subtree is marked `covered` so ancestors can't re-detect it.
+4. `dedupe` collapses overlapping tables by a data fingerprint.
+
+The algorithm is fixed; four pluggable interfaces (`sig`, `values`,
+`path_sim`, `is_visible`) carry all site-specific knowledge and default to
+generic implementations. `discover` runs one tree, `discover_tables` folds a
+trace first, and `discover_across_documents` runs the per-document driver.
 
 `domtrack tables label` then sends a compact payload to an LLM to attach a
 `title`, `purpose`, and per-column `semantic_label`, and `domtrack tables show`

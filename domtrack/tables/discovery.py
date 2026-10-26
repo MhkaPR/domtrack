@@ -2,31 +2,65 @@
 
 Browser-free. The trace is folded with :class:`domtrack.trace.DomState` —
 the shared snapshot + incremental-record reconstructor — and adapted to a
-light :class:`Node` view. The tree is then scanned for *candidate* containers
-whose children repeat with a similar shape: the structural signature of a
-table, list, or card grid.
+light :class:`Node` view. A fixed algorithm then discovers *tables*: a
+container whose children repeat with a similar structural shape, projected
+into rows and columns.
 
-Each candidate is scored, its columns are clustered from the per-row atoms
-(text / href / src / …), and the surviving tables are de-duplicated by a
-data fingerprint so overlapping containers collapse into one.
+Pluggable interfaces (the only site-specific knowledge)
+-------------------------------------------------------
 
-Multi-atom columns — like several ``<p class="about_host">`` siblings that
-all cluster under one path — are split into ``slot`` sub-columns so that
-every distinct value survives extraction (CPU, traffic, datacenter, annual
-price, discount badge, …).
+Four functions are supplied by the caller and carry every piece of
+site-specific logic. Everything else is fixed.
 
-Visibility rule: a node is kept if it was **visible at least once** during
-the recording (initial snapshot visible, hidden→visible flip, or inserted
-with no hiding attributes). All visibility logic lives here — no external
-module.
+``sig(A, B) -> path | None``
+    Structural signature of ``B`` relative to root ``A``. ``path`` is any
+    hashable value comparable with ``path_sim``. Returning ``None`` excludes
+    ``B`` and its whole subtree. Default: the tuple of ``(tag, classes)`` from
+    ``A`` down to ``B`` (``None`` for :data:`SKIP_TAGS` subtrees).
+
+``values(B) -> list[(type, value)]``
+    Extractable atoms of ``B``. Default: non-empty direct text plus the
+    ``href`` / ``src`` / ``alt`` / ``title`` / ``value`` attributes. Text is
+    attributed to the element that owns it, so text nodes yield no atoms.
+
+``path_sim(p1, p2) -> [0, 1]``
+    Similarity of two ``sig`` outputs. Default: mean of the component-wise
+    Jaccard similarity, scaled by the length ratio.
+
+``is_visible(B) -> bool``
+    Whether ``B`` participates at all. Default: ``True``. A trace-aware
+    predicate built from ``compute_ever_visible`` is available for callers that
+    want to drop nodes that were never rendered.
+
+The algorithm
+-------------
+
+Per document (state such as the ``covered`` set is per-document, never shared):
+
+1. ``shape(A)`` collects the ``sig`` of every node under ``A`` that carries
+   values — the structural fingerprint of a subtree.
+2. ``cluster_children(A)`` groups ``A``'s visible, uncovered children whose
+   shapes are mutually similar (union-find, ``shape_threshold``).
+3. ``extract_columns(rows)`` clusters the per-row atoms by ``path_sim`` (only
+   atoms of the same ``type`` compare), keeps columns covering at least
+   ``min_cover`` rows, and splits multi-atom columns into ``slot`` sub-columns.
+4. ``build_table`` projects the rows and columns into the JSON table shape.
+5. A discovered table marks its whole subtree ``covered``, so an ancestor can
+   never re-detect it.
+6. Nodes are processed bottom-up (post-order); each node emits at most one
+   table (the largest valid cluster) and then stops.
+
+``discover_across_documents`` runs the above over many documents and returns
+per-document tables plus aggregate stats; there is no cross-document memory.
 """
 
 from __future__ import annotations
 
+import math
 import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from typing import Iterable, Optional
+from typing import Callable, Iterable, Optional, Union
 
 from ..trace import DomState, NodeType
 
@@ -42,7 +76,7 @@ SKIP_TAGS: frozenset[str] = frozenset(
 
 VALUE_ATTRS: tuple[tuple[str, str], ...] = (
     ("href", "href"), ("src", "src"), ("alt", "alt"),
-    ("title", "title"), ("value", "value"), ("small","small"), ("large", "large")
+    ("title", "title"), ("value", "value"),
 )
 
 _WS = re.compile(r"\s+")
@@ -101,7 +135,7 @@ def skip_subtree(node: Node) -> bool:
     return node.tag in SKIP_TAGS
 
 
-# ── visibility (self-contained) ────────────────────────────────────────────
+# ── visibility (a ready-made, trace-aware ``is_visible``) ───────────────────
 
 _HIDDEN_CLASS_TOKENS: frozenset[str] = frozenset({"d-none", "hidden", "hide"})
 _HIDDEN_STYLE_TOKENS: tuple[str, ...] = ("display:none", "visibility:hidden")
@@ -236,6 +270,12 @@ def compute_ever_visible(
     return ever_visible
 
 
+def ever_visible_predicate(ids: Iterable[int]) -> Callable[[Node], bool]:
+    """Build an ``is_visible`` from a set of ever-visible node ids."""
+    allowed = set(ids)
+    return lambda node: (not node.tag) or node.id in allowed
+
+
 # ── atoms ──────────────────────────────────────────────────────────────────
 
 @dataclass
@@ -247,48 +287,52 @@ class Atom:
     value: str
 
 
-def collect_atoms(
-    root: Node, ever_visible: Optional[set[int]] = None
-) -> list[Atom]:
-    """Collect every text / attribute atom under ``root``, in document order.
+_PLACEHOLDER_VALUES: frozenset[str] = frozenset(
+    {"#", "javascript:void(0)", "javascript:;"}
+)
 
-    When ``ever_visible`` is provided, subtrees whose root element was never
-    visible are skipped. Nodes hidden in the final frame but visible earlier
-    are kept.
+
+# ── pluggable interfaces + defaults ────────────────────────────────────────
+
+def default_values(node: Node) -> list[tuple[str, str]]:
+    """Non-empty direct text plus ``href`` / ``src`` / ``alt`` / ``title`` /
+    ``value`` atoms owned by ``node``.
+
+    Text is attributed to the element that owns it; text nodes yield nothing.
     """
-    out: list[Atom] = []
-
-    def walk(node: Node, path: tuple) -> None:
-        if skip_subtree(node):
-            return
-        if ever_visible is not None and node.tag and node.id not in ever_visible:
-            return
-        cur = path + ((node.tag, node.classes),) if node.tag else path
-        if node.tag:
-            direct = clean("".join(c.text for c in node.children if not c.tag))
-            if direct:
-                out.append(Atom(cur, "text", direct))
-
-            has_elem_child = any(
-                c.tag and not skip_subtree(c) for c in node.children
-            )
-            if not has_elem_child:
-                full = clean(node.text)
-                if full and full != direct:
-                    out.append(Atom(cur, "text", full))
-
-            for attr, atype in VALUE_ATTRS:
-                value = node.attrs.get(attr)
-                if value and value not in ("#", "javascript:void(0)", "javascript:;"):
-                    out.append(Atom(cur, atype, clean(value)))
-        for child in node.children:
-            walk(child, cur)
-
-    walk(root, ())
+    if not node.tag:
+        return []
+    out: list[tuple[str, str]] = []
+    direct = clean("".join(c.text for c in node.children if not c.tag))
+    if direct:
+        out.append(("text", direct))
+    for attr, atype in VALUE_ATTRS:
+        value = node.attrs.get(attr)
+        if value and value not in _PLACEHOLDER_VALUES:
+            out.append((atype, clean(value)))
     return out
 
 
-# ── similarity ─────────────────────────────────────────────────────────────
+def default_sig(root: Node, node: Node) -> Optional[tuple]:
+    """``(tag, classes)`` from ``root`` down to ``node`` (``node`` inclusive).
+
+    Returns ``None`` for nodes inside a skipped subtree (or outside ``root``),
+    which excludes them and their subtrees from the algorithm.
+    """
+    if node.tag in SKIP_TAGS:
+        return None
+    chain: list[tuple[str, frozenset[str]]] = []
+    current: Optional[Node] = node
+    while current is not None:
+        chain.append((current.tag, current.classes))
+        if current is root:
+            break
+        current = current.parent
+    if current is None:
+        return None
+    chain.reverse()
+    return tuple(chain)
+
 
 def jaccard(a: frozenset, b: frozenset) -> float:
     if not a and not b:
@@ -303,7 +347,8 @@ def component_similarity(c1: tuple, c2: tuple) -> float:
     return jaccard(set1, set2) if tag1 == tag2 else 0.0
 
 
-def path_similarity(p1: tuple, p2: tuple) -> float:
+def default_path_sim(p1: tuple, p2: tuple) -> float:
+    """Mean of the component-wise Jaccard similarity × length ratio."""
     if not p1 or not p2:
         return 1.0 if p1 == p2 else 0.0
     depth = min(len(p1), len(p2))
@@ -311,149 +356,222 @@ def path_similarity(p1: tuple, p2: tuple) -> float:
     return (sum(sims) / len(sims)) * (depth / max(len(p1), len(p2)))
 
 
-def shape(
-    node: Node,
-    depth: int = 6,
-    ever_visible: Optional[set[int]] = None,
-) -> frozenset:
-    """The set of leaf paths under ``node`` — its structural signature."""
-    out: set = set()
+# Backwards-compatible alias for the default similarity metric.
+path_similarity = default_path_sim
 
-    def walk(current: Node, path: tuple, level: int) -> None:
-        if level > depth or skip_subtree(current):
+
+def default_is_visible(node: Node) -> bool:
+    return True
+
+
+@dataclass(frozen=True)
+class Interfaces:
+    """The four resolved pluggable functions the algorithm runs on."""
+
+    sig: Callable[[Node, Node], Optional[tuple]]
+    values: Callable[[Node], list[tuple[str, str]]]
+    path_sim: Callable[[tuple, tuple], float]
+    is_visible: Callable[[Node], bool]
+
+
+# ── structural shape of a subtree ──────────────────────────────────────────
+
+def shape(root: Node, interfaces: Interfaces) -> frozenset:
+    """The set of ``sig`` paths under ``root`` that carry values."""
+    found: set = set()
+
+    def walk(node: Node) -> None:
+        path = interfaces.sig(root, node)
+        if path is None:
             return
-        if ever_visible is not None and current.tag and current.id not in ever_visible:
-            return
-        cur = path + ((current.tag, current.classes),) if current.tag else path
-        has_child = any(c.tag and not skip_subtree(c) for c in current.children)
-        if not has_child and (
-            clean(current.text)
-            or any(current.attrs.get(a) for a, _ in VALUE_ATTRS)
-        ):
-            out.add(cur)
-        for child in current.children:
-            walk(child, cur, level + 1)
+        if interfaces.values(node):
+            found.add(path)
+        for child in node.children:
+            walk(child)
 
-    walk(node, (), 0)
-    return frozenset(out)
+    walk(root)
+    return frozenset(found)
 
 
-def shape_similarity(s1: frozenset, s2: frozenset) -> float:
+def shape_similarity(s1: frozenset, s2: frozenset, path_sim: Callable) -> float:
+    """Symmetric mean of the best-match ``path_sim`` between two shapes."""
+    if not s1 and not s2:
+        return 1.0
     if not s1 or not s2:
-        return 1.0 if s1 == s2 else 0.0
+        return 0.0
     total, count = 0.0, 0
     for p in s1:
-        total += max((path_similarity(p, q) for q in s2), default=0.0)
+        total += max((path_sim(p, q) for q in s2), default=0.0)
         count += 1
     for q in s2:
-        total += max((path_similarity(p, q) for p in s1), default=0.0)
+        total += max((path_sim(p, q) for p in s1), default=0.0)
         count += 1
     return total / count if count else 0.0
 
 
-# ── candidates ─────────────────────────────────────────────────────────────
+def group_similarity(rows: list[Node], interfaces: Interfaces) -> float:
+    """Mean pairwise shape similarity of a row cluster."""
+    shapes = [shape(row, interfaces) for row in rows]
+    sims = [
+        shape_similarity(shapes[i], shapes[j], interfaces.path_sim)
+        for i in range(len(rows))
+        for j in range(i + 1, len(rows))
+    ]
+    return sum(sims) / len(sims) if sims else 1.0
+
+
+# ── config ─────────────────────────────────────────────────────────────────
 
 @dataclass
-class Candidate:
-    """A container whose children repeat with a similar shape."""
+class DiscoveryConfig:
+    """Tuning knobs plus the pluggable interfaces for :func:`discover`.
 
-    parent: Node
-    rows: list[Node]
-    avg_sim: float
-
-
-def cluster_siblings(
-    children: list[Node], config: "DiscoveryConfig"
-) -> list[list[Node]]:
-    """Group sibling nodes whose shapes are mutually similar (union-find).
-
-    Invisible siblings are dropped first so hidden stubs don't drag visible
-    rows into a false candidate.
+    ``sig`` / ``values`` / ``path_sim`` / ``is_visible`` default to the module
+    implementations (``None`` -> default). ``ever_visible`` is a convenience:
+    when set and ``is_visible`` is ``None``, an ever-visible predicate is built.
     """
-    ever_visible = config.ever_visible
-    if ever_visible is not None:
-        children = [c for c in children if not c.tag or c.id in ever_visible]
 
-    n = len(children)
-    if n < 2:
+    min_rows: int = 3
+    min_cols: int = 2
+    min_coverage_ratio: float = 0.5
+    shape_threshold: float = 0.6
+    path_threshold: float = 0.6
+    dedupe: bool = True
+    dedupe_threshold: float = 0.8
+
+    # Pluggable, site-specific interfaces (None -> module default).
+    sig: Optional[Callable[[Node, Node], Optional[tuple]]] = None
+    values: Optional[Callable[[Node], list[tuple[str, str]]]] = None
+    path_sim: Optional[Callable[[tuple, tuple], float]] = None
+    is_visible: Optional[Callable[[Node], bool]] = None
+
+    # Convenience: an ever-visible id set to build ``is_visible`` from.
+    ever_visible: Optional[set[int]] = None
+
+    # Legacy alias: ``threshold`` sets both shape and path thresholds.
+    threshold: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        if self.threshold is not None:
+            self.shape_threshold = self.threshold
+            self.path_threshold = self.threshold
+
+    def interfaces(self) -> Interfaces:
+        """Resolve the pluggable functions, filling in module defaults."""
+        is_visible = self.is_visible
+        if is_visible is None:
+            if self.ever_visible is not None:
+                is_visible = ever_visible_predicate(self.ever_visible)
+            else:
+                is_visible = default_is_visible
+        return Interfaces(
+            sig=self.sig or default_sig,
+            values=self.values or default_values,
+            path_sim=self.path_sim or default_path_sim,
+            is_visible=is_visible,
+        )
+
+
+# ── cluster children by shape ──────────────────────────────────────────────
+
+def cluster_children(
+    parent: Node, config: DiscoveryConfig, interfaces: Interfaces, covered: set[int]
+) -> list[list[Node]]:
+    """Group ``parent``'s visible, uncovered children by shape (union-find)."""
+    elems = [
+        c
+        for c in parent.children
+        if interfaces.is_visible(c)
+        and c.id not in covered
+        and interfaces.sig(parent, c) is not None
+    ]
+    if len(elems) < config.min_rows:
         return []
 
-    shapes = [shape(c, ever_visible=ever_visible) for c in children]
-    parent = list(range(n))
+    shapes = [shape(c, interfaces) for c in elems]
+    n = len(elems)
+    find = list(range(n))
 
-    def find(x: int) -> int:
-        while parent[x] != x:
-            parent[x] = parent[parent[x]]
-            x = parent[x]
+    def root_of(x: int) -> int:
+        while find[x] != x:
+            find[x] = find[find[x]]
+            x = find[x]
         return x
-
-    def union(a: int, b: int) -> None:
-        ra, rb = find(a), find(b)
-        if ra != rb:
-            parent[ra] = rb
 
     for i in range(n):
         for j in range(i + 1, n):
-            if shape_similarity(shapes[i], shapes[j]) >= config.threshold:
-                union(i, j)
+            if (
+                shape_similarity(shapes[i], shapes[j], interfaces.path_sim)
+                >= config.shape_threshold
+            ):
+                ri, rj = root_of(i), root_of(j)
+                if ri != rj:
+                    find[ri] = rj
 
     groups: dict[int, list[Node]] = defaultdict(list)
     for i in range(n):
-        groups[find(i)].append(children[i])
-    return [g for g in groups.values() if len(g) >= config.min_group]
+        groups[root_of(i)].append(elems[i])
+    return [g for g in groups.values() if len(g) >= config.min_rows]
 
 
-def find_candidates(root: Node, config: "DiscoveryConfig") -> list[Candidate]:
-    """Scan the tree (post-order) for repeated-child containers."""
-    out: list[Candidate] = []
-    ever_visible = config.ever_visible
-
-    def walk(node: Node) -> None:
-        if ever_visible is not None and node.tag and node.id not in ever_visible:
-            return
-        for child in node.children:
-            walk(child)
-        if len(node.children) >= config.min_group:
-            for group in cluster_siblings(node.children, config):
-                shapes = [shape(c, ever_visible=ever_visible) for c in group]
-                sims = [
-                    shape_similarity(shapes[i], shapes[j])
-                    for i in range(len(group))
-                    for j in range(i + 1, len(group))
-                ]
-                out.append(
-                    Candidate(node, group, sum(sims) / len(sims) if sims else 1.0)
-                )
-
-    walk(root)
-    return out
-
-
-# ── columns ────────────────────────────────────────────────────────────────
+# ── build columns from a row cluster ───────────────────────────────────────
 
 def _path_key(path: tuple) -> tuple:
     return tuple((tag, tuple(sorted(classes))) for tag, classes in path)
 
 
-def build_columns(
-    candidate: Candidate, config: "DiscoveryConfig"
-) -> tuple[list[dict], list[list[Atom]]]:
-    """Cluster per-row atoms into columns, then split multi-atom columns by
-    document position (slot) so no value is silently dropped.
+def _make_column(
+    path: tuple,
+    atype: str,
+    slot: Optional[int],
+    entries: list[tuple[int, Atom]],
+    coverage: int,
+    total_rows: int,
+) -> dict:
+    column = {
+        "path": path,
+        "atype": atype,
+        "slot": slot,
+        "entries": entries,
+        "coverage": coverage,
+        "coverage_ratio": coverage / total_rows if total_rows else 0.0,
+    }
+    column["id"] = column_id(column)
+    column["label"] = column_label(column)
+    column["path_str"] = path_str(path)
+    return column
 
-    Returns ``(columns, row_atoms)`` with each column carrying
-    ``{path, atype, atoms, coverage, slot}``.
-    """
-    ever_visible = config.ever_visible
-    row_atoms = [collect_atoms(row, ever_visible) for row in candidate.rows]
-    flat = [(ri, a) for ri, atoms in enumerate(row_atoms) for a in atoms]
+
+def extract_columns(
+    rows: list[Node], config: DiscoveryConfig, interfaces: Interfaces
+) -> list[dict]:
+    """Cluster per-row atoms into columns (split multi-atom columns by slot)."""
+    min_cover = max(
+        config.min_cols, math.ceil(len(rows) * config.min_coverage_ratio)
+    )
+
+    row_atoms: list[list[Atom]] = []
+    for row in rows:
+        atoms: list[Atom] = []
+
+        def collect(node: Node) -> None:
+            path = interfaces.sig(row, node)
+            if path is None:
+                return
+            for atype, value in interfaces.values(node):
+                if value != "":
+                    atoms.append(Atom(path, atype, value))
+            for child in node.children:
+                collect(child)
+
+        collect(row)
+        row_atoms.append(atoms)
+
+    flat = [(i, atom) for i, atoms in enumerate(row_atoms) for atom in atoms]
     if not flat:
-        return [], row_atoms
+        return []
 
-    buckets: dict[str, list[int]] = defaultdict(list)
-    for i, (_, atom) in enumerate(flat):
-        buckets[atom.atype].append(i)
-
+    # Union-find atoms by path similarity, only comparing the same atype.
     parent = list(range(len(flat)))
 
     def find(x: int) -> int:
@@ -462,99 +580,183 @@ def build_columns(
             x = parent[x]
         return x
 
-    def union(a: int, b: int) -> None:
-        ra, rb = find(a), find(b)
-        if ra != rb:
-            parent[ra] = rb
+    buckets: dict[str, list[int]] = defaultdict(list)
+    for i, (_, atom) in enumerate(flat):
+        buckets[atom.atype].append(i)
 
     for idxs in buckets.values():
         for ii in range(len(idxs)):
             for jj in range(ii + 1, len(idxs)):
                 i, j = idxs[ii], idxs[jj]
-                if path_similarity(flat[i][1].path, flat[j][1].path) >= config.threshold:
-                    union(i, j)
+                if (
+                    interfaces.path_sim(flat[i][1].path, flat[j][1].path)
+                    >= config.path_threshold
+                ):
+                    ri, rj = find(i), find(j)
+                    if ri != rj:
+                        parent[ri] = rj
 
     groups: dict[int, list[tuple[int, Atom]]] = defaultdict(list)
     for i in range(len(flat)):
         groups[find(i)].append(flat[i])
 
-    total_rows = len(candidate.rows)
-    min_cover = max(2, total_rows * 0.5)
+    total_rows = len(rows)
     columns: list[dict] = []
 
     for group in groups.values():
-        covered = len({ri for ri, _ in group})
-        if covered < min_cover:
+        row_set = {i for i, _ in group}
+        if len(row_set) < min_cover:
             continue
 
         per_row: dict[int, list[Atom]] = defaultdict(list)
-        for ri, atom in group:
-            per_row[ri].append(atom)
+        for i, atom in group:
+            per_row[i].append(atom)
 
         max_slots = max(len(v) for v in per_row.values())
         rep_path = Counter(a.path for _, a in group).most_common(1)[0][0]
         atype = group[0][1].atype
 
         if max_slots == 1:
-            columns.append({
-                "path": rep_path,
-                "atype": atype,
-                "atoms": group,
-                "coverage": covered / total_rows,
-                "slot": None,
-            })
+            columns.append(
+                _make_column(rep_path, atype, None, group, len(row_set), total_rows)
+            )
             continue
 
         for slot in range(max_slots):
-            sub_atoms = [
-                (ri, per_row[ri][slot])
-                for ri in range(total_rows)
-                if slot < len(per_row.get(ri, []))
+            sub = [
+                (i, per_row[i][slot])
+                for i in range(total_rows)
+                if slot < len(per_row.get(i, []))
             ]
-            if len(sub_atoms) < min_cover:
+            covered_rows = {i for i, _ in sub}
+            if len(covered_rows) < min_cover:
                 continue
-            columns.append({
-                "path": rep_path,
-                "atype": atype,
-                "atoms": sub_atoms,
-                "coverage": len(sub_atoms) / total_rows,
-                "slot": slot,
-            })
+            columns.append(
+                _make_column(
+                    sub[0][1].path, atype, slot, sub, len(covered_rows), total_rows
+                )
+            )
 
-    columns.sort(key=lambda c: (
-        len(c["path"]),
-        _path_key(c["path"]),
-        c["slot"] if c["slot"] is not None else -1,
-    ))
-    return columns, row_atoms
-
-
-# ── scoring ────────────────────────────────────────────────────────────────
-
-def positional_bonus(candidate: Candidate) -> float:
-    node = candidate.parent
-    while node:
-        if node.tag == "main":
-            return 1.5
-        if node.tag in ("header", "footer", "nav"):
-            return 0.5
-        node = node.parent
-    return 1.0
-
-
-def score_candidate(candidate: Candidate, columns: list[dict]) -> float:
-    if not columns:
-        return 0.0
-    return (
-        len(columns)
-        * (len(candidate.rows) ** 0.5)
-        * candidate.avg_sim
-        * (sum(c["coverage"] for c in columns) / len(columns))
-        * positional_bonus(candidate)
+    columns.sort(
+        key=lambda c: (
+            len(c["path"]),
+            _path_key(c["path"]),
+            c["slot"] if c["slot"] is not None else -1,
+        )
     )
+    return columns
 
 
-# ── labels ─────────────────────────────────────────────────────────────────
+# ── assemble the table record ──────────────────────────────────────────────
+
+def build_table(
+    parent: Node, rows: list[Node], columns: list[dict], avg_sim: float
+) -> dict:
+    """Project a container + its row cluster + columns into a JSON table."""
+    table_rows: list[dict] = []
+    for i in range(len(rows)):
+        record: dict = {}
+        for column in columns:
+            hits = [a.value for ri, a in column["entries"] if ri == i]
+            record[column["id"]] = hits[0] if hits else ""
+        table_rows.append(record)
+
+    score = len(columns) * math.sqrt(len(rows)) * avg_sim
+    return {
+        "parent": {
+            "id": parent.id,
+            "tag": parent.tag,
+            "classes": sorted(parent.classes),
+        },
+        "meta": {
+            "parent_tag": parent.tag,
+            "parent_classes": sorted(parent.classes),
+            "row_count": len(rows),
+            "avg_sim": round(avg_sim, 3),
+            "columns": len(columns),
+        },
+        "columns": [
+            {
+                "id": c["id"],
+                "label": c["label"],
+                "path": c["path_str"],
+                "atype": c["atype"],
+                "slot": c["slot"],
+                "coverage": round(c["coverage_ratio"], 2),
+                "row_count": c["coverage"],
+            }
+            for c in columns
+        ],
+        "rows": table_rows,
+        "row_count": len(rows),
+        "column_count": len(columns),
+        "score": round(score, 3),
+    }
+
+
+# ── coverage lock ──────────────────────────────────────────────────────────
+
+def mark_covered(node: Node, covered: set[int]) -> None:
+    """Lock ``node`` and its whole subtree so ancestors can't re-detect it."""
+    covered.add(node.id)
+    for child in node.children:
+        mark_covered(child, covered)
+
+
+# ── per-node processing + bottom-up traversal ──────────────────────────────
+
+def _discover(
+    root: Node, config: DiscoveryConfig, interfaces: Interfaces
+) -> tuple[list[dict], int]:
+    """Run the algorithm on one document tree; return ``(tables, candidates)``."""
+    if root is None:
+        return [], 0
+
+    tables: list[dict] = []
+    covered: set[int] = set()
+    candidates = 0
+
+    def process(node: Node) -> None:
+        nonlocal candidates
+        if node.id in covered:
+            return
+        if not interfaces.is_visible(node):
+            return
+        if interfaces.sig(node, node) is None:
+            return
+
+        clusters = cluster_children(node, config, interfaces, covered)
+        if not clusters:
+            return
+        candidates += len(clusters)
+        clusters.sort(key=lambda g: (-len(g), min(c.id for c in g)))
+
+        for cluster in clusters:
+            columns = extract_columns(cluster, config, interfaces)
+            if len(columns) < config.min_cols:
+                continue
+            avg_sim = group_similarity(cluster, interfaces)
+            tables.append(build_table(node, cluster, columns, avg_sim))
+            mark_covered(node, covered)
+            return  # one table per node
+
+    def post_order(node: Node) -> None:
+        for child in node.children:
+            post_order(child)
+        process(node)
+
+    post_order(root)
+    return tables, candidates
+
+
+def discover(root: Node, config: Optional[DiscoveryConfig] = None) -> list[dict]:
+    """Discover the tables in one document tree (``DiscoverTables``)."""
+    config = config or DiscoveryConfig()
+    tables, _ = _discover(root, config, config.interfaces())
+    return tables
+
+
+# ── labels / paths ─────────────────────────────────────────────────────────
 
 def best_class(classes: frozenset[str]) -> str:
     return sorted(classes, key=len, reverse=True)[0] if classes else ""
@@ -583,47 +785,6 @@ def column_label(column: dict) -> str:
     return f"{label}#{slot}" if slot is not None else label
 
 
-# ── extraction ─────────────────────────────────────────────────────────────
-
-def extract_table(
-    candidate: Candidate, columns: list[dict], row_atoms: list[list[Atom]]
-) -> dict:
-    """Project a candidate + its columns into the JSON table shape."""
-    used = {id(atom) for column in columns for _, atom in column["atoms"]}
-    rows: list[dict] = []
-    for ri, atoms in enumerate(row_atoms):
-        row: dict = {}
-        for column in columns:
-            hits = [a for r, a in column["atoms"] if r == ri]
-            row[column_id(column)] = hits[0].value if hits else ""
-        row["_extra"] = {
-            f"{path_str(a.path)}@{a.atype}": a.value
-            for a in atoms
-            if id(a) not in used
-        }
-        rows.append(row)
-    return {
-        "meta": {
-            "parent_tag": candidate.parent.tag,
-            "parent_classes": sorted(candidate.parent.classes),
-            "row_count": len(candidate.rows),
-            "avg_sim": round(candidate.avg_sim, 3),
-            "columns": len(columns),
-        },
-        "columns": [
-            {
-                "id": column_id(c),
-                "label": column_label(c),
-                "path": path_str(c["path"]),
-                "atype": c["atype"],
-                "coverage": round(c["coverage"], 2),
-            }
-            for c in columns
-        ],
-        "rows": rows,
-    }
-
-
 # ── fingerprint + dedup ────────────────────────────────────────────────────
 
 def row_identity(atoms: list[Atom]) -> tuple[str, str]:
@@ -634,14 +795,13 @@ def row_identity(atoms: list[Atom]) -> tuple[str, str]:
     return ("empty", "")
 
 
-def candidate_fingerprint(
-    candidate: Candidate, ever_visible: Optional[set[int]] = None
-) -> frozenset:
+def table_fingerprint(table: dict) -> frozenset:
+    """Data fingerprint of a table: its non-empty ``(column_id, value)`` cells."""
     fingerprint = set()
-    for row in candidate.rows:
-        ident = row_identity(collect_atoms(row, ever_visible))
-        if ident[1]:
-            fingerprint.add(ident)
+    for row in table.get("rows") or []:
+        for cid, value in row.items():
+            if value:
+                fingerprint.add((cid, value))
     return frozenset(fingerprint)
 
 
@@ -677,29 +837,17 @@ def dedupe(tables: list[dict], threshold: float) -> list[dict]:
     return kept
 
 
-# ── public entry point ─────────────────────────────────────────────────────
-
-@dataclass
-class DiscoveryConfig:
-    """Tuning knobs for :func:`discover_tables`."""
-
-    threshold: float = 0.6
-    min_group: int = 3
-    min_rows: int = 3
-    min_cols: int = 2
-    min_avg_sim: float = 0.6
-    dedupe: bool = True
-    dedupe_threshold: float = 0.8
-    ever_visible: Optional[set[int]] = None   # populated by discover_tables
-
+# ── trace-aware entry points ───────────────────────────────────────────────
 
 def discover_tables(
     raw: dict, config: Optional[DiscoveryConfig] = None
 ) -> dict:
     """Discover unique tables in a trace.
 
-    Folds ``raw``, computes the ever-visible set, scans for repeated-child
-    containers, scores and extracts them, then de-duplicates. Returns
+    Folds ``raw`` (snapshot + records) into a :class:`Node` tree and runs the
+    algorithm. When neither ``is_visible`` nor ``ever_visible`` is supplied, the
+    trace-aware ever-visible predicate is used, so nodes that were never
+    rendered are dropped. Returns
     ``{"total_candidates", "tables_returned", "tables"}``.
     """
     config = config or DiscoveryConfig()
@@ -717,44 +865,81 @@ def discover_tables(
     if final_root is None:
         raise ValueError("trace has no snapshot")
 
-    if config.ever_visible is None:
+    if config.is_visible is None and config.ever_visible is None:
         config.ever_visible = compute_ever_visible(
             initial_root, records, final_root
         )
 
-    candidates = find_candidates(final_root, config)
-
-    evaluated = []
-    for candidate in candidates:
-        columns, row_atoms = build_columns(candidate, config)
-        score = score_candidate(candidate, columns)
-        evaluated.append((candidate, score, columns, row_atoms))
-    evaluated.sort(key=lambda item: -item[1])
-
-    tables: list[dict] = []
-    for candidate, score, columns, row_atoms in evaluated:
-        if score <= 0:
-            continue
-        if len(candidate.rows) < config.min_rows:
-            continue
-        if candidate.avg_sim < config.min_avg_sim:
-            continue
-        if len(columns) < config.min_cols:
-            continue
-        table = extract_table(candidate, columns, row_atoms)
-        table["score"] = round(score, 3)
-        table["_fingerprint"] = candidate_fingerprint(
-            candidate, config.ever_visible
-        )
-        tables.append(table)
+    tables, candidates = _discover(final_root, config, config.interfaces())
 
     if config.dedupe:
+        for table in tables:
+            table["_fingerprint"] = table_fingerprint(table)
         tables = dedupe(tables, config.dedupe_threshold)
     for table in tables:
         table.pop("_fingerprint", None)
 
     return {
-        "total_candidates": len(candidates),
+        "total_candidates": candidates,
         "tables_returned": len(tables),
         "tables": tables,
     }
+
+
+@dataclass
+class Document:
+    """One document to scan: an id plus its folded DOM tree."""
+
+    id: str
+    root: Node
+
+
+def _resolve_document(
+    document: Union[Document, Node, dict], config: DiscoveryConfig
+) -> tuple[str, Node]:
+    if isinstance(document, Document):
+        return document.id, document.root
+    if isinstance(document, Node):
+        return str(document.id), document
+    if isinstance(document, dict):
+        if "root" in document:
+            return str(document.get("id", "")), document["root"]
+        trace = document.get("trace") or document
+        doc_id = str(
+            document.get("id") or (trace.get("meta") or {}).get("url") or ""
+        )
+        return doc_id, build_tree(trace)
+    raise TypeError(f"unsupported document: {type(document).__name__}")
+
+
+def discover_across_documents(
+    documents: Iterable[Union[Document, Node, dict]],
+    config: Optional[DiscoveryConfig] = None,
+) -> dict:
+    """Run :func:`discover` over many documents with per-document state.
+
+    Returns ``{"stats", "all_tables"}`` where ``all_tables`` is a list of
+    ``{"document_id", "tables"}``. There is no cross-document memory.
+    """
+    config = config or DiscoveryConfig()
+    all_tables: list[dict] = []
+    stats = {"docs": 0, "docs_with_tables": 0, "total_tables": 0}
+
+    for document in documents:
+        doc_id, root = _resolve_document(document, config)
+        interfaces = config.interfaces()
+        tables, _ = _discover(root, config, interfaces)
+        if config.dedupe:
+            for table in tables:
+                table["_fingerprint"] = table_fingerprint(table)
+            tables = dedupe(tables, config.dedupe_threshold)
+        for table in tables:
+            table.pop("_fingerprint", None)
+
+        all_tables.append({"document_id": doc_id, "tables": tables})
+        stats["docs"] += 1
+        stats["total_tables"] += len(tables)
+        if tables:
+            stats["docs_with_tables"] += 1
+
+    return {"stats": stats, "all_tables": all_tables}
