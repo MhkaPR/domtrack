@@ -23,12 +23,14 @@ If you are an LLM answering questions about or generating code against
 | Compare | `domtrack.replay.compare` | Replay → record → diff the result vs the original | yes |
 | Rebuild | `domtrack.html` | Fold a trace into HTML at any record point | no |
 | Diff | `domtrack.diff` | Compare the content of two captures | no |
+| Tables | `domtrack.tables` | Discover, label, and display HTML tables in a trace | no |
 
 Capture and replay depend on `playwright`. The trace **format** helpers
 (`domtrack.trace`, including the `DomState` reconstructor), the **diff**
-helpers (`domtrack.diff`), and the storage helpers (`domtrack.storage`) have no
-browser dependency and can be used standalone. The `domtrack html` and
-`domtrack diff` subcommands are thin CLI front-ends over those.
+helpers (`domtrack.diff`), the **tables** helpers (`domtrack.tables`), and the
+storage helpers (`domtrack.storage`) have no browser dependency and can be used
+standalone. The `domtrack html`, `domtrack diff`, and `domtrack tables`
+subcommands are thin CLI front-ends over those.
 
 ## 2. Data flow
 
@@ -77,6 +79,13 @@ domtrack/
 │   ├── core.py        content view + content-level DiffResult
 │   ├── cli.py         `domtrack diff` argument parser + main()
 │   └── __main__.py    `python -m domtrack.diff`
+├── tables/
+│   ├── __init__.py    tables public surface
+│   ├── discovery.py   find repeated tabular structures in a folded trace
+│   ├── labeling.py    LLM semantic labels (openai / compatible / anthropic)
+│   ├── render.py      rich / plain / markdown / csv rendering
+│   ├── cli.py         `domtrack tables <extract|label|show>` parser + main()
+│   └── __main__.py    `python -m domtrack.tables`
 ├── compare/
 │   ├── __init__.py    compare public surface (`build_parser`, `main`)
 │   ├── cli.py         `domtrack compare` argument parser + main()
@@ -155,6 +164,13 @@ result = diff.diff_traces(trace.load_raw("A.json"), trace.load_raw("B.json"))
 print(result.summary)          # {a_nodes, b_nodes, added, removed, changed}
 for path, entry in result.added:
     print("added", path, entry.text)
+
+# Discover tables in a trace (no browser):
+from domtrack.tables import discover_tables, label_tables, render_tables
+
+tables = discover_tables(raw)                       # {"total_candidates", "tables_returned", "tables"}
+labeled = label_tables(tables)                      # adds title/purpose/semantic_label
+render_tables(labeled, "markdown", out_path="tables.md")
 ```
 
 ## 5. Minimal end-to-end example
@@ -208,5 +224,6 @@ reference nodes by id and never re-embed the target's full text/HTML. Full spec:
 * [`capture.md`](capture.md) — capture API, config, and the browser JS.
 * [`replay.md`](replay.md) — replay API, modes, filters, timing, stats.
 * [`cli.md`](cli.md) — all command-line flags.
+* [`tables.md`](tables.md) — table discovery, LLM labeling, and rendering.
 * [`modules.md`](modules.md) — per-file module reference.
 * [`examples.md`](examples.md) — recipes.

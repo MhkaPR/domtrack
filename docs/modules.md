@@ -10,7 +10,7 @@ Top-level package. Re-exports `TracerConfig`, the trace constants
 (`load_raw`, `is_rrweb_trace`, `index_snapshot`, `node_to_html`,
 `to_mutation_dicts`, `DomState`, `render_node`, `rebuild_html`). Provides lazy
 access to the subpackages `domtrack.capture`, `domtrack.replay`,
-`domtrack.html`, `domtrack.diff`, and `domtrack.compare` via PEP 562
+`domtrack.html`, `domtrack.diff`, `domtrack.compare`, and `domtrack.tables` via PEP 562
 `__getattr__` so importing the package does not import Playwright.
 `__version__ = "2.0.0"`.
 
@@ -26,8 +26,9 @@ Unified dispatcher.
 main(argv: list[str] | None = None) -> int
 ```
 
-`argv[0]` selects `capture` or `replay`; the rest is passed to the matching
-subcommand's `main`. No args (or `-h`/`--help`/`help`) prints usage.
+`argv[0]` selects `capture`, `replay`, `html`, `diff`, `compare`, or `tables`;
+the rest is passed to the matching subcommand's `main`. No args (or
+`-h`/`--help`/`help`) prints usage.
 
 ## `domtrack/config.py`
 
@@ -117,6 +118,7 @@ VOID_ELEMENTS: frozenset[str]
 
 def is_rrweb_trace(raw: dict) -> bool
 def load_raw(path: str) -> dict
+def load_trace_inputs(paths: list[str]) -> dict
 def index_snapshot(node) -> dict[int, dict]
 def render_node(node) -> str
 def node_to_html(node) -> str
@@ -149,6 +151,10 @@ handles both the rrweb layout and the legacy flat `mutations` array.
 `rebuild_html(raw, at_ms)` is the one-call helper; `render_node` is the shared
 serializer (also used by `node_to_html`) and additionally renders a document
 root by concatenating its children.
+
+`load_trace_inputs(paths)` accepts either one combined trace file or a
+`[snapshot.json, records.json]` pair and is shared by the `html` and `tables`
+CLIs.
 
 ## `domtrack/capture/__init__.py`
 
@@ -260,6 +266,169 @@ Re-exports `build_parser` and `main` from `domtrack.compare.cli`.
 ## `domtrack/compare/__main__.py`
 
 Runs `domtrack.compare.cli.main`.
+
+## `domtrack/tables/__init__.py`
+
+Re-exports the tables public surface: `Node`, `Atom`, `Candidate`,
+`DiscoveryConfig`, `build_tree`, `discover_tables`, `LabelConfig`,
+`label_tables`, `RenderOptions`, and `render_tables`. The provider SDKs
+(`openai` / `anthropic`) and display helpers (`rich` / `tabulate`) are imported
+lazily by the underlying modules.
+
+## `domtrack/tables/discovery.py`
+
+Browser-free table discovery over a folded trace.
+
+```python
+SKIP_TAGS: frozenset[str]
+VALUE_ATTRS: tuple[tuple[str, str], ...]
+
+def clean(text: str | None) -> str
+
+@dataclass
+class Node:
+    id: int; tag: str; attrs: dict; text: str; children: list; parent: Node | None
+    @property
+    def classes(self) -> frozenset[str]: ...
+    @classmethod
+    def from_serialized(cls, raw: dict | None) -> "Node" | None: ...
+
+def build_tree(raw: dict) -> Node
+def skip_subtree(node: Node) -> bool
+
+@dataclass
+class Atom:
+    path: tuple; atype: str; value: str
+
+def collect_atoms(root: Node) -> list[Atom]
+
+def jaccard(a, b) -> float
+def component_similarity(c1, c2) -> float
+def path_similarity(p1, p2) -> float
+def shape(node: Node, depth: int = 6) -> frozenset
+def shape_similarity(s1, s2) -> float
+
+@dataclass
+class Candidate:
+    parent: Node; rows: list[Node]; avg_sim: float
+
+def cluster_siblings(children, config) -> list[list[Node]]
+def find_candidates(root: Node, config) -> list[Candidate]
+def build_columns(candidate, config) -> tuple[list[dict], list[list[Atom]]]
+def positional_bonus(candidate) -> float
+def score_candidate(candidate, columns) -> float
+
+def best_class(classes) -> str
+def path_str(path) -> str
+def column_id(column) -> str
+def column_label(column) -> str
+def extract_table(candidate, columns, row_atoms) -> dict
+
+def row_identity(atoms) -> tuple[str, str]
+def candidate_fingerprint(candidate) -> frozenset
+def fingerprint_similarity(a, b) -> float
+def is_subset_of(a, b, ratio: float = 0.85) -> bool
+def dedupe(tables, threshold) -> list[dict]
+
+@dataclass
+class DiscoveryConfig:
+    threshold: float = 0.6
+    min_group: int = 3
+    min_rows: int = 3
+    min_cols: int = 2
+    min_avg_sim: float = 0.6
+    dedupe: bool = True
+    dedupe_threshold: float = 0.8
+
+def discover_tables(raw: dict, config: DiscoveryConfig | None = None) -> dict
+```
+
+`build_tree` folds the trace with `DomState` and adapts it to a `Node` tree.
+`find_candidates` clusters siblings by shape; `build_columns` clusters per-row
+atoms by path; `score_candidate` ranks them; `dedupe` collapses overlapping
+tables by data fingerprint. `discover_tables` is the one-call entry point
+returning `{"total_candidates", "tables_returned", "tables"}`.
+
+## `domtrack/tables/labeling.py`
+
+LLM semantic labeling of extracted tables.
+
+```python
+def truncate(value, limit: int = 120)
+def compact_table(index, table, max_samples=3, max_rows=3, max_chars=120) -> dict
+def build_payload(tables, start_index) -> dict
+
+COLUMN_LABEL_SCHEMA, TABLE_LABEL_SCHEMA, RESPONSE_SCHEMA, JSON_SCHEMA_WRAPPER
+SYSTEM_PROMPT: str
+
+def call_openai(api_key, model, base_url, payload, lang, use_strict=True) -> dict
+def call_anthropic(api_key, model, payload, lang) -> dict
+def run_llm(tables, config) -> list[dict]
+def merge_labels(data, labels) -> dict
+
+DEFAULT_MODELS: dict[str, str]
+API_KEY_ENV: dict[str, str]
+
+@dataclass
+class LabelConfig:
+    provider: str = "openai"
+    model: str | None = None
+    base_url: str | None = None
+    api_key: str | None = None
+    lang: str = "fa"
+    batch_size: int = 25
+    dry_run: bool = False
+
+def resolve_api_key(config) -> str | None
+def label_tables(data, config=None) -> dict
+```
+
+`label_tables` batches the compact payloads through the chosen provider and
+merges `title` / `purpose` / per-column `semantic_label` back into a deep copy
+of `data`. With `dry_run` it prints the payloads and returns `data` unchanged.
+Provider SDKs are imported inside `call_openai` / `call_anthropic`.
+
+## `domtrack/tables/render.py`
+
+Render labeled tables as rich / plain / markdown / csv.
+
+```python
+@dataclass
+class RenderOptions:
+    only: set[int] | None = None
+    max_rows: int = 0
+    max_chars: int = 80
+
+def get_cell(row, column_id) -> str
+def column_headers(table) -> list[tuple[str, str]]
+def truncate(value, limit) -> str
+def iter_tables(data, only=None) -> Iterator[tuple[int, dict]]
+
+def render_rich(data, options) -> None
+def render_plain(data, options) -> None
+def render_markdown(data, options, out=sys.stdout) -> None
+def render_csv(data, options, out) -> None
+def render(data, fmt, options=None, out_path=None) -> None
+```
+
+`column_headers` heads each column with `semantic_label` ← `label` ← id.
+`render` dispatches on `fmt` and writes to `out_path` for `markdown`/`csv`;
+`rich` falls back to `plain` when `rich` is not installed.
+
+## `domtrack/tables/cli.py`
+
+`domtrack tables <extract|label|show>` argument parser and `main`.
+
+```python
+def build_parser() -> argparse.ArgumentParser
+def main(argv: list[str] | None = None) -> int
+```
+
+Thin front-end over `discovery`, `labeling`, and `render`.
+
+## `domtrack/tables/__main__.py`
+
+Runs `domtrack.tables.cli.main`.
 
 ## `domtrack/replay/__init__.py`
 

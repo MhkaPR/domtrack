@@ -163,6 +163,31 @@ domtrack compare traces/before.json --headless --json   # JSON
 domtrack replay traces/before.json --record             # record only
 ```
 
+## Extract tables from a capture
+
+Find the tabular structures in a trace — pricing grids, product lists, result
+tables — with no browser. Discovery reuses the same snapshot + record folding
+as `domtrack html`/`domtrack diff`, then clusters repeated sibling shapes into
+rows and columns:
+
+```python
+from domtrack import trace
+from domtrack.tables import discover_tables, label_tables, render_tables
+
+raw = trace.load_raw("traces/trace_x.json")
+tables = discover_tables(raw)          # {"total_candidates", "tables_returned", "tables"}
+labeled = label_tables(tables)         # optional: LLM title/purpose/column labels
+render_tables(labeled, "markdown", out_path="tables.md")
+```
+
+```bash
+domtrack tables extract traces/trace_x.json -o tables.json --verbose
+domtrack tables label tables.json -o labeled.json          # needs an LLM API key
+domtrack tables show labeled.json --format markdown -o tables.md
+```
+
+See [`docs/tables.md`](docs/tables.md) for the full pipeline.
+
 ## Documentation
 
 All docs live in [`docs/`](docs/). They are written to be read in full by an
@@ -176,6 +201,7 @@ LLM in a single pass, with stable headings and self-contained examples.
 | [`docs/capture.md`](docs/capture.md) | `domtrack.capture`, `TracerConfig`, `Recorder`, capture JS |
 | [`docs/replay.md`](docs/replay.md) | `domtrack.replay`, `Replayer`, `ReplayConfig`, modes, filters, timing, replay recording, compare |
 | [`docs/cli.md`](docs/cli.md) | Every command-line flag for all subcommands |
+| [`docs/tables.md`](docs/tables.md) | Table discovery, LLM labeling, and rendering |
 | [`docs/modules.md`](docs/modules.md) | Per-module reference for every file in the package |
 | [`docs/examples.md`](docs/examples.md) | Copy-paste recipes (record, replay, clean mode, custom policies) |
 

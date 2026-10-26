@@ -14,6 +14,9 @@ browser-free format core. The only shared artifact is the trace file.
 | Storage | `domtrack.storage` | — | `save_json`, `save_csv`, `timestamp` |
 | Trace core | `domtrack.trace` | — | rrweb constants, snapshot indexing, HTML rebuild (`DomState`), conversion |
 | Content diff | `domtrack.diff.core` | `trace` | Fold two traces into content views and compare text/attributes |
+| Table discovery | `domtrack.tables.discovery` | `trace` | Fold a trace and find repeated tabular structures |
+| Table labeling | `domtrack.tables.labeling` | — | Add semantic titles / column labels with an LLM |
+| Table rendering | `domtrack.tables.render` | — | Render labeled tables (rich / plain / markdown / csv) |
 | Replay models | `domtrack.replay.models` | `trace` | Dataclasses for a loaded trace |
 | Locator | `domtrack.replay.locators` | `models`, `selectors` | Find a mutation's element (id → selector → stripped classes) |
 | Appliers | `domtrack.replay.appliers` | `models`, `locators` | Apply a mutation to the live DOM |
@@ -73,6 +76,25 @@ attributes (dropping non-data and volatile attributes/text), and reports
 `added` / `removed` / `changed`. Because the records are folded through
 `DomState`, structural inserts (childList) and text/attribute updates are all
 reflected in the diff.
+
+## Table discovery
+
+`domtrack tables extract` reuses the same folding core and adds a structural
+pass on top:
+
+1. `discovery.build_tree(raw)` folds the trace with `DomState` and adapts the
+   result to a light `Node` view.
+2. `find_candidates` clusters siblings whose *shape* (the set of leaf paths
+   under them) is mutually similar — the signature of a table, list, or card
+   grid.
+3. `build_columns` clusters the per-row atoms (text / `href` / `src` / …) into
+   columns by path similarity; `score_candidate` ranks candidates.
+4. `dedupe` collapses overlapping containers by a data fingerprint, so nested
+   tables keep only the largest.
+
+`domtrack tables label` then sends a compact payload to an LLM to attach a
+`title`, `purpose`, and per-column `semantic_label`, and `domtrack tables show`
+renders the labeled JSON. All three stages are browser-free.
 
 ## Replay → record → diff
 

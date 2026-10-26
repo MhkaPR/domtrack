@@ -35,21 +35,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def load_inputs(paths: list[str]) -> dict:
     """Return a trace dict from either one combined file or two split files."""
-    if len(paths) == 1:
-        raw = tf.load_raw(paths[0])
-        if not tf.is_rrweb_trace(raw):
-            raise ValueError(
-                f"{paths[0]}: not an rrweb-style trace (need 'snapshot' + 'records')"
-            )
-        return raw
-
-    snapshot = tf.load_raw(paths[0])
-    if isinstance(snapshot, dict) and "snapshot" in snapshot:
-        snapshot = snapshot["snapshot"]
-    records = tf.load_raw(paths[1])
-    if isinstance(records, dict):
-        records = records.get("records") or []
-    return {"snapshot": snapshot, "records": records}
+    return tf.load_trace_inputs(paths)
 
 
 def _build_state(raw: dict, at_ms: int | None, at_index: int | None) -> tf.DomState:

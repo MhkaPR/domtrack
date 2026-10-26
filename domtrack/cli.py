@@ -15,6 +15,9 @@
 ``domtrack compare <trace.json>`` → replay, record the run, and diff it against
 the original capture (delegates to ``domtrack.compare.cli``).
 
+``domtrack tables <extract|label|show>`` → discover HTML tables in a trace,
+label them with an LLM, and display them (delegates to ``domtrack.tables.cli``).
+
 Each subcommand accepts the exact same flags as its standalone
 ``domtrack-*`` entry point.
 """
@@ -32,6 +35,7 @@ Commands:
   html    <trace.json>   Rebuild the DOM as HTML at a record point (no browser).
   diff    <A> <B>        Compare two captures at the content level (no browser).
   compare <trace.json>   Replay a trace, record the run, and diff the result.
+  tables  <sub>          Extract / label / show HTML tables from a trace.
 
 Run `domtrack <command> --help` for options.
 """
@@ -59,6 +63,9 @@ def main(argv: list[str] | None = None) -> int:
     if command == "compare":
         from .compare.cli import main as compare_main
         return compare_main(rest)
+    if command == "tables":
+        from .tables.cli import main as tables_main
+        return tables_main(rest)
 
     print(f"Unknown command: {command}\n", file=sys.stderr)
     print(USAGE, file=sys.stderr)

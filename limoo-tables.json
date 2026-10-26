@@ -1,0 +1,1877 @@
+{
+  "total_candidates": 565,
+  "tables_returned": 20,
+  "tables": [
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "slick-track"
+        ],
+        "row_count": 5,
+        "avg_sim": 0.801,
+        "columns": 20
+      },
+      "columns": [
+        {
+          "id": "div.slick-active > div.idres_eur800 > a@href",
+          "label": "a.href",
+          "path": "div.slick-active > div.idres_eur800 > a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#0",
+          "label": "id_res_eur800#0",
+          "path": "div.slick-active > div.idres_eur800 > a > button.id_res_eur800",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#1",
+          "label": "id_res_eur800#1",
+          "path": "div.slick-active > div.idres_eur800 > a > button.id_res_eur800",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div > p.tits-card@text#0",
+          "label": "tits-card#0",
+          "path": "div.slick-active > div.idres_eur800 > div > p.tits-card",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div > p.tits-card@text#1",
+          "label": "tits-card#1",
+          "path": "div.slick-active > div.idres_eur800 > div > p.tits-card",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#0",
+          "label": "about_host#0",
+          "path": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#1",
+          "label": "about_host#1",
+          "path": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#2",
+          "label": "about_host#2",
+          "path": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#3",
+          "label": "about_host#3",
+          "path": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#4",
+          "label": "about_host#4",
+          "path": "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#0",
+          "label": "limoo-host-pricing__label#0",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#1",
+          "label": "limoo-host-pricing__label#1",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#2",
+          "label": "limoo-host-pricing__label#2",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#0",
+          "label": "b#0",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#1",
+          "label": "b#1",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#2",
+          "label": "b#2",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#3",
+          "label": "b#3",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#4",
+          "label": "b#4",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#5",
+          "label": "b#5",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#6",
+          "label": "b#6",
+          "path": "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "div.slick-active > div.idres_eur800 > a@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp2&utm_source=limoohost&utm_medium=persale-click&utm_campaign=presale",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#0": "خرید",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#1": "اتمام ظرفیت",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#0": "wordpress 2",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#1": "هاست وردپرس حرفه ای 2",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#0": "2 گیگابایت فضای ذخیره سازی NVMe",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#1": "ترافیک نامحدود",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#2": "CPU: AMD Ryzen™ 9 7950X3D",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#3": "دیتاسنتر Hetzner",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#4": "پارک دامین و سابدامین: نامحدود",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#0": "قیمت ماهیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#1": "تخفیف",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#2": "قیمت سالیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#0": "۸۹۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#1": "هزارتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#2": "۱۷٪",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#3": "۱۰٫۴۱۳",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#4": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#5": "۸٫۹۰۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#6": "میلیونتومان",
+          "_extra": {}
+        },
+        {
+          "div.slick-active > div.idres_eur800 > a@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp5&utm_source=limoohost&utm_medium=persale-click&utm_campaign=presale",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#0": "خرید",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#1": "اتمام ظرفیت",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#0": "wordpress 5",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#1": "هاست وردپرس حرفه ای 5",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#0": "5 گیگابایت فضای ذخیره سازی NVMe",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#1": "ترافیک نامحدود",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#2": "CPU: AMD Ryzen™ 9 7950X3D",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#3": "دیتاسنتر Hetzner",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#4": "پارک دامین و سابدامین: نامحدود",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#0": "قیمت ماهیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#1": "تخفیف",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#2": "قیمت سالیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#0": "۱٫۰۴۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#1": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#2": "۱۷٪",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#3": "۱۲٫۱۶۸",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#4": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#5": "۱۰٫۴۰۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#6": "میلیونتومان",
+          "_extra": {}
+        },
+        {
+          "div.slick-active > div.idres_eur800 > a@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp15&utm_source=limoohost&utm_medium=persale-click&utm_campaign=presale",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#0": "خرید",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#1": "اتمام ظرفیت",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#0": "wordpress 15",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#1": "هاست وردپرس حرفه ای 15",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#0": "15 گیگابایت فضای ذخیره سازی NVMe",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#1": "ترافیک نامحدود",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#2": "CPU: AMD Ryzen™ 9 7950X3D",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#3": "دیتاسنتر Hetzner",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#4": "پارک دامین و سابدامین: نامحدود",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#0": "قیمت ماهیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#1": "تخفیف",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#2": "قیمت سالیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#0": "۱٫۱۹۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#1": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#2": "۱۷٪",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#3": "۱۳٫۹۲۳",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#4": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#5": "۱۱٫۹۰۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#6": "میلیونتومان",
+          "_extra": {}
+        },
+        {
+          "div.slick-active > div.idres_eur800 > a@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp30&utm_source=limoohost&utm_medium=persale-click&utm_campaign=presale",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#0": "خرید",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#1": "اتمام ظرفیت",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#0": "wordpress 30",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#1": "هاست وردپرس حرفه ای 30",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#0": "30 گیگابایت فضای ذخیره سازی NVMe",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#1": "ترافیک نامحدود",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#2": "CPU: AMD Ryzen™ 9 7950X3D",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#3": "دیتاسنتر Hetzner",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#4": "پارک دامین و سابدامین: نامحدود",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#0": "قیمت ماهیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#1": "تخفیف",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#2": "قیمت سالیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#0": "۱٫۲۹۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#1": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#2": "۱۷٪",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#3": "۱۵٫۰۹۳",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#4": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#5": "۱۲٫۹۰۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#6": "میلیونتومان",
+          "_extra": {}
+        },
+        {
+          "div.slick-active > div.idres_eur800 > a@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp60&utm_source=limoohost&utm_medium=persale-click&utm_campaign=presale",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#0": "خرید",
+          "div.slick-active > div.idres_eur800 > a > button.id_res_eur800@text#1": "اتمام ظرفیت",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#0": "wordpress 60",
+          "div.slick-active > div.idres_eur800 > div > p.tits-card@text#1": "هاست وردپرس حرفه ای 60",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#0": "60 گیگابایت فضای ذخیره سازی NVMe",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#1": "ترافیک نامحدود",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#2": "CPU: AMD Ryzen™ 9 7950X3D",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#3": "دیتاسنتر Hetzner",
+          "div.slick-active > div.idres_eur800 > div.mt-32 > p.about_host@text#4": "پارک دامین و سابدامین: نامحدود",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#0": "قیمت ماهیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#1": "تخفیف",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__label@text#2": "قیمت سالیانه",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#0": "۱٫۶۹۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#1": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#2": "۱۷٪",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#3": "۱۹٫۷۷۳",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#4": "میلیونتومان",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#5": "۱۶٫۹۰۰",
+          "div.slick-active > div.idres_eur800 > div.limoo-host-pricing--uses-divider > div.limoo-host-pricing__period > div.limoo-host-pricing__current > span.limoo-host-pricing__value > b@text#6": "میلیونتومان",
+          "_extra": {}
+        }
+      ],
+      "score": 35.839
+    },
+    {
+      "meta": {
+        "parent_tag": "ul",
+        "parent_classes": [
+          "menu",
+          "nav-menu"
+        ],
+        "row_count": 7,
+        "avg_sim": 0.929,
+        "columns": 16
+      },
+      "columns": [
+        {
+          "id": "li.menu-item > a.nav__link@text",
+          "label": "nav__link",
+          "path": "li.menu-item > a.nav__link",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "li.menu-item > a.nav__link@href",
+          "label": "nav__link.href",
+          "path": "li.menu-item > a.nav__link",
+          "atype": "href",
+          "coverage": 0.57
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0",
+          "label": "text_clr_Subtitles#0",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text",
+          "label": "text_clr_header",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header",
+          "atype": "text",
+          "coverage": 0.57
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0",
+          "label": "sub-nav__link.href#0",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1",
+          "label": "sub-nav__link.href#1",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2",
+          "label": "sub-nav__link.href#2",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3",
+          "label": "sub-nav__link.href#3",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 0.71
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0",
+          "label": "span#0",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1",
+          "label": "span#1",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2",
+          "label": "span#2",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3",
+          "label": "span#3",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4",
+          "label": "span#4",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5",
+          "label": "span#5",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6",
+          "label": "span#6",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.86
+        },
+        {
+          "id": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7",
+          "label": "span#7",
+          "path": "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 0.71
+        }
+      ],
+      "rows": [
+        {
+          "li.menu-item > a.nav__link@text": "هاست",
+          "li.menu-item > a.nav__link@href": "https://limoo.host/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0": "تنوع خدمات میزبانی اینترنتی در لیموهاست، به شما اجازه می‌دهد راه منحصربه‌فرد خودتان را برای ورود به دنیای وب یا توسعۀ کسب‌وکارتان انتخاب کنید. لیموهاست، خدمات میزبانی وب برای سایتها",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text": "خرید هاست",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0": "https://limoo.host/wordpress/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1": "https://limoo.host/woocommerce/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2": "https://limoo.host/eco-wp/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3": "https://limoo.host/nodejs/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0": "هاست وردپرس",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1": "میزبانی وب وردپرس، سرویسی است که برای سایت‌های وردپرسی بهینه‌سازی شده و هر ماژول یا زیرساختی که سیستم مدیریت محتوای WordPress به آن نیاز دارد، در آن فراهم شده است.",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2": "هاست ووکامرس",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3": "هاست فروشگاهی ووکامرس، هم برای آنلاین‌شاپ‌های ووکامرسی و هم برای سایت‌های فروشگاهی دیگر که بازدید متوسطی دارند، یک گزینۀ عالی است.",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4": "هاست وردپرس اقتصادی",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5": "هاست اقتصادی وردپرس، نقطه‌ شروع خوبی برای آشنایی با میزبانی وردپرس است. اگر یک سایت وردپرسی نوپا دارید و می‌خواهید کمتر",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6": "هاست نود جی اس",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7": "هاست نود.جی‌اس به توسعه‌دهندگان این امکان را می‌دهد که برنامه‌های مقیاس‌پذیر را در محیط جاوا اسکریپت توسعه دهند و از سرعت بالا در پردازش حجم زیادی داده لذت ببرند. با سرویس",
+          "_extra": {
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a@href": "https://limoo.host/",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href": "https://limoo.host/email/",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text": "هاست ایمیل",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span.x2small-text@text": "با خرید هاست ایمیل (email hosting service)، سطح دیگری از تعامل با مشتریان را در کسب‌وکارتان پیاده می‌کنید. اگر مشتریان نسبتاً زیادی دارید و می‌خواهید به‌صورت منظم"
+          }
+        },
+        {
+          "li.menu-item > a.nav__link@text": "ثبت و خرید دامنه",
+          "li.menu-item > a.nav__link@href": "https://limoo.host/domain/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7": "",
+          "_extra": {}
+        },
+        {
+          "li.menu-item > a.nav__link@text": "سرور",
+          "li.menu-item > a.nav__link@href": "https://limoo.host/dedicated-server/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0": "سرور اختصاصی (dedicated hosting service) نهایت قدرت، امنیت و سرعت را در اختیارتان می‌گذارد. با اجارۀ یک سرور اختصاصی از دیتاسنترهای معتبر، همه دسترسی کاملی به منابع و امکانات سرور دارید، هم دستتان برای اجرای انواع",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text": "خرید سرور",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0": "https://limoo.host/dedicated-server/iran/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1": "https://limoo.host/dedicated-server/germany/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2": "https://limoo.host/dedicated-server/cloud-servers/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3": "https://limoo.host/vps/europe/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0": "سرور اختصاصی ایران",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1": "با اجارۀ سرور فیزیکی در یکی از دیتاسنترهای معتبر ایران، کنترل کاملی بر نحوۀ پیکربندی محیط میزبانی خود دارید و نیازی به",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2": "سرور اختصاصی آلمان",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3": "اگر به آی‌پی آلمان نیاز دارید یا به‌دنبال یک سرور اختصاصی خارجی به‌روز و با کیفیت بالا هستید، اجاره سرور اختصاصی Hetzner آلمان راه‌حل بسیار خوبی برای شماست.",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4": "سرور ابری",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5": "سرور ابری (cloud server) لیموهاست به‌عنوان یک زیرساخت به‌عنوان سرویس (IaaS) طراحی شده است و به شما امکان می‌دهد که به‌سرعت به نیازهای در حال تغییر یا رویدادهای غیرمنتظره",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6": "سرور مجازی اروپا",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7": "VPS اروپا مقرون‌به‌صرفه است و در دیتاسنترهای مدرن و باکیفیت خارجی میزبانی می‌شود. اگر نیاز به IP ثابت خارجی دارید، می‌توانید از سرور مجازی خارجی (آلمان، فنلاند و…) استفاده",
+          "_extra": {
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a@href": "https://limoo.host/",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href": "https://limoo.host/vps/iran/",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text": "سرور مجازی ایران",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span.x2small-text@text": "سرورهای داخلی به دلیل قرار داشتن در موقعیت ایران گزینه‌ی خوبی برای کاهش پینگ و افزایش سرعت کاربران داخلی هستند."
+          }
+        },
+        {
+          "li.menu-item > a.nav__link@text": "خدمات Devops",
+          "li.menu-item > a.nav__link@href": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0": "با خدمات DevOps لیموهاست، فروشگاه ووکامرس و اپلیکیشن‌ شما آماده می‌شود تا بدون افت سرعت، ترافیک‌های سنگین و کمپین‌های فروش را پشت سر بگذارد. معماری مقیاس‌پذیر، کش هوشمند و مانیتورینگ بلادرنگ، زیرساخت شما را همیشه",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text": "خدمات Devops",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0": "https://limoo.host/DevOps/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1": "https://limoo.host/geo-dns/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2": "https://limoo.host/wooscale/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3": "https://limoo.host/cdn/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0": ": خدمات DevOps و FinOps",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1": "یک مهاجرت ابری آسان و بی‌دغدغه، تحت‌نظر تیم دو‌آپس لیمو‌هاست داشته‌باشید و با توجه به مقیاس کسب‌وکارتان با شجاعت رشد کنید.",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2": "GEO DNS هوشمند",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3": "دسترسی بدون محدودیت گوگل و کاربران را چه داخل و چه خارج حفظ کنید و از افت crawl، index و رتبه سایت جلوگیری کنید",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4": "WooScale",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5": "WooScale راهکار تخصصی لیموهاست برای مقیاس‌پذیر کردن فروشگاه‌های ووکامرس است. با زیرساخت ابری، کش هوشمند و دیتابیس کلاست",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6": "سرویس ابری CDN",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7": "محتوا و وب‌سایت خود را سریع‌تر، پایدارتر و ایمن‌تر کنید. کاربران داخل و خارج ایران با مسیردهی هوشمند و دسترسی مطمئن، حتی در اوج ترافیک بالا به نزدیک‌ترین سرور متصل می‌شوند.",
+          "_extra": {
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li.devops-cdn-item > div > img@src": "/asstes/img/icon/cdn.svg",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li.devops-cdn-item > div > img@alt": "سرویس ابری CDN"
+          }
+        },
+        {
+          "li.menu-item > a.nav__link@text": "همکاری با ما",
+          "li.menu-item > a.nav__link@href": "https://limoo.host/reseller/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0": "طرح‌های متفاوتی برای سرمایه‌گذاری و کسب درآمد همراه با لیموهاست در نظر گرفته‌ایم. افراد و سازمان ها از جمله کاربران و مشتریان لیموهاست می‌توانند بدون نیاز به دانش فنی یا هزینه‌های راه‌اندازی کسب و کار، در سود ارائه‌ی",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text": "همکاری با ما",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0": "https://limoo.host/extra-services/affiliate/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1": "https://limoo.host/reseller/wordpress-reseller/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2": "https://limoo.host/reseller/linux-reseller/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0": "همکاری در فروش",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1": "در طرح هم‌سازی با لیمو‌هاست به سادگی قرار است باهم درآمد بسازیم. با توجه به تعداد مخاطبانتان، ماهانه در مبلغ فروش واقعی",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2": "در حال توسعه",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3": "نمایندگی هاست وردپرس",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4": "بدون نگرانی درباره‌ی زیرساخت‌های فنی و امنیتی، در منابع لیمو‌هاست شریک شوید و به مشتریانتان خدمات هاست پر سرعت وردپرس ارائه دهید.",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5": "نمایندگی هاست لینوکس",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6": "با نمایندگی هاست در بستر سیستم عامل لینوکس و پنل میزبانی DirectAdmin کنترل همه چیز را در دست بگیرید. در این میزبانی مشت",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7": "",
+          "_extra": {
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a@href": "https://limoo.host/reseller/",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@text": "سرمایه گذاری در خرید سرور",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > p.x2small-text@text": "مشارکت در خرید سرور و گسترش زیرساخت سخت افزاری لیموهاست یک مسیر سرمایه گذاری ممطمئن است که در آن سود اجاره‌ی سرور به صورت ماهیانه و علی الحساب محاسبه و واریز می‌شود."
+          }
+        },
+        {
+          "li.menu-item > a.nav__link@text": "درباره ما",
+          "li.menu-item > a.nav__link@href": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0": "لیمو هاست",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0": "https://limoo.host/about/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1": "https://limoo.host/careers/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2": "https://limoo.host/club/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3": "https://limoo.host/events/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0": "درباره ما",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1": "دغدغه‌ی امروز ما توسعه‌ی ارتباطات انسانی است. ما باور داریم اشخاص و کسب‌ و کارها باید بتوانند با کم‌ترین هزینه و به ساد",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2": "فرصت های شغلی",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3": "چه یک برنامه‌نویس درون‌گرا و کم‌حرف باشید یا یک دیجیتال مارکتر برون‌گرا و پر سر و صدا؛ اگر به کارتان علاقه دارید مشتاق",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4": "لیموکلاب",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5": "در باشگاه وفاداری لیموهاست برای مشتریان پویا و وفادارمان، صفی از تجربه‌های غافل‌گیر کننده و هدایای ویژه در نظر گرفته‌ایم.",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6": "رویداد های لیموهاست",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7": "لیموهاست با حضور در کنار جامعه‌ی استارتاپی و آی‌تی ایران و حمایت از رویدادها،تلاش می‌کند تا اثری بزرگ خلق کند و در کنار این جامعه رشد",
+          "_extra": {
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text": "داستان ما از جایی شروع شد که ایده‌آل‌هایمان دیگر اجازه نداد کیفیت پایین خدمات میزبانی را ببینیم و نگوییم کاش می‌شد طور دیگری باشد. ایده‌ها را کنار هم گذاشتیم و مسیری طراحی کردیم که در آن خودمان به‌عنوان کاربران واقعی",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href": "https://limoo.host/contact/",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text": "ارتباط با ما",
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span.x2small-text@text": "در‌مورد خدمات و پلن‌های لیمو‌هاست ابهامی دارید؟ سوالی که ذهنتان را مشغول کرده‌است بپرسید."
+          }
+        },
+        {
+          "li.menu-item > a.nav__link@text": "آکادمی لیمو",
+          "li.menu-item > a.nav__link@href": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text#0": "دانشکده",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > a > p.text_clr_header@text": "",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#0": "https://limoo.host/blog/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#1": "https://limoo.host/events/webinars/",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#2": "https://limoo.host/blog/website-performance-ebook",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link@href#3": "https://www.youtube.com/@FreeSeoForever",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#0": "وبلاگ",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#1": "آخرین مقالات آموزشی در حوزۀ هاستینگ، راه‌اندازی و توسعه کسب‌وکار آنلاین، مدیریت سرور و شبکه، کار با وردپرس، استفاده از",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#2": "وبینارها",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#3": "در این بخش می‌توانید ویدیوهای آموزشی و وبینارهای ضبط‌شده توسط لیموهاست را که با حضور برترین مدرس‌های اکوسیستم برگزار شده‌اند را ببینید.",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#4": "کتابچه‌ها",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#5": "برای ارتقاء دانش کاربران و ایجاد یک مرجع آموزشی معتبر به زبان فارسی، ایبوک‌هایی را دربارۀ مباحث مختلف و پرطرفدار آماده",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#6": "دوره ها",
+          "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > li > div > a.sub-nav__link > span@text#7": "علاوه‌بر ویدیوها، ایبوک‌ها و مقالات معتبر، دوره‌هایی را نیز بر اساس نیاز مشتریان لیموهاست تهیه کرده‌ایم تا با خیالت راحت به کسب تجربه",
+          "_extra": {
+            "li.menu-item > ul.sub-nav > div.in_sub > div.container > div.row > div.col-md-12 > div > p.text_clr_Subtitles@text": "کار لیموهاست با فروش سرویس تمام نمی‌شود؛ آموزش به کاربران یکی دیگر از بخش‌های مهم کار ماست و در تلاش هستیم تا کاربران را هم در انتخاب بهترین سرویس‌ها و راهکارها، هم در پروسۀ استفاده از خدمات و توسعۀ کسب‌وکارشان"
+          }
+        }
+      ],
+      "score": 15.969
+    },
+    {
+      "meta": {
+        "parent_tag": "thead",
+        "parent_classes": [],
+        "row_count": 10,
+        "avg_sim": 0.802,
+        "columns": 7
+      },
+      "columns": [
+        {
+          "id": "th.class_tab_ir > div > a.d-block@href",
+          "label": "d-block.href",
+          "path": "th.class_tab_ir > div > a.d-block",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "th.class_tab_ir > div > p.p-tit@text",
+          "label": "p-tit",
+          "path": "th.class_tab_ir > div > p.p-tit",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text",
+          "label": "id_res_eur800",
+          "path": "th.class_tab_eur > div > a.d-block > button.id_res_eur800",
+          "atype": "text",
+          "coverage": 0.5
+        },
+        {
+          "id": "th.class_tab_ir > div > a > button.id_res_ir800@text",
+          "label": "id_res_ir800",
+          "path": "th.class_tab_ir > div > a > button.id_res_ir800",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text",
+          "label": "id_res_ir800",
+          "path": "th.class_tab_ir > div > a.d-block > button.id_res_ir800",
+          "atype": "text",
+          "coverage": 0.5
+        },
+        {
+          "id": "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0",
+          "label": "p-price#0",
+          "path": "th.class_tab_ir > div > div.align-items-center > p.p-price",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1",
+          "label": "p-price#1",
+          "path": "th.class_tab_ir > div > div.align-items-center > p.p-price",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp2-ir",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress-ir 2",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "خرید",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "990",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp5-ir",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress-ir 5",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "خرید",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,140",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp15-ir",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress-ir 15",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "خرید",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,390",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp30-ir",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress-ir 30",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "خرید",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,490",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp60-ir",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress-ir 60",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "خرید",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,790",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp2",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress 2",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "خرید",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "890",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp5",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress 5",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "خرید",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,040",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp15",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress 15",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "خرید",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,190",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp30",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress 30",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "خرید",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,290",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        },
+        {
+          "th.class_tab_ir > div > a.d-block@href": "https://panel.limoo.host/index.php?rp=/store/wordpress/wp60",
+          "th.class_tab_ir > div > p.p-tit@text": "wordpress 60",
+          "th.class_tab_eur > div > a.d-block > button.id_res_eur800@text": "خرید",
+          "th.class_tab_ir > div > a > button.id_res_ir800@text": "اتمام ظرفیت",
+          "th.class_tab_ir > div > a.d-block > button.id_res_ir800@text": "",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#0": "1,690",
+          "th.class_tab_ir > div > div.align-items-center > p.p-price@text#1": "هزار تومانقیمت ماهیانه",
+          "_extra": {}
+        }
+      ],
+      "score": 15.214
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "justify-content-center",
+          "list_footer",
+          "row",
+          "text-right"
+        ],
+        "row_count": 5,
+        "avg_sim": 0.918,
+        "columns": 10
+      },
+      "columns": [
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#0",
+          "label": "a.href#0",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#1",
+          "label": "a.href#1",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#2",
+          "label": "a.href#2",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#3",
+          "label": "a.href#3",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a",
+          "atype": "href",
+          "coverage": 0.8
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#4",
+          "label": "a.href#4",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a",
+          "atype": "href",
+          "coverage": 0.6
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#0",
+          "label": "p#0",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#1",
+          "label": "p#1",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#2",
+          "label": "p#2",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#3",
+          "label": "p#3",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p",
+          "atype": "text",
+          "coverage": 0.8
+        },
+        {
+          "id": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#4",
+          "label": "p#4",
+          "path": "div.col-lx-2 > ul.limoo-footer_lists > li > a > p",
+          "atype": "text",
+          "coverage": 0.6
+        }
+      ],
+      "rows": [
+        {
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#0": "https://limoo.host/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#1": "https://limoo.host/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#2": "https://limoo.host/wordpress/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#3": "https://limoo.host/woocommerce/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#4": "https://limoo.host/linux/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#0": "خرید هاست",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#1": "هاست ایران",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#2": "هاست وردپرس",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#3": "هاست ووکامرس",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#4": "هاست لینوکس",
+          "_extra": {
+            "div.col-lx-2 > ul.limoo-footer_lists > li > a@href": "https://limoo.host/reseller/linux-reseller/",
+            "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text": "نمایندگی هاست لینوکس"
+          }
+        },
+        {
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#0": "https://limoo.host/dedicated-server/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#1": "https://limoo.host/dedicated-server/iran/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#2": "https://limoo.host/dedicated-server/germany/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#3": "https://limoo.host/dedicated-server/cloud-servers/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#4": "https://limoo.host/dedicated-server/ecommerce-server/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#0": "خرید سرور اختصاصی",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#1": "سرور اختصاصی ایران",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#2": "سرور اختصاصی آلمان",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#3": "سرور ابری",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#4": "سرور فروشگاهی",
+          "_extra": {}
+        },
+        {
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#0": "https://limoo.host/vps/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#1": "https://limoo.host/vps/iran/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#2": "https://limoo.host/vps/europe/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#3": "https://limoo.host/vps/europe/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#4": "",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#0": "سرور مجازی",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#1": "سرور مجازی ایران",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#2": "سرور مجازی آلمان",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#3": "سرور مجازی فنلاند",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#4": "",
+          "_extra": {}
+        },
+        {
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#0": "https://limoo.host/domain/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#1": "https://limoo.host/domain/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#2": "https://limoo.host/domain/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#3": "",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#4": "",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#0": "خرید دامنه",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#1": "ثبت دامنه ir",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#2": "ثبت دامنه خارجی",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#3": "",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#4": "",
+          "_extra": {}
+        },
+        {
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#0": "https://limoo.host/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#1": "https://limoo.host/about/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#2": "https://limoo.host/contact/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#3": "https://limoo.host/careers/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a@href#4": "https://limoo.host/terms-of-service/",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#0": "لیموهاست",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#1": "درباره ما",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#2": "تماس با ما",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#3": "فرصت‌ های شغلی",
+          "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text#4": "قوانین و شرایط",
+          "_extra": {
+            "div.col-lx-2 > ul.limoo-footer_lists > li > a@href": "https://limoo.host/blog/",
+            "div.col-lx-2 > ul.limoo-footer_lists > li > a > p@text": "وبلاگ لیمو",
+            "div.col-lx-2 > ul.limoo-footer_lists > li > div.justify-content-end > a@href": "https://twitter.com/Limoohost",
+            "div.col-lx-2 > ul.limoo-footer_lists > li > div.justify-content-end > a > img@src": "../asstes/img/icon/send-2.svg"
+          }
+        }
+      ],
+      "score": 9.03
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "accordion"
+        ],
+        "row_count": 5,
+        "avg_sim": 0.918,
+        "columns": 9
+      },
+      "columns": [
+        {
+          "id": "label.accordion__item > div.accordion__title@text",
+          "label": "accordion__title",
+          "path": "label.accordion__item > div.accordion__title",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#0",
+          "label": "a.href#0",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#1",
+          "label": "a.href#1",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#2",
+          "label": "a.href#2",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a",
+          "atype": "href",
+          "coverage": 0.8
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#3",
+          "label": "a.href#3",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a",
+          "atype": "href",
+          "coverage": 0.6
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#0",
+          "label": "p#0",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#1",
+          "label": "p#1",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#2",
+          "label": "p#2",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p",
+          "atype": "text",
+          "coverage": 0.8
+        },
+        {
+          "id": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#3",
+          "label": "p#3",
+          "path": "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p",
+          "atype": "text",
+          "coverage": 0.6
+        }
+      ],
+      "rows": [
+        {
+          "label.accordion__item > div.accordion__title@text": "خرید هاست",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#0": "https://limoo.host/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#1": "https://limoo.host/wordpress/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#2": "https://limoo.host/woocommerce/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#3": "https://limoo.host/linux/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#0": "هاست ایران",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#1": "هاست وردپرس",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#2": "هاست ووکامرس",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#3": "هاست لینوکس",
+          "_extra": {
+            "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href": "https://limoo.host/reseller/linux-reseller/",
+            "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text": "نمایندگی هاست لینوکس"
+          }
+        },
+        {
+          "label.accordion__item > div.accordion__title@text": "خرید سرور اختصاصی",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#0": "https://limoo.host/dedicated-server/iran/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#1": "https://limoo.host/dedicated-server/germany/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#2": "https://limoo.host/dedicated-server/cloud-servers/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#3": "https://limoo.host/dedicated-server/ecommerce-server/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#0": "سرور اختصاصی ایران",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#1": "سرور اختصاصی آلمان",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#2": "سرور ابری",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#3": "سرور فروشگاهی",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.accordion__title@text": "سرور مجازی",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#0": "https://limoo.host/vps/iran/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#1": "https://limoo.host/vps/europe/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#2": "https://limoo.host/vps/europe/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#3": "",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#0": "سرور مجازی ایران",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#1": "سرور مجازی آلمان",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#2": "سرور مجازی فنلاند",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#3": "",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.accordion__title@text": "خرید دامنه",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#0": "https://limoo.host/domain/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#1": "https://limoo.host/domain/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#2": "",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#3": "",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#0": "ثبت دامنه ir",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#1": "ثبت دامنه خارجی",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#2": "",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#3": "",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.accordion__title@text": "لیموهاست",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#0": "https://limoo.host/about/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#1": "https://limoo.host/contact/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#2": "https://limoo.host/careers/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href#3": "https://limoo.host/terms-of-service/",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#0": "درباره ما",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#1": "تماس با ما",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#2": "فرصت‌ های شغلی",
+          "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text#3": "قوانین و شرایط",
+          "_extra": {
+            "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a@href": "https://limoo.host/blog/",
+            "label.accordion__item > div.accordion__content > div.limoo-footer_lists > a > p@text": "وبلاگ لیمو",
+            "label.accordion__item > div.accordion__content > div.limoo-footer_lists > div.justify-content-end > a@href": "https://twitter.com/Limoohost",
+            "label.accordion__item > div.accordion__content > div.limoo-footer_lists > div.justify-content-end > a > img@src": "../asstes/img/icon/send-2.svg"
+          }
+        }
+      ],
+      "score": 8.004
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "mt-64",
+          "row"
+        ],
+        "row_count": 3,
+        "avg_sim": 1.0,
+        "columns": 3
+      },
+      "columns": [
+        {
+          "id": "div.col-md-12 > div > div > img.img-fluid@src",
+          "label": "img-fluid.src",
+          "path": "div.col-md-12 > div > div > img.img-fluid",
+          "atype": "src",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#0",
+          "label": "lg-x-text#0",
+          "path": "div.col-md-12 > div > div.text-center > h3.lg-x-text",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#1",
+          "label": "lg-x-text#1",
+          "path": "div.col-md-12 > div > div.text-center > h3.lg-x-text",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "div.col-md-12 > div > div > img.img-fluid@src": "../asstes/img/hosts/Wordpress03.png",
+          "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#0": "بهینه‌سازی کش، ویژۀ وردپرس",
+          "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#1": "فاکتورهای core web vital برای تمام وب‌سایت‌ ها ضروری هستند. به همین دلیل برای بهبود پرفورمنس سایت‌‌های وردپرسی و افزایش سرعت هاست، خدمات بهینه‌سازی کش را به‌صورت مستقیم و بدون افزونه‌ جانبی برای شما انجام‌ می‌دهیم.",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > div > div > img.img-fluid@src": "../asstes/img/hosts/Wordpress04.png",
+          "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#0": "بکاپ‌گیری منظم و خودکار!",
+          "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#1": "همۀ ما گاهی فراموشکار می‌شویم؛ بکاپ خودکار لیموهاست برای همین لحظات فراموشی است. ما به‌صورت روزانه از سرویس‌های شما بک‌آپ تهیه می‌کنیم. برای بازگردانی نسخه‌ای که به آن نیاز دارید کافی است تیکت بزنید.",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > div > div > img.img-fluid@src": "../asstes/img/hosts/Wordpress05.png",
+          "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#0": "سازگاری با نیازهای شما",
+          "div.col-md-12 > div > div.text-center > h3.lg-x-text@text#1": "در سرویس‌های هاست مخصوص وردپرس لیمو، بالاترین سازگاری با انواع افزونه‌ها را در نظر گرفته‌ایم. با بهینه‌سازی زیرساخت در چند لایه، راه را برای استفاده از انواع افزونه‌های کاربردی وردپرس مثل ووکامرس، بی‌بی پرس، بادی پرس و المنتور فراهم کرده‌ایم .",
+          "_extra": {}
+        }
+      ],
+      "score": 5.196
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "pb-96",
+          "pt-96",
+          "row"
+        ],
+        "row_count": 9,
+        "avg_sim": 0.859,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "div.col-md-12 > h3.tit-x1-text@text",
+          "label": "tit-x1-text",
+          "path": "div.col-md-12 > h3.tit-x1-text",
+          "atype": "text",
+          "coverage": 0.89
+        },
+        {
+          "id": "div.col-md-12 > p.md-txt2@text",
+          "label": "md-txt2",
+          "path": "div.col-md-12 > p.md-txt2",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "",
+          "div.col-md-12 > p.md-txt2@text": "هاست وردپرس لیموهاست، نه‌تنها نیازهای یک سایت وردپرسی را کامل رفع می‌کند، بلکه می‌تواند کارایی بسیار خوبی برای دیگر سیستم‌های مدیریت محتوا (مانند پرستاشاپ) نیز داشته باشد. جدا از این نکته که مهم بود آن را بدانید، در ادامه بیشتر شما را با انواع هاست وردپرس و امکانات و ویژگی‌های آن آشنا می‌کنیم.",
+          "_extra": {
+            "div.col-md-12 > h3.tit-x2-text@text": "خرید هاست وردپرس مناسب برای سایت شما"
+          }
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "هاست وردپرس مدیریت شده",
+          "div.col-md-12 > p.md-txt2@text": "منظور از هاست وردپرس مدیریت‌شده، سرویسی است که در آن تمام تدابیر لازم برای میزبانی از سیستم مدیریت محتوای WordPress اندیشیده شده است؛ یعنی هم افزونه‌های به‌روز و موردنیاز از قبل نصب شده، هم با یک کلیک می‌توانید سایت وردپرسی‌تان را روی آن نصب کنید و هم از دیتابیس سازگار و کنترل پنل مناسبی بهره گرفته شده است. در هاست وردپرس حرفه‌ای لیموهاست که مدیریت‌شده است، از کنترل پنل cPanel و وب‌سرور لایت اسپید استفاده شده است؛ هر دوی این موارد کمک می‌کنند تا تجربه خیلی خوبی از میزبانی سایتتان داشته باشید.",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "هاست وردپرس اقتصادی",
+          "div.col-md-12 > p.md-txt2@text": "در نسخۀ هاست وردپرس اقتصادی، پلن پایه (ارزان‌ترین پلن) دارای یک گیگ فضای ذخیره‌سازی است و در کل پلن‌ها، از CPU 1.5 core و 2 گیگ حافظه RAM استفاده می‌شود. این سرویس میزبانی وردپرس، به درد کسانی می‌خورد که می‌خواند با هزینه کم (در حد همان هاست لیونکس اشتراکی) از امکانات هاست مخصوص وردپرس، مثل سازگاری با CMS وردپرس نیز استفاده کنند. همچنین ناگفته نماند که در پکیج هاست وردپرس ارزان لیموهاست، از وب‌سرور Apachee و کنترل پنل دایرکت ادمین استفاده شده است.",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "تفاوت هاست وردپرس و هاست لینوکس",
+          "div.col-md-12 > p.md-txt2@text": "هاست لینوکس، همان هاست اشتراکی معمولی است؛ در این نوع سرویس، معمولاً منابع محدود است و تعداد مشترکین آن هم بیشتر از هاست وردپرس است. هاست وردپرس در مقایسه با هاست لینوکس منابع بیشتری دارد و متناسب با نیازهای کاربران سایت‌های وردپرسی بهینه شده است. منظور از نیازهای کاربران سایت وردپرسی، مواردی مانند کشینگ اختصاصی، هماهنگی با پلاگین‌های سیستم مدیریت محتوای وردپرس است.",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "خرید هاست وردپرس خارجی و ایرانی",
+          "div.col-md-12 > p.md-txt2@text": "تفاوت این دو سرویس، در محل قرارگیری دیتا سنترها است. سرورهای هاست وردپرس خارجی لیموهاست در دیتاسنتر هتزنر (Hetzner) آلمان قرار گرفته و سرورهای هاست وردپرس ایران، در دیتاسنترهای شاتل و پارس آنلاین واقع شده‌اند. اگر تمام مشتری‌های شما در ایران هستند و هزینه کمتری می‌خواهید بپردازید، هاست وردپرس ایران انتخاب خوبی است؛ اما اگر کیفیت و به‌روز بودن سرورها برایتان در اولویت است، خرید هاست وردپرس خارج می‌تواند تصمیم بهتری باشد. در هر دو صورت، شما یک هاست وردپرس پرسرعت خواهید داشت.",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "هاست پرسرعت وردپرس و تجربه‌ کاربری",
+          "div.col-md-12 > p.md-txt2@text": "چرا می‌گوییم که خرید یک هاست وردپرس خوب، به تجربه کاربری بهتر کمک می‌کند؟ چون این سرویس روی سرعت سایت و عملکرد بهتر آن تاثیرگذار است؛ اگر وبسایت‌تان امن باشد و سریع و بدون مشکل بارگذاری شود، کاربران می‌توانند به‌راحتی با آن ارتباط برقرار کنند؛ تا اینجای کار، تجربۀ کاربری خوبی برایشان رقم خورده است. پس با خرید یک هاست وردپرس پرسرعت که از وب‌سرور بهینۀ لایت ا",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "حفاظت در برابر بدافزارها",
+          "div.col-md-12 > p.md-txt2@text": "در سرویس میزبانی وردپرس لیموهاست، یک لایۀ Anti DDoS هم قرار داده شده است تا اگر احیاناً سایت‌تان هدف حملات دیداس قرار گرفت، بتواند به‌راحتی آن را دفع کند. البته غیر از این مورد، سرورها بی‌وقفه رصد می‌شوند و هر حرکت مشکوکی زیر نظر است. از سیستم CXS نیز برای جلوگیری از رخنه‌های امنیتی و نفوذ بدافزارها استفاده می‌شود تا ضریب امنیت هاست در بالاترین سطح قرار بگی",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "هاست وردپرس برای چه کسانی مناسب نیست؟",
+          "div.col-md-12 > p.md-txt2@text": "اگر سایتی تازه راه‌اندازی شده است و حجم فایلی که باید آپلود شود زیاد نیست، یا ترافیک روزانه آن هنوز کم است، نیازی نیست که از هاست وردپرس استفاده کند و با هاست لینوکس کارش راه میفتد. از سوی دیگر، اگر دسترسی روت (Root Access) یا تغییرات اساسی در کانفیگ سرور را نیاز دارید، هاست وردپرس برای شما گزینه‌ای محدودکننده است و بهتر است به سراغ سرور اختصاصی بروید.",
+          "_extra": {}
+        },
+        {
+          "div.col-md-12 > h3.tit-x1-text@text": "انتقال آسان سایت شما به هاست وردپرس",
+          "div.col-md-12 > p.md-txt2@text": "در لیموهاست، انتقال سایت شما از هاست لینوکس به هاست وردپرس و همچنین، انتقال سایت‌تان از یک هاستینگ دیگر به وردپرس، به‌صورت رایگان انجام می‌شود. اگر قصد خرید هاست وردپرس لیموهاست را دارید و این موضوع (یعنی انتقال سایت) نگرانتان کرده است، حتماً به پشتیبانی پیام دهید تا راهنمایی‌تان کنیم.",
+          "_extra": {}
+        }
+      ],
+      "score": 4.867
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "accordion"
+        ],
+        "row_count": 5,
+        "avg_sim": 1.0,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "label.accordion__item > div.accordion__content@text",
+          "label": "accordion__content",
+          "path": "label.accordion__item > div.accordion__content",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "label.accordion__item > h3.accordion__title@text",
+          "label": "accordion__title",
+          "path": "label.accordion__item > h3.accordion__title",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "label.accordion__item > div.accordion__content@text": "اگر سایت پربازدیدی دارید که روزانه ترافیک بالایی جذب می‌کند، نیاز به یک هاست وردپرس دارید. در واقع، پلن هاست وردپرس برای وبسایت های پرترافیک ضرورت است؛ نه انتخاب! میزبانی وب سایت در یکی از سرورهای اختصاصی ما به شما قدرت بیشتری برای رشد کسب و کار می‌دهد و ریسک‌های کوچک مثل کاهش احتمالی سرعت و افزایش نرخ پرش را از بین می‌برد.",
+          "label.accordion__item > h3.accordion__title@text": "۱. چرا باید هاست وردپرس لیمو هاست را انتخاب کنم؟",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.accordion__content@text": "در پلن‌های هاست وردپرس لیمو ، سی‌‌پنل به عنوان محبوب‌ترین پنل مدیریت وب‌سایت، در اختیار شما قرار می‌گیرد تا نهایت انعطاف‌پذیری و کنترل در سایت را تجربه کنید. امکانات کاربردی زیاد و سرعت بهینه از ویژگی‌های این سرویس هستند.",
+          "label.accordion__item > h3.accordion__title@text": "۲. هاست وردپرس لیمو هاست از کدام کنترل پنل‌ها پشتیبانی می کند؟",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.accordion__content@text": "هاست حرفه‌ ای لیموهاست مخصوص سایت‌های بزرگ و پرترافیک، طراحی و بهینه سازی شده است و ماکزیمم سرعت و امنیت را در اختیار وب‌مستران این سایت‌ها قرار می‌دهد. در این پلن‌‌ها با در نظر گرفتن اقدامات امنیتی سختگیرانه ، نظیر پیاده سازی سیستم imunify 360 ، فایروال های قدرتمند و… امنیت سرویس شما در بالاترین حد ممکن قرار خواهد گرفت.",
+          "label.accordion__item > h3.accordion__title@text": "۳. چقدر می‌توانم روی امنیت هاست وردپرس لیمو هاست حساب کنم؟",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.accordion__content@text": "در پلن‌های هاست وردپرس با استفاده از وب سرور LiteSpeed و تخصیص بیشتر منابع، عملکرد سایت وردپرسی شما در بهترین حالت ممکن قرار خواهد گرفت و حتی در زمان‌های اوج ترافیک، سایت بالا خواهد ماند و مشکلی برای شما به وجود نخواهد آمد.",
+          "label.accordion__item > h3.accordion__title@text": "۴. هاست وردپرس لیمو چه تفاوتی با پلن‌های هاست اقتصادی دارد؟",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.accordion__content@text": "هزینه‌ی سرویس‌های میزبانی وب وردپرس حرفه ای کمی بالاتر از سایر پلن‌هاست. به این دلیل که خدمات این پلن‌ها نیز کمی ویژه‌تر است. در سرویس‌های میزبانی اختصاصی، شما یک فضای معین از وب سرورهای پرسرعت Litespeed را به سایت خود اختصاص می‌دهید. به این ترتیب هیچ محدودیتی برای سفارشی سازی، بهینه سازی و مدیریت منابع سایت شما وجود نخواهد داشت.",
+          "label.accordion__item > h3.accordion__title@text": "۵. چرا هاست وردپرس با سایر پلن‌ها تفاوت قیمت دارد؟",
+          "_extra": {}
+        }
+      ],
+      "score": 4.472
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "col-12",
+          "col-lg-6",
+          "col-md-12",
+          "mt-64"
+        ],
+        "row_count": 3,
+        "avg_sim": 1.0,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "div.tabcontent > img.img-fluid@src",
+          "label": "img-fluid.src",
+          "path": "div.tabcontent > img.img-fluid",
+          "atype": "src",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.tabcontent > img.img-fluid@alt",
+          "label": "img-fluid.alt",
+          "path": "div.tabcontent > img.img-fluid",
+          "atype": "alt",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "div.tabcontent > img.img-fluid@src": "../asstes/img/hosts/Wordpress06.png",
+          "div.tabcontent > img.img-fluid@alt": "لایسنس اورجینال لایت اسپید درهاست وردپرس",
+          "_extra": {}
+        },
+        {
+          "div.tabcontent > img.img-fluid@src": "../asstes/img/hosts/Wordpress07.png",
+          "div.tabcontent > img.img-fluid@alt": "هارد پرسرعت NVMe درهاست وردپرس",
+          "_extra": {}
+        },
+        {
+          "div.tabcontent > img.img-fluid@src": "../asstes/img/hosts/Wordpress08.png",
+          "div.tabcontent > img.img-fluid@alt": "AMD Ryzen: قلب تپنده هاست وردپرس شما",
+          "_extra": {}
+        }
+      ],
+      "score": 3.464
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "accordion"
+        ],
+        "row_count": 3,
+        "avg_sim": 0.88,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "label.accordion__item > div.addbackcolor > h3.accordion__title@text#0",
+          "label": "accordion__title#0",
+          "path": "label.accordion__item > div.addbackcolor > h3.accordion__title",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "label.accordion__item > div.addbackcolor > h3.accordion__title@text#1",
+          "label": "accordion__title#1",
+          "path": "label.accordion__item > div.addbackcolor > h3.accordion__title",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "label.accordion__item > div.addbackcolor > h3.accordion__title@text#0": "لایسنس اورجینال لایت اسپید",
+          "label.accordion__item > div.addbackcolor > h3.accordion__title@text#1": "در هاست وردپرس لیمو هاست، از وب سرور اورجینال لایت اسپید، حافظۀ سریع NVMe و پردازنده‌های سرور چند هسته‌ای Ampere Altra استفاده شده است تا بتوانید سرعت و قدرت را در بالاترین کیفیت تجربه کنید.",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.addbackcolor > h3.accordion__title@text#0": "هارد پرسرعت NVMe",
+          "label.accordion__item > div.addbackcolor > h3.accordion__title@text#1": "هارد سرور تاثیر بسیاری در سرعت بارگذاری اطلاعات دارد. هارد NVMe یکی از جدیدترین تکنولوژی‌ها در این زمینه است که با اختلاف رقبای قدیمی خود را پشت سر می‌گذارد. در این بنچمارک در حالی که SATA عملکردی 4 برابر بهتر از HDD های مکانیکی دارد، NVMe نسبت به SATA پنج برابر بهتر عمل می‌کند و سریع ترین",
+          "_extra": {}
+        },
+        {
+          "label.accordion__item > div.addbackcolor > h3.accordion__title@text#0": "AMD Ryzen: قلب تپنده هاست وردپرس شما",
+          "label.accordion__item > div.addbackcolor > h3.accordion__title@text#1": "پردازنده AMD Ryzen 9 7950X3D با داشتن شانزده هسته قدرتمند، معماری Raphael Zen 4 و فناوری 3D V-Cache، قدرت به نظیری را به سرویس میزبانی لینوکس می‌بخشد. این پردازنده می‌تواند به اجرای موازی چندین فرآیند بپردازد؛ فایدۀ آن چیست؟ سرور می‌تواند به‌طور کارآمدی با بارهای کاری سنگین و چندگانه کنار بیاید.",
+          "_extra": {}
+        }
+      ],
+      "score": 3.047
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [],
+        "row_count": 4,
+        "avg_sim": 1.0,
+        "columns": 3
+      },
+      "columns": [
+        {
+          "id": "li > div > a.sub-nav__link@href",
+          "label": "sub-nav__link.href",
+          "path": "li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#0",
+          "label": "span#0",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#1",
+          "label": "span#1",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/wordpress/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست وردپرس",
+          "li > div > a.sub-nav__link > span@text#1": "میزبانی وب وردپرس، سرویسی است که برای سایت‌های وردپرسی بهینه‌سازی شده و هر ماژول یا زیرساختی که سیستم مدیریت محتوای WordPress به آن نیاز دارد، در آن فراهم شده است.",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/woocommerce/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست ووکامرس",
+          "li > div > a.sub-nav__link > span@text#1": "هاست فروشگاهی ووکامرس، هم برای آنلاین‌شاپ‌های ووکامرسی و هم برای سایت‌های فروشگاهی دیگر که بازدید متوسطی دارند، یک گزینۀ عالی است.",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/eco-wp/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست وردپرس اقتصادی",
+          "li > div > a.sub-nav__link > span@text#1": "هاست اقتصادی وردپرس، نقطه‌ شروع خوبی برای آشنایی با میزبانی وردپرس است. اگر یک سایت وردپرسی نوپا دارید و می‌خواهید کمتر",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/nodejs/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست نود جی اس",
+          "li > div > a.sub-nav__link > span@text#1": "هاست نود.جی‌اس به توسعه‌دهندگان این امکان را می‌دهد که برنامه‌های مقیاس‌پذیر را در محیط جاوا اسکریپت توسعه دهند و از سرعت بالا در پردازش حجم زیادی داده لذت ببرند. با سرویس",
+          "_extra": {}
+        }
+      ],
+      "score": 3.0
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [],
+        "row_count": 4,
+        "avg_sim": 1.0,
+        "columns": 3
+      },
+      "columns": [
+        {
+          "id": "li > div > a.sub-nav__link@href",
+          "label": "sub-nav__link.href",
+          "path": "li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#0",
+          "label": "span#0",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#1",
+          "label": "span#1",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/linux/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست لینوکس",
+          "li > div > a.sub-nav__link > span@text#1": "هاست لینوکس لیموهاست با کنترل Cpanel ارائه می‌شود و انتخاب خوبی برای کسب‌وکارهای کوچک است. میزبانی لینوکس به شما اجازه می‌دهد سرویس‌تان",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/download/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست دانلود",
+          "li > div > a.sub-nav__link > span@text#1": "آپلود و دانلود سریع فایل‌ها، نیاز به پهنای باند نامحدود و فضای ذخیره‌سازی کافی برای میزبانی فایل دارد؛ همان چیزی که سرو",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/python/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست پایتون",
+          "li > div > a.sub-nav__link > span@text#1": "هاست پایتون مخصوص نصب ماژول‌های پایتون است و بهترین گزینه برای استفاده از اپلیکیشن‌هایی است که با زبان برنامه‌نویسی سطح بالا و",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/email/",
+          "li > div > a.sub-nav__link > span@text#0": "هاست ایمیل",
+          "li > div > a.sub-nav__link > span@text#1": "با خرید هاست ایمیل (email hosting service)، سطح دیگری از تعامل با مشتریان را در کسب‌وکارتان پیاده می‌کنید. اگر مشتریان نسبتاً زیادی دارید و می‌خواهید به‌صورت منظم",
+          "_extra": {}
+        }
+      ],
+      "score": 3.0
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [],
+        "row_count": 4,
+        "avg_sim": 1.0,
+        "columns": 3
+      },
+      "columns": [
+        {
+          "id": "li > div > a.sub-nav__link@href",
+          "label": "sub-nav__link.href",
+          "path": "li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#0",
+          "label": "span#0",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#1",
+          "label": "span#1",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/dedicated-server/iran/",
+          "li > div > a.sub-nav__link > span@text#0": "سرور اختصاصی ایران",
+          "li > div > a.sub-nav__link > span@text#1": "با اجارۀ سرور فیزیکی در یکی از دیتاسنترهای معتبر ایران، کنترل کاملی بر نحوۀ پیکربندی محیط میزبانی خود دارید و نیازی به",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/dedicated-server/germany/",
+          "li > div > a.sub-nav__link > span@text#0": "سرور اختصاصی آلمان",
+          "li > div > a.sub-nav__link > span@text#1": "اگر به آی‌پی آلمان نیاز دارید یا به‌دنبال یک سرور اختصاصی خارجی به‌روز و با کیفیت بالا هستید، اجاره سرور اختصاصی Hetzner آلمان راه‌حل بسیار خوبی برای شماست.",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/dedicated-server/cloud-servers/",
+          "li > div > a.sub-nav__link > span@text#0": "سرور ابری",
+          "li > div > a.sub-nav__link > span@text#1": "سرور ابری (cloud server) لیموهاست به‌عنوان یک زیرساخت به‌عنوان سرویس (IaaS) طراحی شده است و به شما امکان می‌دهد که به‌سرعت به نیازهای در حال تغییر یا رویدادهای غیرمنتظره",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/vps/europe/",
+          "li > div > a.sub-nav__link > span@text#0": "سرور مجازی اروپا",
+          "li > div > a.sub-nav__link > span@text#1": "VPS اروپا مقرون‌به‌صرفه است و در دیتاسنترهای مدرن و باکیفیت خارجی میزبانی می‌شود. اگر نیاز به IP ثابت خارجی دارید، می‌توانید از سرور مجازی خارجی (آلمان، فنلاند و…) استفاده",
+          "_extra": {}
+        }
+      ],
+      "score": 3.0
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "limoo-footer_lists"
+        ],
+        "row_count": 8,
+        "avg_sim": 1.0,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "a@href",
+          "label": "a.href",
+          "path": "a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "a > p@text",
+          "label": "p",
+          "path": "a > p",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "a@href": "https://limoo.host/",
+          "a > p@text": "هاست ایران",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/wordpress/",
+          "a > p@text": "هاست وردپرس",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/woocommerce/",
+          "a > p@text": "هاست ووکامرس",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/linux/",
+          "a > p@text": "هاست لینوکس",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/download/",
+          "a > p@text": "هاست دانلود",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/email/",
+          "a > p@text": "هاست ایمیل",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/reseller/wordpress-reseller/",
+          "a > p@text": "نمایندگی هاست وردپرس",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/reseller/linux-reseller/",
+          "a > p@text": "نمایندگی هاست لینوکس",
+          "_extra": {}
+        }
+      ],
+      "score": 2.828
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [],
+        "row_count": 3,
+        "avg_sim": 1.0,
+        "columns": 3
+      },
+      "columns": [
+        {
+          "id": "li > div > a.sub-nav__link@href",
+          "label": "sub-nav__link.href",
+          "path": "li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#0",
+          "label": "span#0",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#1",
+          "label": "span#1",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/dedicated-server/ecommerce-server/",
+          "li > div > a.sub-nav__link > span@text#0": "سرور فروشگاهی",
+          "li > div > a.sub-nav__link > span@text#1": "بهترین هاست فروشگاهی با منابع نیمه‌ اختصاصی و تمام مزایای سرور اختصاصی اکنون دردسترس شماست. این خدمت ویژه از لیموهاست م",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/dedicated-server/server-management/",
+          "li > div > a.sub-nav__link > span@text#0": "سرور اختصاصی مدیریت شده",
+          "li > div > a.sub-nav__link > span@text#1": "اگر زمان یا تخصص کافی برای پیکربندی و مدیریت سرور اختصاصی ندارید، بهتر است به سراغ سرور اختصاصی مدیریت شده (Managed Dedicated Server) بروید. در هر سرور مدیریت‌شده، ما یک",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/vps/iran/",
+          "li > div > a.sub-nav__link > span@text#0": "سرور مجازی ایران",
+          "li > div > a.sub-nav__link > span@text#1": "سرورهای داخلی به دلیل قرار داشتن در موقعیت ایران گزینه‌ی خوبی برای کاهش پینگ و افزایش سرعت کاربران داخلی هستند.",
+          "_extra": {}
+        }
+      ],
+      "score": 2.598
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [],
+        "row_count": 3,
+        "avg_sim": 1.0,
+        "columns": 3
+      },
+      "columns": [
+        {
+          "id": "li > div > a.sub-nav__link@href",
+          "label": "sub-nav__link.href",
+          "path": "li > div > a.sub-nav__link",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#0",
+          "label": "span#0",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        },
+        {
+          "id": "li > div > a.sub-nav__link > span@text#1",
+          "label": "span#1",
+          "path": "li > div > a.sub-nav__link > span",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/about/",
+          "li > div > a.sub-nav__link > span@text#0": "درباره ما",
+          "li > div > a.sub-nav__link > span@text#1": "دغدغه‌ی امروز ما توسعه‌ی ارتباطات انسانی است. ما باور داریم اشخاص و کسب‌ و کارها باید بتوانند با کم‌ترین هزینه و به ساد",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/careers/",
+          "li > div > a.sub-nav__link > span@text#0": "فرصت های شغلی",
+          "li > div > a.sub-nav__link > span@text#1": "چه یک برنامه‌نویس درون‌گرا و کم‌حرف باشید یا یک دیجیتال مارکتر برون‌گرا و پر سر و صدا؛ اگر به کارتان علاقه دارید مشتاق",
+          "_extra": {}
+        },
+        {
+          "li > div > a.sub-nav__link@href": "https://limoo.host/club/",
+          "li > div > a.sub-nav__link > span@text#0": "لیموکلاب",
+          "li > div > a.sub-nav__link > span@text#1": "در باشگاه وفاداری لیموهاست برای مشتریان پویا و وفادارمان، صفی از تجربه‌های غافل‌گیر کننده و هدایای ویژه در نظر گرفته‌ایم.",
+          "_extra": {}
+        }
+      ],
+      "score": 2.598
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "limoo-footer_lists"
+        ],
+        "row_count": 6,
+        "avg_sim": 1.0,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "a@href",
+          "label": "a.href",
+          "path": "a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "a > p@text",
+          "label": "p",
+          "path": "a > p",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "a@href": "https://limoo.host/about/",
+          "a > p@text": "درباره ما",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/contact/",
+          "a > p@text": "تماس با ما",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/careers/",
+          "a > p@text": "فرصت‌ های شغلی",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/terms-of-service/",
+          "a > p@text": "قوانین و شرایط",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/extra-services/affiliate/",
+          "a > p@text": "همکاری در فروش",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/blog/",
+          "a > p@text": "وبلاگ لیمو",
+          "_extra": {}
+        }
+      ],
+      "score": 2.449
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "limoo-footer_lists"
+        ],
+        "row_count": 4,
+        "avg_sim": 1.0,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "a@href",
+          "label": "a.href",
+          "path": "a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "a > p@text",
+          "label": "p",
+          "path": "a > p",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "a@href": "https://limoo.host/dedicated-server/iran/",
+          "a > p@text": "سرور اختصاصی ایران",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/dedicated-server/germany/",
+          "a > p@text": "سرور اختصاصی آلمان",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/dedicated-server/cloud-servers/",
+          "a > p@text": "سرور ابری",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/dedicated-server/ecommerce-server/",
+          "a > p@text": "سرور فروشگاهی",
+          "_extra": {}
+        }
+      ],
+      "score": 2.0
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "align-items-center",
+          "row"
+        ],
+        "row_count": 4,
+        "avg_sim": 1.0,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "div.col-md-3 > div.rectangel > a@href",
+          "label": "a.href",
+          "path": "div.col-md-3 > div.rectangel > a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "div.col-md-3 > div.rectangel > a > img@src",
+          "label": "img.src",
+          "path": "div.col-md-3 > div.rectangel > a > img",
+          "atype": "src",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "div.col-md-3 > div.rectangel > a@href": "https://limoo.host/about#enamad",
+          "div.col-md-3 > div.rectangel > a > img@src": "../asstes/img/namad/etemad.png",
+          "_extra": {}
+        },
+        {
+          "div.col-md-3 > div.rectangel > a@href": "https://limoo.host/about#enamad",
+          "div.col-md-3 > div.rectangel > a > img@src": "../asstes/img/namad/neshanmeli.png",
+          "_extra": {}
+        },
+        {
+          "div.col-md-3 > div.rectangel > a@href": "https://limoo.host/about#enamad",
+          "div.col-md-3 > div.rectangel > a > img@src": "../asstes/img/namad/senf.png",
+          "_extra": {}
+        },
+        {
+          "div.col-md-3 > div.rectangel > a@href": "https://limoo.host/about#enamad",
+          "div.col-md-3 > div.rectangel > a > img@src": "../asstes/img/namad/webmobile.png",
+          "_extra": {}
+        }
+      ],
+      "score": 2.0
+    },
+    {
+      "meta": {
+        "parent_tag": "div",
+        "parent_classes": [
+          "limoo-footer_lists"
+        ],
+        "row_count": 3,
+        "avg_sim": 1.0,
+        "columns": 2
+      },
+      "columns": [
+        {
+          "id": "a@href",
+          "label": "a.href",
+          "path": "a",
+          "atype": "href",
+          "coverage": 1.0
+        },
+        {
+          "id": "a > p@text",
+          "label": "p",
+          "path": "a > p",
+          "atype": "text",
+          "coverage": 1.0
+        }
+      ],
+      "rows": [
+        {
+          "a@href": "https://limoo.host/vps/iran/",
+          "a > p@text": "سرور مجازی ایران",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/vps/europe/",
+          "a > p@text": "سرور مجازی آلمان",
+          "_extra": {}
+        },
+        {
+          "a@href": "https://limoo.host/vps/europe/",
+          "a > p@text": "سرور مجازی فنلاند",
+          "_extra": {}
+        }
+      ],
+      "score": 1.732
+    }
+  ]
+}

@@ -73,6 +73,30 @@ def load_raw(path: str) -> dict:
         return json.load(f)
 
 
+def load_trace_inputs(paths: list[str]) -> dict:
+    """Return a trace dict from one combined file or two split files.
+
+    ``paths`` is either ``[combined.json]`` or ``[snapshot.json, records.json]``.
+    A combined file must be an rrweb-style trace; the split form accepts a bare
+    snapshot (``{"snapshot": ...}`` unwrapped) and a bare records list.
+    """
+    if len(paths) == 1:
+        raw = load_raw(paths[0])
+        if not is_rrweb_trace(raw):
+            raise ValueError(
+                f"{paths[0]}: not an rrweb-style trace (need 'snapshot' + 'records')"
+            )
+        return raw
+
+    snapshot = load_raw(paths[0])
+    if isinstance(snapshot, dict) and "snapshot" in snapshot:
+        snapshot = snapshot["snapshot"]
+    records = load_raw(paths[1])
+    if isinstance(records, dict):
+        records = records.get("records") or []
+    return {"snapshot": snapshot, "records": records}
+
+
 # ── node index & HTML reconstruction ───────────────────────────────────────
 
 def index_snapshot(node: Optional[dict]) -> dict[int, dict]:

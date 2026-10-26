@@ -1,19 +1,20 @@
 # Command line
 
-Six entry points are installed by the package:
+Seven entry points are installed by the package:
 
 | Command | Equivalent |
 | --- | --- |
-| `domtrack <capture\|replay\|html\|diff\|compare> ...` | unified dispatcher (`domtrack.cli`) |
+| `domtrack <capture\|replay\|html\|diff\|compare\|tables> ...` | unified dispatcher (`domtrack.cli`) |
 | `domtrack-capture ...` | `domtrack capture` (`domtrack.capture.cli`) |
 | `domtrack-replay ...` | `domtrack replay` (`domtrack.replay.cli`) |
 | `domtrack-html ...` | `domtrack html` (`domtrack.html.cli`) |
 | `domtrack-diff ...` | `domtrack diff` (`domtrack.diff.cli`) |
 | `domtrack-compare ...` | `domtrack compare` (`domtrack.compare.cli`) |
+| `domtrack-tables ...` | `domtrack tables` (`domtrack.tables.cli`) |
 
 All of them also work as modules: `python -m domtrack`, `python -m domtrack.capture`,
 `python -m domtrack.replay`, `python -m domtrack.html`, `python -m domtrack.diff`,
-`python -m domtrack.compare`.
+`python -m domtrack.compare`, `python -m domtrack.tables`.
 
 ## `domtrack capture <url>`
 
@@ -204,3 +205,68 @@ domtrack compare traces/before.json --headless --json -o traces
 The recorded trace is an ordinary domtrack file (same format as `domtrack
 capture`), so you can also re-run `domtrack diff traces/before.json <recorded>`
 later.
+
+## `domtrack tables <extract|label|show>`
+
+Discover, label, and display the tabular structures in a trace. Browser-free
+discovery reuses the `DomState` folding core; labeling calls an LLM; display
+renders the result. See [`tables.md`](tables.md) for the full pipeline.
+
+### `domtrack tables extract <FILE...>`
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `FILE...` (positional) | — | One combined trace, or `<snapshot.json> <records.json>` |
+| `-o`, `--out` | stdout | Write JSON here |
+| `--all` | off | Keep overlapping tables (skip de-duplication) |
+| `--min-rows` | `3` | Minimum rows a table must keep |
+| `--min-cols` | `2` | Minimum columns a table must keep |
+| `--verbose` | off | Print a per-table summary to stderr |
+
+Exit codes: `0` ok, `1` load error, `2` bad arguments.
+
+```bash
+domtrack tables extract traces/trace_x.json -o tables.json --verbose
+domtrack tables extract snapshot.json records.json
+```
+
+### `domtrack tables label <tables.json>`
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `input` (positional) | — | JSON from `tables extract` |
+| `-o`, `--output` | `tables_labeled.json` | Output file |
+| `--provider` | `openai` | `openai` / `compatible` / `anthropic` |
+| `--model` | provider default | Model id |
+| `--base-url` | — | Base URL for `compatible` |
+| `--api-key` | env | API key (else `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`) |
+| `--lang` | `fa` | Output language |
+| `--batch-size` | `25` | Tables per model call |
+| `--dry-run` | off | Print payloads, write nothing |
+
+Exit codes: `0` ok, `1` missing key / no tables.
+
+```bash
+domtrack tables label tables.json -o labeled.json
+domtrack tables label tables.json --provider anthropic --model claude-sonnet-4-5
+domtrack tables label tables.json --dry-run
+```
+
+### `domtrack tables show <labeled.json>`
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `input` (positional) | — | JSON from `tables label` |
+| `--only` | all | Only these tables, e.g. `1,3,5` (1-based) |
+| `--format` | `rich` | `rich` / `plain` / `markdown` / `csv` |
+| `-o`, `--output` | stdout | Output file (for `markdown`/`csv`) |
+| `--max-rows` | `0` (all) | Max rows per table |
+| `--max-chars` | `80` | Max cell length |
+
+Exit codes: `0` ok, `1` no tables, `2` bad `--only`.
+
+```bash
+domtrack tables show labeled.json
+domtrack tables show labeled.json --format markdown -o tables.md
+domtrack tables show labeled.json --format csv -o tables.csv
+```

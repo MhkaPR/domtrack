@@ -39,6 +39,7 @@ __all__ = [
     "load_raw", "is_rrweb_trace", "index_snapshot",
     "node_to_html", "to_mutation_dicts",
     "capture", "replay", "html", "diff", "compare",
+    "tables",
 ]
 
 __version__ = "2.0.0"
@@ -49,6 +50,6 @@ def __getattr__(name: str):
     # `domtrack.html` / `domtrack.diff`. Use import_module (not
     # `from . import x`) so the lookup does not re-enter this __getattr__ and
     # recurse.
-    if name in ("capture", "replay", "html", "diff", "compare"):
+    if name in ("capture", "replay", "html", "diff", "compare", "tables"):
         return importlib.import_module(f"{__name__}.{name}")
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
