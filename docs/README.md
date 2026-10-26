@@ -57,6 +57,10 @@ domtrack/
 │   ├── __init__.py    capture public surface
 │   ├── cli.py         `domtrack capture` argument parser + main()
 │   └── __main__.py    `python -m domtrack.capture`
+├── html/
+│   ├── __init__.py    html public surface (`build_parser`, `main`)
+│   ├── cli.py         `domtrack html` argument parser + main()
+│   └── __main__.py    `python -m domtrack.html`
 └── replay/
     ├── __init__.py    replay public surface
     ├── cli.py         `domtrack replay` argument parser + main()

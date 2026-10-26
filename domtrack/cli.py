@@ -6,8 +6,11 @@
 ``domtrack replay <trace.json>`` → replay a trace (delegates to
 ``domtrack.replay.cli``).
 
-Both subcommands accept the exact same flags as the standalone
-``domtrack-capture`` / ``domtrack-replay`` entry points.
+``domtrack html <trace.json>`` → rebuild the DOM as HTML at a record point
+(delegates to ``domtrack.html.cli``).
+
+Each subcommand accepts the exact same flags as its standalone
+``domtrack-*`` entry point.
 """
 
 from __future__ import annotations
@@ -20,8 +23,9 @@ USAGE = """domtrack <command> [options]
 Commands:
   capture <url>          Record DOM mutations and user events from a page.
   replay  <trace.json>   Replay a captured trace on the live page.
+  html    <trace.json>   Rebuild the DOM as HTML at a record point (no browser).
 
-Run `domtrack capture --help` or `domtrack replay --help` for options.
+Run `domtrack <command> --help` for options.
 """
 
 
@@ -38,6 +42,9 @@ def main(argv: list[str] | None = None) -> int:
     if command == "replay":
         from .replay.cli import main as replay_main
         return replay_main(rest)
+    if command == "html":
+        from .html.cli import main as html_main
+        return html_main(rest)
 
     print(f"Unknown command: {command}\n", file=sys.stderr)
     print(USAGE, file=sys.stderr)

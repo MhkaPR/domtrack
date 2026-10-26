@@ -232,3 +232,62 @@ def test_render_node_document_root():
     raw = _sample_rrweb_trace()
     assert tf.render_node(raw["snapshot"]["node"]).startswith("<html>")
     assert tf.render_node(None) == ""
+
+
+def _write_sample(tmp_path, raw=None):
+    path = tmp_path / "trace.json"
+    path.write_text(json.dumps(raw or _sample_rrweb_trace()), encoding="utf-8")
+    return str(path)
+
+
+def test_html_cli_rebuilds_at_ms(tmp_path):
+    from domtrack.html import cli
+
+    trace_path = _write_sample(tmp_path)
+    out = tmp_path / "out.html"
+
+    rc = cli.main([trace_path, "--at-ms", "250", "--out", str(out)])
+    assert rc == 0
+    html = out.read_text(encoding="utf-8")
+    assert ">bye<" in html and "<span" not in html
+    assert html == tf.rebuild_html(_sample_rrweb_trace(), at_ms=250)
+
+
+def test_html_cli_at_index_matches_at_ms(tmp_path):
+    from domtrack.html import cli
+
+    raw = _sample_rrweb_trace()
+    trace_path = _write_sample(tmp_path, raw)
+    out = tmp_path / "out.html"
+
+    # index 2 is the childList record at t=300.
+    assert cli.main([trace_path, "--at-index", "2", "--out", str(out)]) == 0
+    assert out.read_text(encoding="utf-8") == tf.rebuild_html(raw, at_ms=300)
+
+
+def test_html_cli_split_inputs(tmp_path):
+    from domtrack.html import cli
+
+    raw = _sample_rrweb_trace()
+    snap = tmp_path / "snapshot.json"
+    recs = tmp_path / "records.json"
+    snap.write_text(json.dumps(raw["snapshot"]), encoding="utf-8")
+    recs.write_text(json.dumps(raw["records"]), encoding="utf-8")
+    out = tmp_path / "out.html"
+
+    rc = cli.main([str(snap), str(recs), "--out", str(out)])
+    assert rc == 0
+    assert out.read_text(encoding="utf-8") == tf.rebuild_html(raw)
+
+
+def test_html_cli_argument_errors(tmp_path):
+    from domtrack.html import cli
+
+    trace_path = _write_sample(tmp_path)
+    assert cli.main([trace_path, "--at-ms", "1", "--at-index", "1"]) == 2
+    assert cli.main(["a.json", "b.json", "c.json"]) == 2
+    assert cli.main([str(tmp_path / "missing.json")]) == 1
+
+    legacy = tmp_path / "legacy.json"
+    legacy.write_text(json.dumps({"mutations": []}), encoding="utf-8")
+    assert cli.main([str(legacy)]) == 1

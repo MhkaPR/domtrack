@@ -1,15 +1,16 @@
 # Command line
 
-Three entry points are installed by the package:
+Four entry points are installed by the package:
 
 | Command | Equivalent |
 | --- | --- |
-| `domtrack <capture\|replay> ...` | unified dispatcher (`domtrack.cli`) |
+| `domtrack <capture\|replay\|html> ...` | unified dispatcher (`domtrack.cli`) |
 | `domtrack-capture ...` | `domtrack capture` (`domtrack.capture.cli`) |
 | `domtrack-replay ...` | `domtrack replay` (`domtrack.replay.cli`) |
+| `domtrack-html ...` | `domtrack html` (`domtrack.html.cli`) |
 
-All three also work as modules: `python -m domtrack`, `python -m domtrack.capture`,
-`python -m domtrack.replay`.
+All of them also work as modules: `python -m domtrack`, `python -m domtrack.capture`,
+`python -m domtrack.replay`, `python -m domtrack.html`.
 
 ## `domtrack capture <url>`
 
@@ -84,3 +85,34 @@ domtrack replay traces/trace_x.json --skip-event wheel --skip-event scroll
 
 The CLI warns when `--skip-event` includes `mousedown`/`mouseup` (clicks will
 not fire) or `keydown`/`keyup` (text input and shortcuts will not work).
+
+## `domtrack html <trace_file>`
+
+Rebuild a trace's DOM as HTML at a record point, with no browser. It folds the
+`FullSnapshot` plus the incremental records up to a chosen point and serializes
+the result (see [`trace-format.md`](trace-format.md#rebuilding-html-at-a-record-point)).
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `FILE...` (positional) | — | One combined trace, or `<snapshot.json> <records.json>` |
+| `--at-ms` | all | Rebuild only up to this ms since capture start |
+| `--at-index` | all | Rebuild only through record `N` (0-based, inclusive) |
+| `-o`, `--out` | stdout | Write HTML to this file |
+| `--stats` | off | Print reconstruction stats to stderr |
+
+`--at-ms` and `--at-index` are mutually exclusive. Exit codes: `0` ok, `1` load
+error (missing file, not an rrweb-style trace, no snapshot, write error), `2`
+bad arguments.
+
+Examples:
+
+```bash
+# DOM state once the page settled at 1.2s.
+domtrack html traces/trace_x.json --at-ms 1200 --out at_1200.html
+
+# Just after the 5th incremental record.
+domtrack html traces/trace_x.json --at-index 4 --stats -o /dev/null
+
+# Snapshot + records stored as two files.
+domtrack html snapshot.json records.json
+```

@@ -139,11 +139,11 @@ for ms in (500, 1200, 3000, None):
     print(ms, len(state.to_html()), state.stats)
 ```
 
-The equivalent CLI demo lives in `build_html.py`:
+The same thing from the command line:
 
 ```bash
-python build_html.py traces/trace_x.json --at-ms 1200 --out at_1200.html
-python build_html.py snapshot.json records.json  # split inputs
+domtrack html traces/trace_x.json --at-ms 1200 --out at_1200.html
+domtrack html snapshot.json records.json          # split inputs
 ```
 
 ## 10. Write your own JSON from a raw payload

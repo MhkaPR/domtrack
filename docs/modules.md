@@ -152,6 +152,27 @@ Argument parser for `domtrack capture` (see [cli.md](cli.md)).
 
 Runs `domtrack.capture.cli.main`.
 
+## `domtrack/html/cli.py`
+
+```python
+def build_parser() -> argparse.ArgumentParser
+def main(argv=None) -> int
+def load_inputs(paths: list[str]) -> dict
+```
+
+Browser-free `domtrack html` command: reads a combined trace (or split
+snapshot/records files), rebuilds the DOM with `domtrack.trace.DomState` up to
+`--at-ms` / `--at-index`, and writes HTML to stdout or `--out`. See
+[cli.md](cli.md).
+
+## `domtrack/html/__init__.py`
+
+Re-exports `build_parser` and `main` from `domtrack.html.cli`.
+
+## `domtrack/html/__main__.py`
+
+Runs `domtrack.html.cli.main`.
+
 ## `domtrack/replay/__init__.py`
 
 Re-exports the replay public surface: models (`Trace`, `TraceMeta`,

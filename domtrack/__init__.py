@@ -13,6 +13,8 @@ never drags in Playwright until you actually need it.
 
 from __future__ import annotations
 
+import importlib
+
 from . import config, storage, trace
 from .config import TracerConfig
 from .trace import (
@@ -36,18 +38,16 @@ __all__ = [
     "DomState", "render_node", "rebuild_html",
     "load_raw", "is_rrweb_trace", "index_snapshot",
     "node_to_html", "to_mutation_dicts",
-    "capture", "replay",
+    "capture", "replay", "html",
 ]
 
 __version__ = "2.0.0"
 
 
 def __getattr__(name: str):
-    # Lazy subpackage access: `domtrack.capture` / `domtrack.replay`.
-    if name == "capture":
-        from . import capture
-        return capture
-    if name == "replay":
-        from . import replay
-        return replay
+    # Lazy subpackage access: `domtrack.capture` / `domtrack.replay` /
+    # `domtrack.html`. Use import_module (not `from . import x`) so the lookup
+    # does not re-enter this __getattr__ and recurse.
+    if name in ("capture", "replay", "html"):
+        return importlib.import_module(f"{__name__}.{name}")
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

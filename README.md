@@ -112,6 +112,12 @@ raw = trace.load_raw("traces/trace_x.json")
 html_at_1200ms = trace.rebuild_html(raw, at_ms=1200)  # t <= 1200ms
 html_final     = trace.rebuild_html(raw)              # all records
 ```
+
+Or use the CLI subcommand (`domtrack-html` is the standalone equivalent):
+
+```bash
+domtrack html traces/trace_x.json --at-ms 1200 --out at_1200.html
+domtrack html snapshot.json records.json          # split inputs
 ```
 
 ## Documentation
