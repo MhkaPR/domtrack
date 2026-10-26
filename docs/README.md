@@ -52,7 +52,7 @@ domtrack/
 ├── js_scripts.py      browser-side JS: snapshot + mutation + event capture
 ├── recorder.py        Recorder / CaptureResult — orchestrates a capture
 ├── storage.py         save_json / save_csv / timestamp
-├── trace.py           trace format: rrweb constants, conversion, HTML rebuild
+├── trace.py           trace format: rrweb constants, conversion, DomState HTML rebuild
 ├── capture/
 │   ├── __init__.py    capture public surface
 │   ├── cli.py         `domtrack capture` argument parser + main()
@@ -112,6 +112,15 @@ assert trace.is_rrweb_trace(raw)
 index = trace.index_snapshot(raw["snapshot"]["node"])   # {node_id: node}
 html = trace.node_to_html(index[4])                     # rebuild element HTML
 muts = trace.to_mutation_dicts(raw)                     # replay-ready dicts
+
+# Rebuild the whole DOM at a record point (no browser):
+html_at_1200 = trace.rebuild_html(raw, at_ms=1200)
+html_final   = trace.rebuild_html(raw)                  # fold all records
+
+# Or drive it step by step:
+state = trace.DomState.from_trace(raw)
+state.apply_up_to(raw["records"], at_ms=1200)
+print(state.to_html(), state.stats)
 ```
 
 ## 5. Minimal end-to-end example

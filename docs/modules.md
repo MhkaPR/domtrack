@@ -101,13 +101,37 @@ VOID_ELEMENTS: frozenset[str]
 def is_rrweb_trace(raw: dict) -> bool
 def load_raw(path: str) -> dict
 def index_snapshot(node) -> dict[int, dict]
+def render_node(node) -> str
 def node_to_html(node) -> str
+def rebuild_html(raw: dict, at_ms: int | None = None) -> str
 def to_mutation_dicts(raw: dict) -> list[dict]
 def iter_mutations(raw: dict) -> Iterator[dict]
+
+class DomState:
+    def __init__(self, snapshot=None): ...
+    @classmethod
+    def from_trace(cls, raw: dict) -> "DomState": ...
+    @classmethod
+    def at(cls, raw: dict, at_ms: int | None = None) -> "DomState": ...
+    def load_snapshot(self, snapshot) -> None
+    def apply(self, record: dict) -> None
+    def apply_up_to(self, records, at_ms: int | None = None) -> None
+    def to_html(self) -> str
+    root: dict | None
+    mirror: dict[int, dict]
+    clock: int
+    stats: dict[str, int]
 ```
 
 `to_mutation_dicts` is the bridge between capture output and replay input: it
 handles both the rrweb layout and the legacy flat `mutations` array.
+
+`DomState` is the browser-free reconstructor: seed it with a `FullSnapshot`
+(`from_trace` / `load_snapshot`), feed the incremental records (`apply` /
+`apply_up_to`), and serialize the tree at any point with `to_html()`.
+`rebuild_html(raw, at_ms)` is the one-call helper; `render_node` is the shared
+serializer (also used by `node_to_html`) and additionally renders a document
+root by concatenating its children.
 
 ## `domtrack/capture/__init__.py`
 

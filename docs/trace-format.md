@@ -207,6 +207,45 @@ scroll -> `scrollX`, `scrollY`, `isDocument`.
 `NodeInfo` is `{id, selector, html}`; `html` is reconstructed from the snapshot
 index via `domtrack.trace.node_to_html`.
 
+## Rebuilding HTML at a record point
+
+`domtrack.trace` can also fold a trace back into a live DOM tree with no
+browser. `DomState` starts from the `FullSnapshot` and applies incremental
+records in order, so you can serialize the HTML *as it existed at any point*:
+
+```python
+from domtrack import trace
+
+raw = trace.load_raw("traces/trace_x.json")
+
+state = trace.DomState.from_trace(raw)     # seed from the FullSnapshot
+state.apply_up_to(raw["records"], at_ms=1200)  # stop at t <= 1200ms
+html = state.to_html()
+
+# one-call shortcut:
+html_at_1200 = trace.rebuild_html(raw, at_ms=1200)
+html_final   = trace.rebuild_html(raw)     # all records
+```
+
+`DomState` handles all three mutation kinds (`attributes`, `characterData`,
+`childList`) and keeps two guarantees that make it safe to fold the same
+stream repeatedly:
+
+* **no duplicates** — an `add` whose node already sits under the target parent
+  is skipped (counted in `stats["skipped_duplicates"]`); a node moved from
+  another parent is detached first.
+* **removals unregister** — when `removes[].isParent` is set, the node and its
+  descendants are dropped from the id index too.
+
+`state.stats` reports `attributes`, `text`, `adds`, `removes`,
+`skipped_duplicates`, and `missing_targets`. `state.mirror` maps live node ids
+to their reconstructed nodes, and `state.clock` is the timestamp of the last
+applied record.
+
+`render_node` is the shared serializer behind both `node_to_html` and
+`DomState.to_html`; unlike `node_to_html` it also renders a document root
+(`type 0`) by concatenating its children.
+
 ## Legacy format (domtrack 1.x)
 
 Older traces have no `snapshot`/`records`; they have a flat array:

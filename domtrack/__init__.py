@@ -16,6 +16,7 @@ from __future__ import annotations
 from . import config, storage, trace
 from .config import TracerConfig
 from .trace import (
+    DomState,
     IncrementalSource,
     NodeType,
     RecordType,
@@ -23,6 +24,8 @@ from .trace import (
     is_rrweb_trace,
     load_raw,
     node_to_html,
+    rebuild_html,
+    render_node,
     to_mutation_dicts,
 )
 
@@ -30,6 +33,7 @@ __all__ = [
     "config", "storage", "trace",
     "TracerConfig",
     "RecordType", "IncrementalSource", "NodeType",
+    "DomState", "render_node", "rebuild_html",
     "load_raw", "is_rrweb_trace", "index_snapshot",
     "node_to_html", "to_mutation_dicts",
     "capture", "replay",

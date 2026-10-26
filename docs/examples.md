@@ -121,6 +121,31 @@ loaded = Trace.load("traces/trace_limoo.json")  # flat "mutations" layout
 print(len(loaded.mutations), loaded.meta.url)   # works unchanged
 ```
 
+## 9b. Rebuild the HTML at any record point (no browser)
+
+```python
+from domtrack import trace
+
+raw = trace.load_raw("traces/trace_x.json")
+
+# One call — fold snapshot + records up to t <= 1200ms, then serialize:
+html_at_1200 = trace.rebuild_html(raw, at_ms=1200)
+open("at_1200.html", "w", encoding="utf-8").write(html_at_1200)
+
+# Or fold once and render several points (build a tree per cutoff):
+for ms in (500, 1200, 3000, None):
+    state = trace.DomState.from_trace(raw)
+    state.apply_up_to(raw["records"], at_ms=ms)
+    print(ms, len(state.to_html()), state.stats)
+```
+
+The equivalent CLI demo lives in `build_html.py`:
+
+```bash
+python build_html.py traces/trace_x.json --at-ms 1200 --out at_1200.html
+python build_html.py snapshot.json records.json  # split inputs
+```
+
 ## 10. Write your own JSON from a raw payload
 
 ```python

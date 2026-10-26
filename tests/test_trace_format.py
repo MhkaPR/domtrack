@@ -162,3 +162,73 @@ def test_trace_load_legacy_format(tmp_path):
     assert trace.meta.url == "https://old.example"
     assert len(trace.mutations) == 1
     assert trace.mutations[0].new_value == "b"
+
+
+def test_rebuild_html_at_each_record_point():
+    raw = _sample_rrweb_trace()
+
+    # t=0: only the full snapshot.
+    snap_only = tf.rebuild_html(raw, at_ms=0)
+    assert 'class="a b"' in snap_only
+    assert ">hi<" in snap_only
+    assert "<span" not in snap_only
+
+    # t=150: class attribute mutation applied, text untouched.
+    at_150 = tf.rebuild_html(raw, at_ms=150)
+    assert 'class="a c"' in at_150
+    assert ">hi<" in at_150
+
+    # t=250: characterData applied -> "hi" became "bye".
+    at_250 = tf.rebuild_html(raw, at_ms=250)
+    assert ">bye<" in at_250
+    assert ">hi<" not in at_250
+
+    # t>=300: childList added the <span id="new">.
+    at_300 = tf.rebuild_html(raw, at_ms=300)
+    assert '<span id="new"></span>' in at_300
+    assert at_300.startswith("<html>")
+
+    # all records == no cutoff.
+    assert tf.rebuild_html(raw) == at_300
+
+
+def test_dom_state_is_idempotent_for_repeated_adds():
+    raw = _sample_rrweb_trace()
+    state = tf.DomState.at(raw, 300)
+    before = state.to_html()
+    state.apply(raw["records"][2])  # re-apply the same childList add
+    assert state.to_html() == before
+    assert state.stats["skipped_duplicates"] >= 1
+
+
+def test_dom_state_remove_unregisters_node():
+    raw = _sample_rrweb_trace()
+    state = tf.DomState.at(raw, 300)
+    assert 6 in state.mirror  # span added at t=300
+    # A remove of a node reuses the snapshot index path; build a small record.
+    state.apply(
+        {
+            "t": 400,
+            "type": tf.RecordType.INCREMENTAL_SNAPSHOT,
+            "data": {
+                "source": tf.IncrementalSource.MUTATION,
+                "type": "childList",
+                "target": {"nodeId": 4, "tag": "DIV", "id": "box", "selector": "#box"},
+                "addedCount": 0,
+                "removedCount": 1,
+                "adds": [],
+                "removes": [
+                    {"parentId": 4, "nodeId": 6, "isParent": True,
+                     "tag": "SPAN", "id": "new", "selector": "#new"}
+                ],
+            },
+        }
+    )
+    assert "<span" not in state.to_html()
+    assert 6 not in state.mirror
+
+
+def test_render_node_document_root():
+    raw = _sample_rrweb_trace()
+    assert tf.render_node(raw["snapshot"]["node"]).startswith("<html>")
+    assert tf.render_node(None) == ""

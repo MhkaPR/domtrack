@@ -100,6 +100,20 @@ replay unchanged — the loader auto-detects the old layout.
 See [`docs/trace-format.md`](docs/trace-format.md) for the full field-by-field
 spec.
 
+## Rebuild HTML without a browser
+
+Fold a trace's snapshot + incremental records back into HTML at any point —
+useful for grabbing the DOM state a slider/price/chat widget reached mid-session:
+
+```python
+from domtrack import trace
+
+raw = trace.load_raw("traces/trace_x.json")
+html_at_1200ms = trace.rebuild_html(raw, at_ms=1200)  # t <= 1200ms
+html_final     = trace.rebuild_html(raw)              # all records
+```
+```
+
 ## Documentation
 
 All docs live in [`docs/`](docs/). They are written to be read in full by an
