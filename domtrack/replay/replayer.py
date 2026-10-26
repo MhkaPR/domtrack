@@ -91,6 +91,20 @@ class Replayer:
             filters.append(ThirdPartyFilter(self.third_party))
         return CompositeFilter(filters)
 
+    @classmethod
+    def from_file(
+        cls,
+        trace_path: str,
+        config: ReplayConfig | None = None,
+        third_party_detector: ThirdPartyDetector | None = None,
+    ) -> "Replayer":
+        """Build a :class:`Replayer` directly from a trace file path."""
+        return cls(
+            Trace.load(trace_path),
+            config=config,
+            third_party_detector=third_party_detector,
+        )
+
     # ── public ──
 
     def run(self) -> ReplayStats:

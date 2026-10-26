@@ -22,8 +22,11 @@ class TracerConfig:
 
     # Mutation capture limits
     max_text: int = 500
-    max_html: int = 2000
     max_nodes: int = 50
+
+    # Full-snapshot limits (rrweb-style serialized DOM tree)
+    snapshot_max_depth: int = 20
+    snapshot_max_nodes: int = 20000
     dynamic_classes: tuple[str, ...] = DEFAULT_DYNAMIC_CLASSES
 
     # Event capture — mousemove intentionally excluded

@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "domtrack"
+version = "2.0.0"
+description = "Record DOM mutations and user events from a live page, then replay them with Playwright."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "MhkaPR" }]
+keywords = ["dom", "mutation-observer", "rrweb", "playwright", "replay", "scraping"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = ["playwright>=1.40"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://github.com/MhkaPR/domtrack"
+Repository = "https://github.com/MhkaPR/domtrack.git"
+
+[project.scripts]
+domtrack = "domtrack.cli:main"
+domtrack-capture = "domtrack.capture.cli:main"
+domtrack-replay = "domtrack.replay.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["domtrack*"]
+
+[tool.setuptools.package-data]
+domtrack = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

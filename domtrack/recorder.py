@@ -11,6 +11,7 @@ from .js_scripts import (
     HELPERS_INIT,
     build_init_script,
 )
+from .trace import RecordType
 from .storage import save_csv, save_json, timestamp
 
 
@@ -87,23 +88,47 @@ class Recorder:
         n_mu = page.evaluate("() => (window.capturedMutations || []).length")
         print(f"  pre-collect: {n_ev} events, {n_mu} mutations recorded")
 
+    @staticmethod
+    def _build_payload(raw: dict) -> dict:
+        """Wrap the browser payload in the rrweb-style trace layout."""
+        snapshot = raw.get("snapshot")
+        records = list(raw.get("records") or [])
+        payload: dict = {
+            "meta": raw.get("meta") or {},
+            "version": 2,
+            "snapshot": None,
+            "records": records,
+            "events": list(raw.get("events") or []),
+        }
+        if snapshot:
+            payload["snapshot"] = {
+                "type": RecordType.FULL_SNAPSHOT,
+                "node": snapshot.get("node"),
+                "initialOffset": snapshot.get("initialOffset"),
+            }
+        payload["count"] = len(records)
+        return payload
+
     def save(self, payload: dict, stamp: str | None = None) -> tuple[str, str]:
         stamp = stamp or timestamp()
         json_path = save_json(payload, self.config.output_dir, stamp)
         csv_path = save_csv(
-            payload.get("mutations", []),
+            payload.get("records", []),
             self.config.output_dir,
             stamp,
         )
         return json_path, csv_path
 
     def run(self) -> CaptureResult:
-        payload = self.capture()
+        raw = self.capture()
+        payload = self._build_payload(raw)
         json_path, csv_path = self.save(payload)
 
-        n_mu = payload.get("count", len(payload.get("mutations", [])))
-        n_ev = len(payload.get("events", []))
-        print(f"Captured {n_mu} mutations, {n_ev} events.")
+        n_mu = payload["count"]
+        n_ev = len(payload["events"])
+        snap_node = (payload.get("snapshot") or {}).get("node") or {}
+        n_snap = len(snap_node.get("childNodes") or [])
+        print(f"Captured {n_mu} mutation records, {n_ev} events, snapshot root children={n_snap}.")
         print(f"  JSON: {json_path}")
         print(f"  CSV : {csv_path}")
 

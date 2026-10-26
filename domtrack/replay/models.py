@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import json
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Optional
+
+from .. import trace as trace_format
 
 
 @dataclass
@@ -183,11 +184,10 @@ class Trace:
 
     @classmethod
     def load(cls, path: str) -> "Trace":
-        with open(path, encoding="utf-8") as f:
-            raw = json.load(f)
+        raw = trace_format.load_raw(path)
         return cls(
             meta=TraceMeta.from_dict(raw.get("meta")),
-            mutations=[Mutation.from_dict(m) for m in raw.get("mutations", [])],
+            mutations=[Mutation.from_dict(m) for m in trace_format.to_mutation_dicts(raw)],
             events=[Event.from_dict(e) for e in raw.get("events", [])],
         )
 

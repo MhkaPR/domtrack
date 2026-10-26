@@ -1,3 +1,10 @@
+"""Replay half of domtrack: feed a captured trace back into a page.
+
+Public surface: :class:`Replayer` (+ :class:`ReplayConfig`,
+:class:`ReplayStats`), the mutation filters, the time policies, and the
+element locator.
+"""
+
 from .models import Mutation, NodeInfo, Target, Trace, TraceMeta
 from .locators import ElementLocator
 from .third_party import ThirdPartyDetector
@@ -34,4 +41,4 @@ __all__ = [
     "Replayer", "ReplayConfig", "ReplayStats",
 ]
 
-__version__ = "1.1.0"
+__version__ = "2.0.0"

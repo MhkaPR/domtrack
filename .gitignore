@@ -221,3 +221,6 @@ __marimo__/
 .venv
 traces
 __pycache__
+
+
+node_modules

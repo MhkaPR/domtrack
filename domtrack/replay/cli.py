@@ -10,7 +10,7 @@ from .third_party import ThirdPartyDetector
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="trace_replay",
+        prog="domtrack replay",
         description="Replay a captured trace on a live page.",
     )
     p.add_argument("trace_file", help="Path to trace JSON file")

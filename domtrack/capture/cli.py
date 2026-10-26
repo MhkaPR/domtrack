@@ -3,13 +3,13 @@ from __future__ import annotations
 import argparse
 import sys
 
-from .config import DEFAULT_DYNAMIC_CLASSES, TracerConfig
-from .recorder import Recorder
+from ..config import DEFAULT_DYNAMIC_CLASSES, TracerConfig
+from ..recorder import Recorder
 
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="trace_capture",
+        prog="domtrack capture",
         description="Capture DOM mutations and user events from a live page.",
     )
     p.add_argument("url", help="URL to open and trace")
@@ -26,8 +26,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--timeout", type=int, default=360_000,
                    help="Navigation timeout in ms (default: 360000)")
     p.add_argument("--max-text", type=int, default=500)
-    p.add_argument("--max-html", type=int, default=2000)
     p.add_argument("--max-nodes", type=int, default=50)
+    p.add_argument("--snapshot-max-depth", type=int, default=20,
+                   help="Max depth of the serialized full snapshot (default: 20)")
+    p.add_argument("--snapshot-max-nodes", type=int, default=20000,
+                   help="Max nodes in the serialized full snapshot (default: 20000)")
     p.add_argument("--scroll-throttle-ms", type=int, default=100,
                    help="Scroll throttle in ms (default: 100)")
     p.add_argument("--no-events", action="store_true",
@@ -54,8 +57,9 @@ def main(argv: list[str] | None = None) -> int:
         headless=args.headless,
         goto_timeout_ms=args.timeout,
         max_text=args.max_text,
-        max_html=args.max_html,
         max_nodes=args.max_nodes,
+        snapshot_max_depth=args.snapshot_max_depth,
+        snapshot_max_nodes=args.snapshot_max_nodes,
         dynamic_classes=dynamic_classes,
         capture_events=not args.no_events,
         scroll_throttle_ms=args.scroll_throttle_ms,
