@@ -1,6 +1,6 @@
-domtrack
+# domtrack
 
-Record what a page does. Replay it. Extract the tables — no browser required.
+### Record what a page does. Replay it. Extract the tables — no browser required.
 
 domtrack captures every DOM mutation and every user interaction from a live page into a
 compact, rrweb-style trace. That trace can be replayed in a fresh Playwright browser,
@@ -13,7 +13,7 @@ https://img.shields.io/badge/license-MIT-green
 
 ---
 
-🚀 Install
+### 🚀 Install
 
 ```bash
 pip install domtrack
@@ -46,7 +46,7 @@ record → mutation conversion, legacy loading) and needs no browser.
 
 ---
 
-⚡ Quickstart
+### ⚡ Quickstart
 
 ```bash
 # 1. Capture — opens a browser; interact with the page, then press Resume.
@@ -81,7 +81,7 @@ render_tables(tables, "markdown", out_path="tables.md")
 
 ---
 
-🧩 The five things domtrack does
+# 🧩 The five things domtrack does
 
 # Feature What you get
 1 Capture Record DOM mutations + user events from a live page into an rrweb-style trace (JSON + CSV).
