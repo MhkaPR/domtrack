@@ -18,6 +18,9 @@ the original capture (delegates to ``domtrack.compare.cli``).
 ``domtrack tables <extract|label|show>`` → discover HTML tables in a trace,
 label them with an LLM, and display them (delegates to ``domtrack.tables.cli``).
 
+``domtrack serve`` → run the REST API server (delegates to
+``domtrack.api.__main__``; needs the ``api`` extra).
+
 Each subcommand accepts the exact same flags as its standalone
 ``domtrack-*`` entry point.
 """
@@ -36,6 +39,7 @@ Commands:
   diff    <A> <B>        Compare two captures at the content level (no browser).
   compare <trace.json>   Replay a trace, record the run, and diff the result.
   tables  <sub>          Extract / label / show HTML tables from a trace.
+  serve                  Run the REST API server (needs `domtrack[api]`).
 
 Run `domtrack <command> --help` for options.
 """
@@ -66,6 +70,9 @@ def main(argv: list[str] | None = None) -> int:
     if command == "tables":
         from .tables.cli import main as tables_main
         return tables_main(rest)
+    if command == "serve":
+        from .api.__main__ import main as serve_main
+        return serve_main(rest)
 
     print(f"Unknown command: {command}\n", file=sys.stderr)
     print(USAGE, file=sys.stderr)

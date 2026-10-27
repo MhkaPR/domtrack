@@ -24,6 +24,10 @@ If you are an LLM answering questions about or generating code against
 | Rebuild | `domtrack.html` | Fold a trace into HTML at any record point | no |
 | Diff | `domtrack.diff` | Compare the content of two captures | no |
 | Tables | `domtrack.tables` | Discover, label, and display HTML tables in a trace | no |
+| REST API | `domtrack.api` | Expose every command above over HTTP | no* |
+
+\* the API itself needs no browser, but its `/capture`, `/replay`, and
+`/compare` endpoints drive one through the capture/replay halves.
 
 Capture and replay depend on `playwright`. The trace **format** helpers
 (`domtrack.trace`, including the `DomState` reconstructor), the **diff**
@@ -90,6 +94,16 @@ domtrack/
 │   ├── __init__.py    compare public surface (`build_parser`, `main`)
 │   ├── cli.py         `domtrack compare` argument parser + main()
 │   └── __main__.py    `python -m domtrack.compare`
+├── api/
+│   ├── __init__.py    api public surface (`app`, `create_app`)
+│   ├── app.py         FastAPI app factory + OpenAPI description
+│   ├── config.py      ApiSettings (DOMTRACK_API_* env vars)
+│   ├── deps.py        get_api_settings dependency
+│   ├── schemas.py     Pydantic request/response models
+│   ├── service.py     CLI-backed business logic (no HTTP)
+│   ├── server.py      uvicorn launcher (`domtrack serve`)
+│   ├── __main__.py    `python -m domtrack.api`
+│   └── routers/       health, capture, replay, browser_free routers
 └── replay/
     ├── __init__.py    replay public surface
     ├── cli.py         `domtrack replay` argument parser + main()
@@ -173,6 +187,19 @@ labeled = label_tables(tables)                      # adds title/purpose/semanti
 render_tables(labeled, "markdown", out_path="tables.md")
 ```
 
+### REST API (optional extra)
+
+The same commands are available over HTTP. Install with `pip install
+'domtrack[api]'` and start the server:
+
+```bash
+python -m domtrack serve            # http://127.0.0.1:8000, docs at /docs
+```
+
+Every endpoint maps to a CLI command (`POST /capture`, `/replay`, `/compare`,
+`/html`, `/diff`, `/tables/extract|label|show`). Traces are referenced by
+server path or passed inline. Full reference: [`api.md`](api.md).
+
 ## 5. Minimal end-to-end example
 
 ```python
@@ -224,6 +251,7 @@ reference nodes by id and never re-embed the target's full text/HTML. Full spec:
 * [`capture.md`](capture.md) — capture API, config, and the browser JS.
 * [`replay.md`](replay.md) — replay API, modes, filters, timing, stats.
 * [`cli.md`](cli.md) — all command-line flags.
+* [`api.md`](api.md) — the REST API: running the server, endpoints, errors.
 * [`tables.md`](tables.md) — table discovery, LLM labeling, and rendering.
 * [`modules.md`](modules.md) — per-file module reference.
 * [`examples.md`](examples.md) — recipes.

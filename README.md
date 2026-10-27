@@ -28,6 +28,7 @@ Optional extras, only if you need them:
 pip install 'domtrack[tables]'          # rich + tabulate  (pretty display)
 pip install 'domtrack[llm]'             # openai           (LLM table labeling)
 pip install 'domtrack[llm-anthropic]'   # anthropic        (LLM table labeling)
+pip install 'domtrack[api]'             # fastapi + uvicorn (REST API server)
 pip install 'domtrack[all]'             # everything
 ```
 
@@ -78,6 +79,45 @@ Replayer.from_file(result.json_path, ReplayConfig(speed=2.0)).run()
 tables = discover_tables(trace.load_raw(result.json_path))
 render_tables(tables, "markdown", out_path="tables.md")
 ```
+
+---
+
+### 🌐 REST API
+
+Every command is also available over HTTP. Install the extra and start the
+server — it runs a real ASGI (Uvicorn) server and serves interactive docs:
+
+```bash
+pip install 'domtrack[api]'
+python -m domtrack serve            # http://127.0.0.1:8000  (docs at /docs)
+```
+
+Endpoints mirror the CLI one-to-one:
+
+```bash
+curl -X POST http://127.0.0.1:8000/capture \
+  -H 'Content-Type: application/json' \
+  -d '{"url":"https://example.com","duration_s":5,"headless":true}'
+
+curl -X POST http://127.0.0.1:8000/tables/extract \
+  -H 'Content-Type: application/json' \
+  -d '{"trace":{"path":"trace_20260101_120000.json"}}'
+```
+
+| Endpoint | CLI equivalent |
+| --- | --- |
+| `POST /capture` | `domtrack capture <url>` |
+| `POST /replay` | `domtrack replay <trace.json>` |
+| `POST /compare` | `domtrack compare <trace.json>` |
+| `POST /html` | `domtrack html <trace.json>` |
+| `POST /diff` | `domtrack diff <A> <B>` |
+| `POST /tables/extract` | `domtrack tables extract <trace.json>` |
+| `POST /tables/label` | `domtrack tables label <tables.json>` |
+| `POST /tables/show` | `domtrack tables show <tables.json>` |
+| `GET /health`, `GET /traces` | — |
+
+Traces are referenced by server-side path or passed inline. Full reference:
+docs/api.md.
 
 ---
 
@@ -356,6 +396,7 @@ docs/trace-format.md The trace JSON contract (rrweb-style snapshot + records)
 docs/capture.md domtrack.capture, TracerConfig, Recorder, capture JS
 docs/replay.md domtrack.replay, Replayer, ReplayConfig, modes, filters, timing, replay recording, compare
 docs/cli.md Every command-line flag for all subcommands
+docs/api.md REST API: run the server (`python -m domtrack serve`), endpoints, errors
 docs/tables.md Table discovery, LLM labeling, and rendering
 docs/modules.md Per-module reference for every file in the package
 docs/examples.md Copy-paste recipes (record, replay, clean mode, custom policies)

@@ -1,20 +1,41 @@
 # Command line
 
-Seven entry points are installed by the package:
+Eight entry points are installed by the package:
 
 | Command | Equivalent |
 | --- | --- |
-| `domtrack <capture\|replay\|html\|diff\|compare\|tables> ...` | unified dispatcher (`domtrack.cli`) |
+| `domtrack <capture\|replay\|html\|diff\|compare\|tables\|serve> ...` | unified dispatcher (`domtrack.cli`) |
 | `domtrack-capture ...` | `domtrack capture` (`domtrack.capture.cli`) |
 | `domtrack-replay ...` | `domtrack replay` (`domtrack.replay.cli`) |
 | `domtrack-html ...` | `domtrack html` (`domtrack.html.cli`) |
 | `domtrack-diff ...` | `domtrack diff` (`domtrack.diff.cli`) |
 | `domtrack-compare ...` | `domtrack compare` (`domtrack.compare.cli`) |
 | `domtrack-tables ...` | `domtrack tables` (`domtrack.tables.cli`) |
+| `domtrack-serve ...` | `domtrack serve` (`domtrack.api.__main__`) |
 
 All of them also work as modules: `python -m domtrack`, `python -m domtrack.capture`,
 `python -m domtrack.replay`, `python -m domtrack.html`, `python -m domtrack.diff`,
-`python -m domtrack.compare`, `python -m domtrack.tables`.
+`python -m domtrack.compare`, `python -m domtrack.tables`, `python -m domtrack.api`.
+
+## `python -m domtrack serve`
+
+Run the REST API server (needs `pip install 'domtrack[api]'`).
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `--host` | `127.0.0.1` | Bind host |
+| `--port` | `8000` | Bind port |
+| `--reload` | off | Auto-reload on code changes (dev) |
+| `--workers` | `1` | Worker processes |
+| `--trace-dir` | `traces` | Directory for traces written by the API |
+| `--log-level` | `info` | Uvicorn log level |
+
+```bash
+python -m domtrack serve
+python -m domtrack serve --host 0.0.0.0 --port 8080 --trace-dir /data/traces
+```
+
+Every REST endpoint maps to a CLI command. Full reference: [`api.md`](api.md).
 
 ## `domtrack capture <url>`
 
