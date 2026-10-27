@@ -39,16 +39,35 @@ Per document (state such as the ``covered`` set is per-document, never shared):
 
 1. ``shape(A)`` collects the ``sig`` of every node under ``A`` that carries
    values — the structural fingerprint of a subtree.
-2. ``cluster_children(A)`` groups ``A``'s visible, uncovered children whose
-   shapes are mutually similar (union-find, ``shape_threshold``).
-3. ``extract_columns(rows)`` clusters the per-row atoms by ``path_sim`` (only
+2. ``is_grouping(c, parent)`` recognises a *row container* in a grid: its
+   children are similar cells, none of which is itself a row container, and
+   ``c`` has ≥ 2 similar siblings (i.e. it is one of several rows).
+3. ``should_skip_as_row(node)`` recognises a *cell* of a larger repeated
+   structure: ``node`` has ≥ ``skip_row_threshold`` similar siblings (counting
+   itself), so the parent — not ``node`` — should form the table.
+4. ``cluster_children(A)`` collects ``A``'s visible, uncovered children. When a
+   child is a *grouping* (a row container), it is replaced by its children
+   (the cells). Remaining candidates are grouped by shape (union-find,
+   ``shape_threshold``).
+5. ``extract_columns(rows)`` clusters the per-row atoms by ``path_sim`` (only
    atoms of the same ``type`` compare), keeps columns covering at least
    ``min_cover`` rows, and splits multi-atom columns into ``slot`` sub-columns.
-4. ``build_table`` projects the rows and columns into the JSON table shape.
-5. A discovered table marks its whole subtree ``covered``, so an ancestor can
+6. ``build_table`` projects the rows and columns into the JSON table shape.
+7. A discovered table marks its whole subtree ``covered``, so an ancestor can
    never re-detect it.
-6. Nodes are processed bottom-up (post-order); each node emits at most one
-   table (the largest valid cluster) and then stops.
+8. Nodes are processed bottom-up (post-order); each node emits at most one
+   table (the largest valid cluster) and then stops. Cells of a larger repeated
+   structure are skipped so their parent forms the table instead.
+
+This means:
+
+- Flat lists (footer links, chips, accordion items, shortcut rows) work as
+  before: each flat ``<a>`` / ``<li>`` is a *cell* (skipped), the containing
+  list is the *table*.
+- Grids (a virtualised list of rows, each row containing N similar cards) are
+  also supported: each *row* is a *grouping*, so the grid container clusters
+  the **cards** directly, producing one large table instead of one table per
+  row.
 
 ``discover_across_documents`` runs the above over many documents and returns
 per-document tables plus aggregate stats; there is no cross-document memory.
@@ -429,6 +448,24 @@ class DiscoveryConfig:
     ``sig`` / ``values`` / ``path_sim`` / ``is_visible`` default to the module
     implementations (``None`` -> default). ``ever_visible`` is a convenience:
     when set and ``is_visible`` is ``None``, an ever-visible predicate is built.
+
+    ``grouping_min_values`` and ``skip_row_threshold`` control grid handling:
+
+    - A *row container* (grid row) is a container whose children are similar
+      cells, none of which is itself a row container, and which has at least
+      two similar siblings. Set ``grouping_min_values`` to the minimum average
+      number of values per cell required to treat the container as a row.
+    - A *cell* is a node with at least ``skip_row_threshold`` similar siblings
+      (including itself). Cells do not form their own tables; the parent does.
+      For a 3-column grid, ``skip_row_threshold=3`` works. For a 2-column
+      grid, use ``2``.
+
+    Note: ``skip_row_threshold`` is intentionally conservative. With the
+    default ``3``, a node with only one similar sibling is *not* skipped — it
+    may still form a table of its own. This preserves existing behaviour for
+    flat 2-item repeated structures (which are usually not grids). Raising
+    the threshold makes discovery more aggressive about consolidating into
+    parent tables; lowering it makes it more likely to emit sub-tables.
     """
 
     min_rows: int = 3
@@ -438,6 +475,10 @@ class DiscoveryConfig:
     path_threshold: float = 0.6
     dedupe: bool = True
     dedupe_threshold: float = 0.8
+
+    # Grid-aware knobs.
+    grouping_min_values: int = 1
+    skip_row_threshold: int = 3
 
     # Pluggable, site-specific interfaces (None -> module default).
     sig: Optional[Callable[[Node, Node], Optional[tuple]]] = None
@@ -472,19 +513,157 @@ class DiscoveryConfig:
         )
 
 
+# ── grid helpers ───────────────────────────────────────────────────────────
+
+def _value_count(node: Node, interfaces: Interfaces) -> int:
+    """Total number of value atoms produced by ``node`` and its descendants."""
+    total = len(interfaces.values(node))
+    for child in node.children:
+        total += _value_count(child, interfaces)
+    return total
+
+
+def _has_similar_children(
+    node: Node, config: DiscoveryConfig, interfaces: Interfaces
+) -> bool:
+    """Whether ``node``'s children all share a similar shape."""
+    kids = [
+        k
+        for k in node.children
+        if interfaces.is_visible(k)
+        and k.tag
+        and interfaces.sig(node, k) is not None
+    ]
+    if len(kids) < 2:
+        return False
+    shapes = [shape(k, interfaces) for k in kids]
+    base = shapes[0]
+    return all(
+        shape_similarity(base, s, interfaces.path_sim) >= config.shape_threshold
+        for s in shapes[1:]
+    )
+
+
+def _count_similar_siblings(
+    node: Node, config: DiscoveryConfig, interfaces: Interfaces
+) -> int:
+    """Number of ``node``'s siblings whose shape is similar to ``node``."""
+    parent = node.parent
+    if parent is None:
+        return 0
+    node_shape = shape(node, interfaces)
+    if not node_shape:
+        return 0
+    count = 0
+    for sib in parent.children:
+        if sib.id == node.id:
+            continue
+        if not interfaces.is_visible(sib) or not sib.tag:
+            continue
+        if interfaces.sig(parent, sib) is None:
+            continue
+        sib_shape = shape(sib, interfaces)
+        if (
+            shape_similarity(node_shape, sib_shape, interfaces.path_sim)
+            >= config.shape_threshold
+        ):
+            count += 1
+    return count
+
+
+def is_grouping(
+    node: Node,
+    parent: Optional[Node],
+    config: DiscoveryConfig,
+    interfaces: Interfaces,
+) -> bool:
+    """Whether ``node`` is a row container in a homogeneous grid.
+
+    Conditions:
+
+    1. ``node`` has at least two visible element children.
+    2. Those children share a similar shape (a *row*).
+    3. None of them is itself a row container (children are cells, not
+       sub-rows — so ``node`` is the innermost row-container level).
+    4. ``node`` has at least two similar siblings (it is one of several rows).
+    5. The children carry on average at least ``grouping_min_values`` values.
+    """
+    kids = [
+        k
+        for k in node.children
+        if interfaces.is_visible(k)
+        and k.tag
+        and interfaces.sig(node, k) is not None
+    ]
+    if len(kids) < 2:
+        return False
+
+    shapes = [shape(k, interfaces) for k in kids]
+    base = shapes[0]
+    if not all(
+        shape_similarity(base, s, interfaces.path_sim) >= config.shape_threshold
+        for s in shapes[1:]
+    ):
+        return False
+
+    for kid in kids:
+        if _has_similar_children(kid, config, interfaces):
+            return False
+
+    if _count_similar_siblings(node, config, interfaces) < 2:
+        return False
+
+    total_values = sum(_value_count(k, interfaces) for k in kids)
+    if total_values / len(kids) < config.grouping_min_values:
+        return False
+
+    return True
+
+
+def should_skip_as_row(
+    node: Node, config: DiscoveryConfig, interfaces: Interfaces
+) -> bool:
+    """Whether ``node`` is a cell of a larger repeated structure.
+
+    A node is a cell when it belongs to a group of at least
+    ``skip_row_threshold`` similar siblings (including itself). Cells do not
+    form their own tables — their common parent does.
+    """
+    similar = _count_similar_siblings(node, config, interfaces)
+    return (1 + similar) >= config.skip_row_threshold
+
+
 # ── cluster children by shape ──────────────────────────────────────────────
 
 def cluster_children(
     parent: Node, config: DiscoveryConfig, interfaces: Interfaces, covered: set[int]
 ) -> list[list[Node]]:
-    """Group ``parent``'s visible, uncovered children by shape (union-find)."""
-    elems = [
-        c
-        for c in parent.children
-        if interfaces.is_visible(c)
-        and c.id not in covered
-        and interfaces.sig(parent, c) is not None
-    ]
+    """Group ``parent``'s visible, uncovered children by shape (union-find).
+
+    If a child is itself a *row container* (grid row), it is replaced by its
+    children — so the grid container clusters the cells directly, not the
+    rows.
+    """
+    elems: list[Node] = []
+    for c in parent.children:
+        if c.id in covered:
+            continue
+        if not interfaces.is_visible(c):
+            continue
+        if interfaces.sig(parent, c) is None:
+            continue
+        if is_grouping(c, parent, config, interfaces):
+            for g in c.children:
+                if g.id in covered:
+                    continue
+                if not interfaces.is_visible(g):
+                    continue
+                if interfaces.sig(parent, g) is None:
+                    continue
+                elems.append(g)
+        else:
+            elems.append(c)
+
     if len(elems) < config.min_rows:
         return []
 
@@ -723,6 +902,9 @@ def _discover(
         if not interfaces.is_visible(node):
             return
         if interfaces.sig(node, node) is None:
+            return
+        # A cell of a larger repeated structure never forms its own table.
+        if should_skip_as_row(node, config, interfaces):
             return
 
         clusters = cluster_children(node, config, interfaces, covered)
