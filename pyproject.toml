@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "domtrack"
-version = "0.0.1"
+version = "0.0.2"
 description = "Record DOM mutations and user events from a live page, then replay them with Playwright."
 readme = "README.md"
 requires-python = ">=3.10"
