@@ -63,8 +63,9 @@ class TraceListResponse(BaseModel):
 class CaptureRequest(BaseModel):
     """Mirror of ``domtrack capture``.
 
-    Unlike the CLI, ``duration_s`` is required: an HTTP request cannot sit at
-    an interactive ``page.pause()`` waiting for a human.
+    Set ``interactive=true`` with a headed browser to record until the operator
+    presses Resume in the Playwright Inspector (the CLI's ``page.pause()``
+    behaviour). Otherwise ``duration_s`` is required.
     """
 
     url: str
@@ -73,8 +74,14 @@ class CaptureRequest(BaseModel):
     viewport_w: int = 1440
     viewport_h: int = 900
     headless: Optional[bool] = None
-    duration_s: float = Field(
-        gt=0, description="Seconds to record before stopping (required)."
+    duration_s: Optional[float] = Field(
+        default=None,
+        gt=0,
+        description="Seconds to record before stopping (required unless interactive).",
+    )
+    interactive: bool = Field(
+        default=False,
+        description="Wait for the operator to press Resume in the Inspector (headed only).",
     )
     timeout_ms: int = 360_000
     max_text: int = 500

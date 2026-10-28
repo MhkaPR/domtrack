@@ -139,12 +139,17 @@ def list_traces(settings: Optional[ApiSettings] = None) -> dict:
 
 def run_capture(req: CaptureRequest, settings: Optional[ApiSettings] = None) -> dict:
     settings = settings or get_settings()
-    if req.duration_s > settings.max_capture_seconds:
+    if req.duration_s is not None and req.duration_s > settings.max_capture_seconds:
         raise ApiError(
             f"duration_s exceeds the {settings.max_capture_seconds}s limit"
         )
 
     headless = settings.headless_default if req.headless is None else req.headless
+    if req.duration_s is None and (not req.interactive or headless):
+        raise ApiError(
+            "duration_s is required unless interactive=true uses a headed browser",
+            status_code=422,
+        )
     dynamic_classes = (
         tuple(req.dynamic_classes) if req.dynamic_classes else DEFAULT_DYNAMIC_CLASSES
     )
@@ -161,7 +166,7 @@ def run_capture(req: CaptureRequest, settings: Optional[ApiSettings] = None) -> 
         dynamic_classes=dynamic_classes,
         capture_events=req.capture_events,
         scroll_throttle_ms=req.scroll_throttle_ms,
-        duration_ms=int(req.duration_s * 1000),
+        duration_ms=None if req.duration_s is None else int(req.duration_s * 1000),
         output_dir=req.output_dir or settings.trace_dir,
     )
     try:
