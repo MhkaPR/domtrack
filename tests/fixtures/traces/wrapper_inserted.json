@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "url": "https://example.test/scenario",
+    "version": 2
+  },
+  "version": 2,
+  "snapshot": {
+    "type": 2,
+    "node": {
+      "id": 1,
+      "type": 0,
+      "childNodes": [
+        {
+          "id": 46,
+          "type": 2,
+          "tagName": "HTML",
+          "attributes": {
+            "class": "h-full scroll-smooth"
+          },
+          "childNodes": [
+            {
+              "id": 45,
+              "type": 2,
+              "tagName": "BODY",
+              "attributes": {
+                "class": "min-h-screen bg-slate-50 antialiased"
+              },
+              "childNodes": [
+                {
+                  "id": 44,
+                  "type": 2,
+                  "tagName": "MAIN",
+                  "attributes": {
+                    "class": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white"
+                  },
+                  "childNodes": [
+                    {
+                      "id": 43,
+                      "type": 2,
+                      "tagName": "UL",
+                      "attributes": {
+                        "class": "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-slate-200 lg:divide-y-0"
+                      },
+                      "childNodes": [
+                        {
+                          "id": 18,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 17,
+                              "type": 2,
+                              "tagName": "H3",
+                              "attributes": {
+                                "class": "text-base font-semibold leading-6 text-slate-800 line-clamp-2"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 16,
+                                  "type": 3,
+                                  "textContent": "هدفون بی‌سیم استودیویی"
+                                }
+                              ]
+                            },
+                            {
+                              "id": 15,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 12,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "text-lg font-bold tracking-tight text-slate-900 tabular-nums sm:text-xl"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 11,
+                                      "type": 3,
+                                      "textContent": "۲۵۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 14,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex items-center rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm ring-1 ring-emerald-600/20"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 13,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 26,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 25,
+                              "type": 2,
+                              "tagName": "H3",
+                              "attributes": {
+                                "class": "text-base font-semibold leading-6 text-slate-800 line-clamp-2"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 24,
+                                  "type": 3,
+                                  "textContent": "کیف چرم دست‌دوز"
+                                }
+                              ]
+                            },
+                            {
+                              "id": 23,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex w-full items-center justify-between gap-2 rounded-xl bg-slate-50 p-2 ring-1 ring-inset ring-slate-200"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 20,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "text-lg font-bold tracking-tight text-slate-900 tabular-nums sm:text-xl"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 19,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 22,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex items-center rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm ring-1 ring-emerald-600/20"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 21,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 34,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 33,
+                              "type": 2,
+                              "tagName": "H3",
+                              "attributes": {
+                                "class": "text-base font-semibold leading-6 text-slate-800 line-clamp-2"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 32,
+                                  "type": 3,
+                                  "textContent": "ساعت هوشمند ورزشی"
+                                }
+                              ]
+                            },
+                            {
+                              "id": 31,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 28,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "text-lg font-bold tracking-tight text-slate-900 tabular-nums sm:text-xl"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 27,
+                                      "type": 3,
+                                      "textContent": "۳۲۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 30,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex items-center rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm ring-1 ring-emerald-600/20"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 29,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 42,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 41,
+                              "type": 2,
+                              "tagName": "H3",
+                              "attributes": {
+                                "class": "text-base font-semibold leading-6 text-slate-800 line-clamp-2"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 40,
+                                  "type": 3,
+                                  "textContent": "عینک آفتابی پلاریزه"
+                                }
+                              ]
+                            },
+                            {
+                              "id": 39,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 36,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "text-lg font-bold tracking-tight text-slate-900 tabular-nums sm:text-xl"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 35,
+                                      "type": 3,
+                                      "textContent": "۱۹۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 38,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex items-center rounded-full bg-emerald-500 px-2.5 py-0.5 text-xs font-semibold text-white shadow-sm ring-1 ring-emerald-600/20"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 37,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "records": [],
+  "events": []
+}

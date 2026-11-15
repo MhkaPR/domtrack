@@ -1,3 +1,4 @@
+
 # domtrack
 
 ### Record what a page does. Replay it. Extract the tables — no browser required.
@@ -259,31 +260,35 @@ These aren't knobs you have to turn — they're defaults that make the output us
 · score ranks by "how table-like". columns × √rows × avg_sim — wide, tall,
   structurally consistent tables float to the top.
 
-The four pluggable interfaces
+Class-based extension points
 
-Interface Signature Default
+Subclass `DiscoveryPolicy` to teach discovery a different notion of structure.
+The four methods mirror the original interfaces:
+
+Method Signature Default
 sig (root, node) -> path \| None (tag, classes) tuple from root down to node; None excludes a subtree
 values (node) -> [(type, value)] non-empty direct text + href / src / alt / title / value
-path_sim (p1, p2) -> [0, 1] mean component-wise Jaccard × length ratio
+path_sim (p1, p2) -> [0, 1] weighted LCS over component Jaccard, geometric-mean normalized
 is_visible (node) -> bool True (trace folding installs the ever_visible predicate)
-
-path is any hashable comparable with path_sim — swap in your own tuple or schema to
-teach discovery a different notion of "same structure".
 
 ```python
 from domtrack import tables
 root = tables.build_tree(raw)   # pure tree API, no folding, no visibility filter
 
-# Teach it that <span class="price"> is not part of the structural signature,
-# so a changing price doesn't break shape clustering.
-def sig(root, node):
-    path = tables.default_sig(root, node)
-    if path is None or (node.tag == "span" and "price" in node.classes):
-        return None
-    return path
+class ShopPolicy(tables.DiscoveryPolicy):
+    # Teach it that <span class="price"> is not part of the structural
+    # signature, so a changing price doesn't break shape clustering.
+    def sig(self, root, node):
+        path = super().sig(root, node)
+        if path is None or (node.tag == "span" and "price" in node.classes):
+            return None
+        return path
 
-found = tables.discover(root, tables.DiscoveryConfig(sig=sig))
+found = tables.discover(root, tables.DiscoveryConfig(policy=ShopPolicy()))
 ```
+
+The legacy callable fields (`sig=`, `values=`, `path_sim=`, `is_visible=`) still
+work and override the policy.
 
 What you get back
 
@@ -344,10 +349,10 @@ domtrack tables show labeled.json --only 1,3,5 --max-rows 5
 from domtrack import trace
 from domtrack.tables import discover_tables, label_tables, render_tables, DiscoveryConfig
 
-raw     = trace.load_raw("traces/trace_x.json")
-tables  = discover_tables(raw)                                  # defaults
-tables  = discover_tables(raw, DiscoveryConfig(min_rows=4))     # tuned
-labeled = label_tables(tables)                                  # optional LLM pass
+raw = trace.load_raw(".files/trace_x.json")
+tables = discover_tables(raw)  # defaults
+tables = discover_tables(raw, DiscoveryConfig(min_rows=4))  # tuned
+labeled = label_tables(tables)  # optional LLM pass
 render_tables(labeled, "markdown", out_path="tables.md")
 ```
 

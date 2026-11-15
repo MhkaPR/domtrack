@@ -1,0 +1,703 @@
+{
+  "meta": {
+    "url": "https://example.test/scenario",
+    "version": 2
+  },
+  "version": 2,
+  "snapshot": {
+    "type": 2,
+    "node": {
+      "id": 1,
+      "type": 0,
+      "childNodes": [
+        {
+          "id": 88,
+          "type": 2,
+          "tagName": "HTML",
+          "attributes": {
+            "class": "h-full scroll-smooth"
+          },
+          "childNodes": [
+            {
+              "id": 87,
+              "type": 2,
+              "tagName": "BODY",
+              "attributes": {
+                "class": "min-h-screen bg-slate-50 antialiased"
+              },
+              "childNodes": [
+                {
+                  "id": 86,
+                  "type": 2,
+                  "tagName": "MAIN",
+                  "attributes": {
+                    "class": "mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white"
+                  },
+                  "childNodes": [
+                    {
+                      "id": 85,
+                      "type": 2,
+                      "tagName": "UL",
+                      "attributes": {
+                        "class": "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 divide-y divide-slate-200 lg:divide-y-0"
+                      },
+                      "childNodes": [
+                        {
+                          "id": 16,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 15,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 12,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 11,
+                                      "type": 3,
+                                      "textContent": "۲۵۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "id": 14,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 13,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 20,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 19,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 18,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 17,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 24,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 23,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 22,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 21,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 28,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 27,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 26,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 25,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 32,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 31,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 30,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 29,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 36,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 35,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 34,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 33,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 40,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 39,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 38,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 37,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 44,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 43,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 42,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 41,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 48,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 47,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 46,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 45,
+                                      "type": 3,
+                                      "textContent": "جدید"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 52,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 51,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 50,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 49,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 56,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 55,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 54,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 53,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 60,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 59,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 58,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 57,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 64,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 63,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 62,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 61,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 68,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 67,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 66,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 65,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 72,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 71,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 70,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 69,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 76,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 75,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 74,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 73,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 80,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 79,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 78,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 77,
+                                      "type": 3,
+                                      "textContent": "۴۸۰,۰۰۰ تومان"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": 84,
+                          "type": 2,
+                          "tagName": "LI",
+                          "attributes": {
+                            "class": "group relative flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg"
+                          },
+                          "childNodes": [
+                            {
+                              "id": 83,
+                              "type": 2,
+                              "tagName": "DIV",
+                              "attributes": {
+                                "class": "flex flex-wrap items-center justify-between gap-3"
+                              },
+                              "childNodes": [
+                                {
+                                  "id": 82,
+                                  "type": 2,
+                                  "tagName": "SPAN",
+                                  "attributes": {
+                                    "class": "inline-flex min-w-0 items-center rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm ring-1 ring-slate-200"
+                                  },
+                                  "childNodes": [
+                                    {
+                                      "id": 81,
+                                      "type": 3,
+                                      "textContent": "افزودن به علاقه‌مندی"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "records": [],
+  "events": []
+}

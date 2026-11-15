@@ -16,7 +16,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-dependencies = ["playwright>=1.40"]
+dependencies = [
+    "formulas>=1.3.4",
+    "openai>=3.41.0",
+    "playwright>=1.40",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
@@ -49,3 +53,8 @@ domtrack = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+]

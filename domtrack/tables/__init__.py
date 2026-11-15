@@ -15,19 +15,27 @@ from .discovery import (
     Atom,
     Document,
     DiscoveryConfig,
+    DiscoveryPolicy,
     Interfaces,
     Node,
+    TableDiscoverer,
     build_tree,
+    default_path_sim,
+    default_sig,
+    default_values,
     discover,
     discover_across_documents,
     discover_tables,
+    lcs_path_sim,
 )
 from .labeling import LabelConfig, label_tables
 from .render import RenderOptions, render as render_tables
 
 __all__ = [
     "Node", "Atom", "Document", "Interfaces", "DiscoveryConfig",
-    "build_tree", "discover", "discover_across_documents", "discover_tables",
+    "DiscoveryPolicy", "TableDiscoverer",
+    "build_tree", "default_sig", "default_values", "default_path_sim",
+    "lcs_path_sim", "discover", "discover_across_documents", "discover_tables",
     "LabelConfig", "label_tables",
     "RenderOptions", "render_tables",
 ]

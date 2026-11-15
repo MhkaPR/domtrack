@@ -109,7 +109,9 @@ def _run_extract(args) -> int:
         return 1
 
     config = DiscoveryConfig(
-        min_rows=args.min_rows, min_cols=args.min_cols, dedupe=not args.all
+        min_rows=args.min_rows,
+        min_cols=args.min_cols,
+        dedupe=not args.all,
     )
     result = discover_tables(raw, config)
     text = json.dumps(result, ensure_ascii=False, indent=2)
