@@ -110,11 +110,7 @@ DATE_MARKERS = (
     "امروز", "دیروز", "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد",
     "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
 )
-# Common Persian listing-condition labels. They are categorical attributes,
-# not arbitrary short prose, and often sit beside a numeric price in cards.
-CONDITION_LABELS = frozenset({
-    "نو", "در حد نو", "کارکرده", "استوک", "معیوب", "سالم",
-})
+
 UNIT_TOKENS = (
     "تومان", "ریال", "درهم", "دلار", "یورو", "درصد", "کیلومتر", "کیلوگرم",
     "گرم", "متر", "سانتیمتر", "لیتر", "عدد", "ساعت", "روز", "ماه", "سال",
@@ -449,7 +445,6 @@ def value_types(value: str, atype: str = "") -> dict:
     is_url = atype in {"href", "src"} or bool(_URL_RE.match(lowered))
     extension = os.path.splitext(urlsplit(lowered).path)[1]
     tokens = _TOKEN_RE.findall(text)
-    is_condition = lowered in CONDITION_LABELS
     return {
         "is_numeric": _is_numeric_value(text),
         "is_currency": any(symbol in text for symbol in CURRENCY_SYMBOLS)
@@ -461,7 +456,7 @@ def value_types(value: str, atype: str = "") -> dict:
         or any(marker in text for marker in DATE_MARKERS),
         "is_phone_like": digits_only.isdigit()
         and 7 <= len(digits_only) <= 15,
-        "is_short_text": len(text) <= 30 and not is_condition,
+        "is_short_text": len(text) <= 30,
         "is_free_text": len(text) > 40 and len(tokens) >= 5,
     }
 

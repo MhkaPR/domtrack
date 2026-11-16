@@ -1,4 +1,4 @@
-"""Render labeled tables as rich / plain / markdown / csv.
+"""Render labeled tables as rich / plain / markdown / Excel / HTML.
 
 Consumes the output of :func:`domtrack.tables.labeling.label_tables`. Columns
 are headed by ``semantic_label`` when present, falling back to ``label`` and
@@ -7,7 +7,6 @@ then the raw column id.
 
 from __future__ import annotations
 
-import csv
 import html
 import json
 import sys
@@ -171,24 +170,6 @@ def render_markdown(data: dict, options: RenderOptions, out=sys.stdout) -> None:
         out.write("\n")
 
 
-# ── csv ────────────────────────────────────────────────────────────────────
-
-def render_csv(data: dict, options: RenderOptions, out) -> None:
-    writer = csv.writer(out)
-    for index, table in iter_tables(data, options.only):
-        meta = table.get("meta", {})
-        writer.writerow([f"# جدول {index}: {meta.get('title', '')}"])
-        if meta.get("purpose"):
-            writer.writerow([meta["purpose"]])
-        columns = column_headers(table)
-        writer.writerow(["#"] + [heading for _, heading in columns])
-        rows = table.get("rows", [])
-        shown = rows[: options.max_rows] if options.max_rows else rows
-        for ri, row in enumerate(shown, 1):
-            writer.writerow([ri] + [get_cell(row, cid) for cid, _ in columns])
-        writer.writerow([])
-
-
 def render_html(data: dict, options: RenderOptions, out) -> None:
     """Write a standalone HTML page with complete, clickable URL cells."""
     base = options.base_url or data.get("page", {}).get("page_url") or data.get("meta", {}).get("page_url") or ""
@@ -199,19 +180,30 @@ def render_html(data: dict, options: RenderOptions, out) -> None:
 h2{margin:2rem 0 .75rem;font-size:1.25rem}.table-scroll{width:100%;overflow:auto;overscroll-behavior-x:contain;border:1px solid #d9e0e8;border-radius:10px;background:white;box-shadow:0 2px 8px #1822300d;margin-bottom:2rem}
 table{border-collapse:separate;border-spacing:0;table-layout:auto;width:max-content;min-width:100%}th,td{padding:.7rem .85rem;border-bottom:1px solid #e5e9ef;text-align:left;vertical-align:top;min-width:10rem;max-width:32rem;white-space:normal;overflow-wrap:break-word;word-break:normal}
 th{position:sticky;top:0;background:#edf2f7;font-weight:650;z-index:1}tbody tr:nth-child(even){background:#f8fafc}tbody tr:hover{background:#eef6ff}td:first-child,th:first-child{min-width:3rem;width:3rem;text-align:right;color:#718096}a{color:#1261a0;text-decoration:none;overflow-wrap:anywhere}a:hover{text-decoration:underline}
-.cell-preview{display:block;max-width:30rem;max-height:3.1em;overflow:hidden;line-height:1.55;white-space:normal;overflow-wrap:anywhere;cursor:help}.cell-preview[title]:hover{overflow:visible}.cell-preview[title]{text-decoration:underline dotted #9aa7b8;text-underline-offset:3px}
+.cell-preview{display:block;max-width:30rem;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}.table-card{margin:1.5rem 0 2.5rem}.table-heading{display:flex;align-items:baseline;justify-content:space-between;gap:1rem}.table-heading p{color:#64748b;margin:.2rem 0 .75rem}.toolbar{position:sticky;top:.5rem;z-index:3;display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;padding:.75rem;background:#ffffffed;border:1px solid #d9e0e8;border-radius:12px;box-shadow:0 3px 12px #18223012}.toolbar input{flex:1;min-width:12rem;padding:.6rem .75rem;border:1px solid #cbd5e1;border-radius:8px;font:inherit}.toolbar button,.toolbar select{padding:.55rem .75rem;border:1px solid #cbd5e1;border-radius:8px;background:white;font:inherit}.count{color:#64748b;font-size:.9rem}.table-nav{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0}.table-nav a{padding:.4rem .7rem;background:white;border:1px solid #d9e0e8;border-radius:999px}.empty{padding:1.5rem;text-align:center;color:#64748b}
 @media(max-width:640px){body{padding:.75rem}th,td{min-width:8rem;max-width:18rem;padding:.55rem}.table-scroll{border-radius:7px}}
 </style></head><body>''')
-    for index, table in iter_tables(data, options.only):
+    out.write('<header><h1>Extracted tables</h1><p>Search and inspect all extracted data.</p></header>')
+    out.write('<div class="toolbar"><input id="search" type="search" placeholder="Search all tables…" aria-label="Search all tables"><label>Rows <select id="page-size"><option>25</option><option>50</option><option>100</option><option value="0">All</option></select></label><button id="download" type="button">Download visible tables as JSON</button><span class="count" id="result-count" aria-live="polite"></span></div>')
+    out.write('<nav class="table-nav" aria-label="Tables">')
+    selected = list(iter_tables(data, options.only))
+    for index, table in selected:
+        title = table.get("meta", {}).get("title") or f"Table {index}"
+        out.write(f'<a href="#table-{index}">{html.escape(str(title))}</a>')
+    out.write('</nav>')
+    for index, table in selected:
         meta = table.get("meta", {})
-        out.write(f'<h2>{html.escape(str(meta.get("title") or f"Table {index}"))}</h2>')
+        title = meta.get("title") or f"Table {index}"
+        out.write(f'<section class="table-card" id="table-{index}" data-table="{index}"><div class="table-heading"><h2>{html.escape(str(title))}</h2></div>')
+        if meta.get("purpose"):
+            out.write(f'<p>{html.escape(str(meta["purpose"]))}</p>')
         out.write('<div class="table-scroll" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>#</th>')
         columns = column_headers(table)
         for _, heading in columns:
             out.write(f'<th>{html.escape(str(heading))}</th>')
         out.write('</tr></thead><tbody>')
         rows = table.get("rows", [])
-        shown = rows[:options.max_rows] if options.max_rows else rows
+        shown = rows
         for ri, row in enumerate(shown, 1):
             out.write(f'<tr><td>{ri}</td>')
             column_by_id = {column.get("id"): column for column in table.get("columns", [])}
@@ -230,8 +222,8 @@ th{position:sticky;top:0;background:#edf2f7;font-weight:650;z-index:1}tbody tr:n
                     if is_explicit_url or (base and is_relative_path)
                     else ""
                 )
-                preview = truncate(absolute, 120) if safe_target else truncate(value, 120)
-                title = f' title="{html.escape(absolute if safe_target else value, quote=True)}"' if len(value) > 120 else ""
+                preview = absolute if safe_target else value
+                title = f' title="{html.escape(absolute if safe_target else value, quote=True)}"'
                 column = column_by_id.get(cid, {})
                 is_link_column = column.get("atype") in {"href", "src"} or cid.endswith(("@href", "@src"))
                 if is_link_column and safe_target:
@@ -240,8 +232,13 @@ th{position:sticky;top:0;background:#edf2f7;font-weight:650;z-index:1}tbody tr:n
                     cell = f'<span class="cell-preview"{title}>{html.escape(preview)}</span>'
                 out.write(f'<td>{cell}</td>')
             out.write('</tr>')
-        out.write('</tbody></table></div>')
-    out.write('</body></html>')
+        out.write('</tbody></table></div></section>')
+    out.write('''<script>
+const cards=[...document.querySelectorAll('.table-card')], search=document.querySelector('#search'), size=document.querySelector('#page-size');
+function update(){const q=search.value.toLocaleLowerCase();let total=0;for(const card of cards){const rows=[...card.querySelectorAll('tbody tr')], filtered=rows.filter(r=>r.textContent.toLocaleLowerCase().includes(q));card.hidden=!filtered.length;const limit=Number(size.value)||Infinity;filtered.forEach((r,i)=>r.hidden=i>=limit);total+=Math.min(filtered.length,limit)}document.querySelector('#result-count').textContent=`${total} rows in ${cards.filter(c=>!c.hidden).length} tables`}
+search.addEventListener('input',update);size.addEventListener('change',update);update();
+document.querySelector('#download').addEventListener('click',()=>{const payload=cards.filter(c=>!c.hidden).map(c=>({title:c.querySelector('h2').textContent,rows:[...c.querySelectorAll('tbody tr:not([hidden])')].map(r=>[...r.cells].map(td=>td.textContent))}));const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download='domtrack-tables.json';a.click();URL.revokeObjectURL(a.href)});
+</script></body></html>''')
 
 
 # ── dispatch ───────────────────────────────────────────────────────────────
@@ -269,13 +266,39 @@ def render(
             print(f"[ok] wrote {out_path}", file=sys.stderr)
         else:
             render_markdown(data, options)
-    elif fmt == "csv":
-        if out_path:
-            with open(out_path, "w", encoding="utf-8", newline="") as f:
-                render_csv(data, options, out=f)
-            print(f"[ok] wrote {out_path}", file=sys.stderr)
-        else:
-            render_csv(data, options, out=sys.stdout)
+    elif fmt == "excel":
+        try:
+            from openpyxl import Workbook
+            from openpyxl.styles import Font, PatternFill
+            from openpyxl.utils import get_column_letter
+        except ImportError as exc:
+            raise RuntimeError("Excel export requires openpyxl; install domtrack[tables]") from exc
+        if not out_path:
+            raise ValueError("Excel output requires --output, for example -o tables.xlsx")
+        workbook = Workbook()
+        workbook.remove(workbook.active)
+        for index, table in iter_tables(data, options.only):
+            meta = table.get("meta", {})
+            base_title = str(meta.get("title") or f"Table {index}")
+            sheet_name = "".join(c for c in base_title if c not in "[]:*?/\\")[:31] or f"Table {index}"
+            name, suffix = sheet_name, 2
+            while name in workbook.sheetnames:
+                tail = f" {suffix}"; name = sheet_name[:31-len(tail)] + tail; suffix += 1
+            sheet = workbook.create_sheet(name)
+            headers = [heading for _, heading in column_headers(table)]
+            sheet.append(headers)
+            for cell in sheet[1]:
+                cell.font = Font(bold=True, color="FFFFFF")
+                cell.fill = PatternFill("solid", fgColor="2563EB")
+            for row in table.get("rows", []):
+                sheet.append([get_cell(row, cid) for cid, _ in column_headers(table)])
+            sheet.freeze_panes = "A2"
+            sheet.auto_filter.ref = sheet.dimensions
+            for col in sheet.columns:
+                width = min(60, max(12, max((len(str(c.value or "").split("\\n")[0]) for c in col), default=12) + 2))
+                sheet.column_dimensions[get_column_letter(col[0].column)].width = width
+        workbook.save(out_path)
+        print(f"[ok] wrote {out_path}", file=sys.stderr)
     elif fmt == "html":
         if out_path:
             with open(out_path, "w", encoding="utf-8") as f:

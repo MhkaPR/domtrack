@@ -19,8 +19,8 @@ classifiers = [
 dependencies = [
     "formulas>=1.3.4",
     "openai>=3.41.0",
+    "openpyxl>=3.1.5",
     "playwright>=1.40",
-    "sentence-transformers>=6.3.0",
     "scikit-learn>=1.3",
 ]
 
@@ -28,10 +28,10 @@ dependencies = [
 dev = ["pytest>=7"]
 api = ["fastapi>=0.110", "uvicorn[standard]>=0.27"]
 api-test = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "httpx>=0.27"]
-tables = ["rich>=13", "tabulate>=0.9"]
+tables = ["rich>=13", "tabulate>=0.9", "openpyxl>=3.1"]
 llm = ["openai>=1.0"]
 llm-anthropic = ["anthropic>=0.40"]
-all = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "rich>=13", "tabulate>=0.9", "openai>=1.0", "anthropic>=0.40"]
+all = ["fastapi>=0.110", "uvicorn[standard]>=0.27", "rich>=13", "tabulate>=0.9", "openpyxl>=3.1", "openai>=1.0", "anthropic>=0.40"]
 
 [project.urls]
 Homepage = "https://github.com/MhkaPR/domtrack"

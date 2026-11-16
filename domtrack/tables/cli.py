@@ -4,7 +4,7 @@ Four subcommands over the :mod:`domtrack.tables` helpers:
 
 * ``extract`` — discover repeated tabular structures in a trace (no browser).
 * ``label``   — attach semantic titles / column labels with an LLM.
-* ``show``    — render labeled tables as rich / plain / markdown / csv.
+* ``show``    — render labeled tables as rich / plain / markdown / excel / html.
 """
 
 from __future__ import annotations
@@ -76,10 +76,10 @@ def _add_show(sub) -> None:
     p.add_argument("input", help="JSON from `tables label`")
     p.add_argument("--only", default=None,
                    help="only these tables, e.g. 1,3,5 (1-based)")
-    p.add_argument("--format", choices=["rich", "plain", "markdown", "csv", "html"],
+    p.add_argument("--format", choices=["rich", "plain", "markdown", "excel", "html"],
                    default="rich")
     p.add_argument("-o", "--output", default=None,
-                   help="output file (for markdown/csv/html)")
+                   help="output file (for markdown/excel/html)")
     p.add_argument("--base-url", default=None,
                    help="base URL for resolving relative links in HTML output")
     p.add_argument("--max-rows", type=int, default=0,

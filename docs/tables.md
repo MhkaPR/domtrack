@@ -170,7 +170,7 @@ domtrack tables label tables.json --lang en      # English labels
 
 ## Displaying
 
-`render` draws labeled tables as `rich`, `plain`, `markdown`, or `csv`. Columns
+`render` draws labeled tables as `rich`, `plain`, `markdown`, `excel`, or `html`. Columns
 are headed by `semantic_label`, falling back to `label`, then the raw id.
 
 ```python
@@ -183,7 +183,8 @@ render_tables(labeled, "markdown", RenderOptions(max_rows=5), out_path="tables.m
 domtrack tables show labeled.json
 domtrack tables show labeled.json --only 1,3,5
 domtrack tables show labeled.json --format markdown -o tables.md
-domtrack tables show labeled.json --format csv -o tables.csv
+domtrack tables show labeled.json --format excel -o tables.xlsx
+domtrack tables show labeled.json --format html -o tables.html
 domtrack tables show labeled.json --max-rows 5 --max-chars 60
 ```
 
@@ -191,13 +192,16 @@ domtrack tables show labeled.json --max-rows 5 --max-chars 60
 | --- | --- | --- |
 | `input` (positional) | — | JSON from `tables label` |
 | `--only` | all | Only these tables, e.g. `1,3,5` (1-based) |
-| `--format` | `rich` | `rich` / `plain` / `markdown` / `csv` |
-| `-o`, `--output` | stdout | Output file (for `markdown`/`csv`) |
+| `--format` | `rich` | `rich` / `plain` / `markdown` / `excel` / `html` |
+| `-o`, `--output` | stdout | Output file (required for `excel`; recommended for `html`) |
 | `--max-rows` | `0` (all) | Max rows per table |
 | `--max-chars` | `80` | Max cell length |
 
 `rich` needs the `rich` extra and `plain` uses `tabulate` when present; both
-fall back gracefully when the optional packages are missing.
+fall back gracefully when the optional packages are missing. Excel export uses
+`openpyxl` from the `tables` extra and writes one complete worksheet per table.
+HTML output includes every row and full cell value; its search and row controls
+only affect on-screen visibility.
 
 ## Normalizing heterogeneous columns
 

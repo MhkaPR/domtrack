@@ -279,8 +279,8 @@ domtrack tables label tables.json --dry-run
 | --- | --- | --- |
 | `input` (positional) | — | JSON from `tables label` |
 | `--only` | all | Only these tables, e.g. `1,3,5` (1-based) |
-| `--format` | `rich` | `rich` / `plain` / `markdown` / `csv` |
-| `-o`, `--output` | stdout | Output file (for `markdown`/`csv`) |
+| `--format` | `rich` | `rich` / `plain` / `markdown` / `excel` / `html` |
+| `-o`, `--output` | stdout | Output file (`excel` requires a path) |
 | `--max-rows` | `0` (all) | Max rows per table |
 | `--max-chars` | `80` | Max cell length |
 
@@ -289,5 +289,6 @@ Exit codes: `0` ok, `1` no tables, `2` bad `--only`.
 ```bash
 domtrack tables show labeled.json
 domtrack tables show labeled.json --format markdown -o tables.md
-domtrack tables show labeled.json --format csv -o tables.csv
+domtrack tables show labeled.json --format excel -o tables.xlsx
+domtrack tables show labeled.json --format html -o tables.html
 ```

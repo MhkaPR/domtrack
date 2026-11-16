@@ -2,7 +2,7 @@
 
 Browser-free discovery over a folded trace
 (:mod:`domtrack.tables.discovery`), optional LLM semantic labeling
-(:mod:`domtrack.tables.labeling`), and rich / plain / markdown / csv rendering
+(:mod:`domtrack.tables.labeling`), and rich / plain / markdown / Excel / HTML rendering
 (:mod:`domtrack.tables.render`). The command-line surface is
 ``domtrack tables <extract|label|show>``.
 
