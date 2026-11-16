@@ -36,7 +36,7 @@ class TracerConfig:
     # Recording mode
     duration_ms: int | None = None
 
-    output_dir: str = "traces"
+    output_dir: str = ".files"
 
     def __post_init__(self) -> None:
         if not self.url:

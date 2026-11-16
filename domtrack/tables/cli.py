@@ -76,10 +76,12 @@ def _add_show(sub) -> None:
     p.add_argument("input", help="JSON from `tables label`")
     p.add_argument("--only", default=None,
                    help="only these tables, e.g. 1,3,5 (1-based)")
-    p.add_argument("--format", choices=["rich", "plain", "markdown", "csv"],
+    p.add_argument("--format", choices=["rich", "plain", "markdown", "csv", "html"],
                    default="rich")
     p.add_argument("-o", "--output", default=None,
-                   help="output file (for markdown/csv)")
+                   help="output file (for markdown/csv/html)")
+    p.add_argument("--base-url", default=None,
+                   help="base URL for resolving relative links in HTML output")
     p.add_argument("--max-rows", type=int, default=0,
                    help="max rows per table (0 = all)")
     p.add_argument("--max-chars", type=int, default=80,
@@ -220,7 +222,8 @@ def _run_show(args) -> int:
         return 1
 
     options = RenderOptions(
-        only=only, max_rows=args.max_rows, max_chars=args.max_chars
+        only=only, max_rows=args.max_rows, max_chars=args.max_chars,
+        base_url=args.base_url,
     )
     render(data, args.format, options, out_path=args.output)
     return 0

@@ -8,9 +8,13 @@ then the raw column id.
 from __future__ import annotations
 
 import csv
+import html
+import json
 import sys
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Iterable, Optional
+from urllib.parse import urljoin, urlsplit
 
 
 @dataclass
@@ -20,6 +24,7 @@ class RenderOptions:
     only: Optional[set[int]] = None   # 1-based table numbers to show
     max_rows: int = 0                 # 0 = all rows
     max_chars: int = 80               # 0 = no truncation
+    base_url: Optional[str] = None
 
 
 def get_cell(row: dict, column_id: str) -> str:
@@ -184,6 +189,61 @@ def render_csv(data: dict, options: RenderOptions, out) -> None:
         writer.writerow([])
 
 
+def render_html(data: dict, options: RenderOptions, out) -> None:
+    """Write a standalone HTML page with complete, clickable URL cells."""
+    base = options.base_url or data.get("page", {}).get("page_url") or data.get("meta", {}).get("page_url") or ""
+    out.write('<!doctype html><html><head><meta charset="utf-8">')
+    out.write('<meta name="viewport" content="width=device-width, initial-scale=1">')
+    out.write('''<title>Extracted tables</title><style>
+*{box-sizing:border-box}body{font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:clamp(1rem,3vw,2.5rem);color:#202633;background:#f5f7fa}
+h2{margin:2rem 0 .75rem;font-size:1.25rem}.table-scroll{width:100%;overflow:auto;overscroll-behavior-x:contain;border:1px solid #d9e0e8;border-radius:10px;background:white;box-shadow:0 2px 8px #1822300d;margin-bottom:2rem}
+table{border-collapse:separate;border-spacing:0;table-layout:auto;width:max-content;min-width:100%}th,td{padding:.7rem .85rem;border-bottom:1px solid #e5e9ef;text-align:left;vertical-align:top;min-width:10rem;max-width:32rem;white-space:normal;overflow-wrap:break-word;word-break:normal}
+th{position:sticky;top:0;background:#edf2f7;font-weight:650;z-index:1}tbody tr:nth-child(even){background:#f8fafc}tbody tr:hover{background:#eef6ff}td:first-child,th:first-child{min-width:3rem;width:3rem;text-align:right;color:#718096}a{color:#1261a0;text-decoration:none;overflow-wrap:anywhere}a:hover{text-decoration:underline}
+.cell-preview{display:block;max-width:30rem;max-height:3.1em;overflow:hidden;line-height:1.55;white-space:normal;overflow-wrap:anywhere;cursor:help}.cell-preview[title]:hover{overflow:visible}.cell-preview[title]{text-decoration:underline dotted #9aa7b8;text-underline-offset:3px}
+@media(max-width:640px){body{padding:.75rem}th,td{min-width:8rem;max-width:18rem;padding:.55rem}.table-scroll{border-radius:7px}}
+</style></head><body>''')
+    for index, table in iter_tables(data, options.only):
+        meta = table.get("meta", {})
+        out.write(f'<h2>{html.escape(str(meta.get("title") or f"Table {index}"))}</h2>')
+        out.write('<div class="table-scroll" role="region" aria-label="Scrollable table" tabindex="0"><table><thead><tr><th>#</th>')
+        columns = column_headers(table)
+        for _, heading in columns:
+            out.write(f'<th>{html.escape(str(heading))}</th>')
+        out.write('</tr></thead><tbody>')
+        rows = table.get("rows", [])
+        shown = rows[:options.max_rows] if options.max_rows else rows
+        for ri, row in enumerate(shown, 1):
+            out.write(f'<tr><td>{ri}</td>')
+            column_by_id = {column.get("id"): column for column in table.get("columns", [])}
+            for cid, _ in columns:
+                value = get_cell(row, cid)
+                parts = urlsplit(value)
+                is_explicit_url = bool(parts.scheme or value.startswith("//"))
+                is_relative_path = value.startswith(("/", "./", "../", "?", "#"))
+                absolute = (
+                    urljoin(base, value)
+                    if base and is_relative_path
+                    else value
+                )
+                safe_target = (
+                    absolute
+                    if is_explicit_url or (base and is_relative_path)
+                    else ""
+                )
+                preview = truncate(absolute, 120) if safe_target else truncate(value, 120)
+                title = f' title="{html.escape(absolute if safe_target else value, quote=True)}"' if len(value) > 120 else ""
+                column = column_by_id.get(cid, {})
+                is_link_column = column.get("atype") in {"href", "src"} or cid.endswith(("@href", "@src"))
+                if is_link_column and safe_target:
+                    cell = f'<a class="cell-preview"{title} href="{html.escape(safe_target, quote=True)}">{html.escape(preview)}</a>'
+                else:
+                    cell = f'<span class="cell-preview"{title}>{html.escape(preview)}</span>'
+                out.write(f'<td>{cell}</td>')
+            out.write('</tr>')
+        out.write('</tbody></table></div>')
+    out.write('</body></html>')
+
+
 # ── dispatch ───────────────────────────────────────────────────────────────
 
 def render(
@@ -216,5 +276,12 @@ def render(
             print(f"[ok] wrote {out_path}", file=sys.stderr)
         else:
             render_csv(data, options, out=sys.stdout)
+    elif fmt == "html":
+        if out_path:
+            with open(out_path, "w", encoding="utf-8") as f:
+                render_html(data, options, f)
+            print(f"[ok] wrote {out_path}", file=sys.stderr)
+        else:
+            render_html(data, options, out=sys.stdout)
     else:
         raise ValueError(f"unknown format: {fmt}")

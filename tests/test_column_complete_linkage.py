@@ -207,6 +207,55 @@ def test_slot_splitting():
     assert {column["slot"] for column in columns} == {0, 1}
 
 
+def test_missing_intermediate_atom_does_not_shift_later_slot():
+    rows = _rows([["A", "B", "C"], ["A", "C"], ["A", "B", "C"]])
+    columns = _extract(rows)
+    slots = {column["slot"]: _values(column) for column in columns if column["slot"] is not None}
+    assert slots[0] == ["A", "A", "A"]
+    assert slots[1] == ["B", "B"]
+    assert slots[2] == ["C", "C", "C"]
+
+
+def test_missing_first_atom_keeps_remaining_slots_aligned():
+    columns = _extract(_rows([["A", "B", "C"], ["B", "C"]]), min_column_rows=1)
+    slots = {column["slot"]: _values(column) for column in columns if column["slot"] is not None}
+    assert slots[0] == ["A"]
+    assert slots[1] == ["B", "B"]
+    assert slots[2] == ["C", "C"]
+
+
+def test_missing_last_atom_keeps_leading_slots_aligned():
+    columns = _extract(_rows([["A", "B", "C"], ["A", "B"]]))
+    slots = {column["slot"]: _values(column) for column in columns if column["slot"] is not None}
+    assert slots[0] == ["A", "A"]
+    assert slots[1] == ["B", "B"]
+
+
+def test_multiple_missing_atoms_preserve_seed_slot_ids():
+    columns = _extract(
+        _rows([["A", "B", "C", "D"], ["A", "D"], ["A", "B", "D"]]),
+        min_column_rows=1,
+    )
+    slots = {column["slot"]: _values(column) for column in columns if column["slot"] is not None}
+    assert slots[0] == ["A", "A", "A"]
+    assert slots[1] == ["B", "B"]
+    assert slots[2] == ["C"]
+    assert slots[3] == ["D", "D", "D"]
+
+
+def test_dp_rejects_matches_below_threshold():
+    from domtrack.tables.discovery.columns import SequenceAligner
+    from domtrack.tables.discovery.model import Atom
+
+    atom = Atom((), "text", "x")
+    atom.vector = np.array([1.0, 0.0])
+    aligned, unmatched = SequenceAligner(0.3)._align(
+        [atom], [np.array([0.0, 1.0])], np.ones(2), 0.8
+    )
+    assert aligned == [None]
+    assert unmatched == [atom]
+
+
 def test_same_path_list_keeps_every_element():
     rows = _rows(
         [
