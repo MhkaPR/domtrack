@@ -60,6 +60,50 @@ def _card_trace() -> dict:
     }
 
 
+def _nested_grid_trace() -> dict:
+    """A grid of wrapper rows, each wrapping one container of four cards.
+
+    This mirrors sites that insert layout wrappers between the grid and the
+    cards: ``grid > row-wrapper > single-child-wrapper > cards``.  The card
+    must remain the row unit, regardless of the wrapper depth.
+    """
+    next_id = 100
+
+    def card(title, price, href):
+        nonlocal next_id
+        base = next_id
+        next_id += 4
+        return _node(
+            base, "article", {"class": "card"},
+            [
+                _node(base + 1, "span", {"class": "title"}, [_text(base + 1_000, title)]),
+                _node(base + 2, "span", {"class": "price"}, [_text(base + 2_000, price)]),
+                _node(base + 3, "a", {"class": "buy", "href": href}, [_text(base + 3_000, "Buy")]),
+            ],
+        )
+
+    rows = []
+    for r in range(3):
+        base = next_id
+        next_id += 2
+        cards = [
+            card(f"Item {r}-{c}", str((r * 4 + c) * 10), f"https://x/{r}/{c}")
+            for c in range(4)
+        ]
+        rows.append(
+            _node(base, "div", {"class": "row"}, [_node(base + 1, "div", {"class": "inner"}, cards)])
+        )
+    body = _node(3, "body", {}, [_node(4, "div", {"class": "grid"}, rows)])
+    html = _node(2, "html", {}, [body])
+    return {
+        "meta": {"url": "https://example.com/grid"},
+        "version": 2,
+        "snapshot": {"type": tf.RecordType.FULL_SNAPSHOT,
+                     "node": {"id": 1, "type": tf.NodeType.DOCUMENT, "childNodes": [html]}},
+        "records": [],
+    }
+
+
 # ── discovery ──────────────────────────────────────────────────────────────
 
 def test_build_tree_folds_records():
@@ -87,6 +131,29 @@ def test_discover_tables_finds_card_grid():
     assert href_cols
     values = [row[href_cols[0]["id"]] for row in table["rows"]]
     assert values == ["https://x/a", "https://x/b", "https://x/c"]
+
+
+def test_nested_grid_flattens_to_card_rows():
+    result = discovery.discover_tables(_nested_grid_trace())
+    tables = result["tables"]
+    biggest = max(tables, key=lambda t: t["row_count"])
+
+    # One row per card: 3 wrapper rows x 4 cards, not 3 wrapper rows.
+    assert biggest["row_count"] == 12
+    assert biggest["parent"]["classes"] == ["grid"]
+
+    titles = [
+        value
+        for row in biggest["rows"]
+        for value in row.values()
+        if isinstance(value, str) and value.startswith("Item ")
+    ]
+    assert len(titles) == 12
+
+    # Inner wrapper rows must not be emitted as their own tables.
+    assert not any(
+        t["row_count"] == 4 and t["parent"]["classes"] == ["row"] for t in tables
+    )
 
 
 def test_discover_tables_dedupes_overlapping():

@@ -133,6 +133,66 @@ def _has_similar_children(
     )
 
 
+def _record_row_children(
+    node: Node, config: DiscoveryConfig, interfaces: Interfaces
+) -> Optional[list[Node]]:
+    """Return ``node``'s children if they are repeated multi-value records.
+
+    This distinguishes a grid row (children are product cards, each carrying
+    several values) from a table row (children are cells, each carrying one
+    value).  It is the general signal for flattening nested repeated grids.
+    """
+    kids = [
+        child
+        for child in node.children
+        if interfaces.is_visible(child)
+        and child.tag
+        and interfaces.sig(node, child) is not None
+    ]
+    if len(kids) < config.min_rows:
+        return None
+    if not all(_value_count(kid, interfaces) > 1 for kid in kids):
+        return None
+    if not all(
+        row_similarity(kids[0], kid, node, config, interfaces)
+        >= config.shape_threshold
+        for kid in kids[1:]
+    ):
+        return None
+    return kids
+
+
+def _children_are_record_rows(
+    node: Node, config: DiscoveryConfig, interfaces: Interfaces
+) -> bool:
+    return _record_row_children(node, config, interfaces) is not None
+
+
+def _record_rows(
+    node: Node, config: DiscoveryConfig, interfaces: Interfaces
+) -> Optional[list[Node]]:
+    """The actual repeated records owned by ``node``, or ``None``.
+
+    Descends through single-child wrappers so that a grid row which wraps one
+    row-container still yields the real records (e.g. the cards), not the
+    wrapper.  This is what makes a card a row unit regardless of how many
+    layout wrappers a site inserts between the grid and the card.
+    """
+    kids = _record_row_children(node, config, interfaces)
+    if kids is not None:
+        return kids
+    visible = [
+        child
+        for child in node.children
+        if interfaces.is_visible(child)
+        and child.tag
+        and interfaces.sig(node, child) is not None
+    ]
+    if len(visible) == 1:
+        return _record_rows(visible[0], config, interfaces)
+    return None
+
+
 def _count_similar_siblings(
     node: Node, config: DiscoveryConfig, interfaces: Interfaces
 ) -> int:
@@ -217,7 +277,17 @@ def cluster_children(
             continue
         if interfaces.sig(parent, c) is None:
             continue
-        if is_grouping(c, parent, config, interfaces):
+        record_rows = _record_rows(c, config, interfaces)
+        if record_rows is not None:
+            for g in record_rows:
+                if g.id in covered:
+                    continue
+                if not interfaces.is_visible(g):
+                    continue
+                if interfaces.sig(parent, g) is None:
+                    continue
+                elems.append(g)
+        elif is_grouping(c, parent, config, interfaces):
             for g in c.children:
                 if g.id in covered:
                     continue
@@ -268,7 +338,10 @@ def build_table(
         record: dict = {}
         for column in columns:
             hits = [a.value for ri, a in column["entries"] if ri == i]
-            record[column["id"]] = " | ".join(dict.fromkeys(hits)) if hits else ""
+            if hits:
+                record[column["id"]] = " | ".join(dict.fromkeys(hits))
+            else:
+                record[column["id"]] = None if column.get("nullable") else ""
         table_rows.append(record)
 
     score = len(columns) * math.sqrt(len(rows)) * avg_sim
@@ -294,6 +367,7 @@ def build_table(
                 "slot": c["slot"],
                 "coverage": round(c["coverage_ratio"], 2),
                 "row_count": c["coverage"],
+                "nullable": bool(c.get("nullable", False)),
                 "features": _public_features(c.get("features")),
             }
             for c in columns
@@ -341,11 +415,14 @@ class TableDiscoverer:
         interfaces = self.interfaces
         tables: list[dict] = []
         covered: set[int] = set()
+        suppressed: set[int] = set()
         candidates = 0
 
         def process(node: Node) -> None:
             nonlocal candidates
             if node.id in covered:
+                return
+            if node.id in suppressed:
                 return
             if not interfaces.is_visible(node):
                 return
@@ -375,6 +452,21 @@ class TableDiscoverer:
                 post_order(child)
             process(node)
 
+        def suppress_descendants(node: Node) -> None:
+            for child in node.children:
+                suppressed.add(child.id)
+                suppress_descendants(child)
+
+        def find_grid_roots(node: Node, inside_grid: bool = False) -> None:
+            if not interfaces.is_visible(node):
+                return
+            is_grid = _children_are_record_rows(node, config, interfaces)
+            if is_grid and not inside_grid:
+                suppress_descendants(node)
+            for child in node.children:
+                find_grid_roots(child, inside_grid or is_grid)
+
+        find_grid_roots(root)
         post_order(root)
         return tables, candidates
 

@@ -43,6 +43,13 @@ def _add_extract(sub) -> None:
                    help="minimum rows a table must keep (default: 3)")
     p.add_argument("--min-cols", type=int, default=2,
                    help="minimum columns a table must keep (default: 2)")
+    p.add_argument("--nullable", action=argparse.BooleanOptionalAction,
+                   default=True,
+                   help="keep optional columns and fill missing cells with null")
+    p.add_argument("--min-column-rows", type=int, default=2,
+                   help="minimum rows for a nullable column (default: 2)")
+    p.add_argument("--min-column-coverage", type=float, default=0.1,
+                   help="minimum row ratio for a nullable column (default: 0.1)")
     p.add_argument("--verbose", action="store_true",
                    help="print a summary to stderr")
 
@@ -110,6 +117,9 @@ def _run_extract(args) -> int:
     config = DiscoveryConfig(
         min_rows=args.min_rows,
         min_cols=args.min_cols,
+        nullable_columns=args.nullable,
+        min_column_rows=args.min_column_rows,
+        min_column_coverage_ratio=args.min_column_coverage,
         dedupe=not args.all,
     )
     result = discover_tables(raw, config)

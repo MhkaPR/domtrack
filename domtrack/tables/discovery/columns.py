@@ -93,6 +93,7 @@ def _make_column(
     coverage: int,
     total_rows: int,
     features: Optional[dict] = None,
+    nullable: bool = False,
 ) -> dict:
     column = {
         "path": path,
@@ -101,6 +102,7 @@ def _make_column(
         "entries": entries,
         "coverage": coverage,
         "coverage_ratio": coverage / total_rows if total_rows else 0.0,
+        "nullable": nullable,
     }
     column["id"] = column_id(column)
     column["label"] = column_label(column)
@@ -243,6 +245,14 @@ class ColumnExtractor:
         min_cover = max(
             config.min_cols, math.ceil(len(rows) * config.min_coverage_ratio)
         )
+        column_min_cover = (
+            max(
+                config.min_column_rows,
+                math.ceil(len(rows) * config.min_column_coverage_ratio),
+            )
+            if config.nullable_columns
+            else min_cover
+        )
 
         row_atoms: list[list[Atom]] = []
         for row in rows:
@@ -330,7 +340,7 @@ class ColumnExtractor:
         for group in groups:
             row_set = {i for i, _ in group}
             keep_low_coverage = _is_struck_price_group(group)
-            if len(row_set) < min_cover and not keep_low_coverage:
+            if len(row_set) < column_min_cover and not keep_low_coverage:
                 continue
 
             per_row: dict[int, list[Atom]] = defaultdict(list)
@@ -352,6 +362,7 @@ class ColumnExtractor:
                         len(row_set),
                         total_rows,
                         features,
+                        config.nullable_columns,
                     )
                 )
                 continue
@@ -363,7 +374,10 @@ class ColumnExtractor:
                     if slot < len(per_row.get(i, []))
                 ]
                 covered_rows = {i for i, _ in sub}
-                if len(covered_rows) < min_cover and not keep_low_coverage:
+                if (
+                    len(covered_rows) < column_min_cover
+                    and not keep_low_coverage
+                ):
                     continue
                 features = _column_feature_dict(sub, total_rows, atype)
                 columns.append(
@@ -375,6 +389,7 @@ class ColumnExtractor:
                         len(covered_rows),
                         total_rows,
                         features,
+                        config.nullable_columns,
                     )
                 )
 

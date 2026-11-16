@@ -22,6 +22,9 @@ class DiscoveryConfig:
     min_rows: int = 3
     min_cols: int = 2
     min_coverage_ratio: float = 0.5
+    nullable_columns: bool = True
+    min_column_coverage_ratio: float = 0.1
+    min_column_rows: int = 2
     shape_threshold: float = 0.6
     path_threshold: float = 0.6
     feature_threshold: float = 0.1

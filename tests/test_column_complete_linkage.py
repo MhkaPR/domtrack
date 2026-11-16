@@ -17,6 +17,7 @@ from domtrack.tables.discovery.features import (
     node_features,
     value_types,
 )
+from domtrack.tables.discovery.engine import build_table
 from domtrack.tables.discovery.model import Node
 
 
@@ -227,6 +228,30 @@ def test_same_path_list_keeps_every_element():
         1: ["Core i3", "Core i5", "Celeron"],
         2: ["8GB", "16GB", "4GB"],
     }
+
+
+def test_nullable_column_keeps_missing_cells_null():
+    builder = _Builder()
+    rows = []
+    for badge in ["x", None, "y"]:
+        row = builder.row(["title"])
+        if badge is not None:
+            badge_cell = builder.cell(badge, tag="em")
+            badge_cell.parent = row
+            row.children.append(badge_cell)
+        rows.append(row)
+
+    columns = _extract(rows)
+    badge_column = next(
+        column for column in columns if "em" in column["path_str"]
+    )
+    assert badge_column["nullable"] is True
+    assert badge_column["coverage"] == 2
+
+    table = build_table(rows[0], rows, columns, 1.0)
+    assert table["rows"][0][badge_column["id"]] == "x"
+    assert table["rows"][1][badge_column["id"]] is None
+    assert table["rows"][2][badge_column["id"]] == "y"
 
 
 def test_impure_cluster_split():
