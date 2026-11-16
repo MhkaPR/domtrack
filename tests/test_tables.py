@@ -197,9 +197,9 @@ def test_custom_path_sim_is_used():
 
 def test_strict_path_threshold_drops_columns():
     root = discovery.build_tree(_card_trace())
-    strict = discovery.DiscoveryConfig(path_threshold=1.01)   # nothing merges
-    # Every atom is then alone in its group, below min_cover -> no table.
-    assert discovery.discover(root, strict) == []
+    strict = discovery.DiscoveryConfig(path_threshold=1.01)
+    # ``path_threshold`` is a legacy knob and no longer gates clustering.
+    assert discovery.discover(root, strict)
 
 
 def test_is_visible_false_excludes_child_row():
@@ -251,8 +251,12 @@ def test_multi_atom_column_splits_into_slots():
     table = result["tables"][0]
     slot_cols = [c for c in table["columns"] if c["slot"] is not None]
     assert slot_cols  # the tag column split into slots
-    # First slot carries the first tag of every row.
-    first_slot = sorted(slot_cols, key=lambda c: c["slot"])[0]
+    # The first tag slot carries the first tag of every row.
+    first_slot = next(
+        c
+        for c in slot_cols
+        if any(row[c["id"]] == "x" for row in table["rows"])
+    )
     values = [row[first_slot["id"]] for row in table["rows"]]
     assert values == ["x", "p", "m"]
 

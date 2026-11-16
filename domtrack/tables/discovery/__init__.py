@@ -11,9 +11,22 @@ prefer the class-based extension points:
 
 from __future__ import annotations
 
-from . import columns, config, engine, labels, model, policy
+from . import columns, config, engine, features, labels, model, policy
 from .columns import ColumnExtractor, _make_column, _path_key, extract_columns
 from .config import DiscoveryConfig
+from .features import (
+    COLUMN_FEATURES,
+    PAIRWISE_FEATURES,
+    FeatureVectorizer,
+    column_features,
+    cosine_similarity,
+    feature_similarity,
+    node_features,
+    page_features,
+    pairwise_features,
+    similarity_matrix,
+    value_types,
+)
 from .engine import (
     TableDiscoverer,
     _discover,
@@ -81,5 +94,9 @@ __all__ = [
     "cluster_children", "build_table", "mark_covered",
     "best_class", "path_str", "column_id", "column_label", "row_identity",
     "table_fingerprint", "fingerprint_similarity", "is_subset_of", "dedupe",
-    "columns", "config", "engine", "labels", "model", "policy",
+    "FeatureVectorizer", "column_features", "cosine_similarity",
+    "feature_similarity", "node_features", "page_features",
+    "pairwise_features", "similarity_matrix", "value_types",
+    "COLUMN_FEATURES", "PAIRWISE_FEATURES",
+    "columns", "config", "engine", "features", "labels", "model", "policy",
 ]

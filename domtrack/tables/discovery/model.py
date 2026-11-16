@@ -39,6 +39,7 @@ class Node:
     text: str = ""
     children: list["Node"] = field(default_factory=list, repr=False)
     parent: Optional["Node"] = field(default=None, repr=False)
+    features: dict = field(default_factory=dict)
 
     @property
     def classes(self) -> frozenset[str]:
@@ -53,6 +54,9 @@ class Node:
         if ntype == NodeType.ELEMENT:
             node.tag = (raw.get("tagName") or "").lower()
             node.attrs = dict(raw.get("attributes") or {})
+            raw_features = raw.get("features")
+            if isinstance(raw_features, dict):
+                node.features = raw_features
         elif ntype == NodeType.TEXT:
             node.text = raw.get("textContent") or ""
         for child in raw.get("childNodes") or []:
@@ -217,6 +221,8 @@ class Atom:
     path: tuple
     atype: str
     value: str
+    node: Optional[Node] = field(default=None, repr=False)
+    features: dict = field(default_factory=dict)
 
 
 @dataclass

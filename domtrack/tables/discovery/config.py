@@ -24,6 +24,13 @@ class DiscoveryConfig:
     min_coverage_ratio: float = 0.5
     shape_threshold: float = 0.6
     path_threshold: float = 0.6
+    feature_threshold: float = 0.1
+    distance_threshold: float = 0.3
+    path_feature_weight: float = 0.1
+    max_type_entropy: float = 0.5
+    min_unit_consistency: float = 0.7
+    min_tag_majority: float = 0.8
+    row_feature_weight: float = 0.3
     dedupe: bool = True
     dedupe_threshold: float = 0.8
 

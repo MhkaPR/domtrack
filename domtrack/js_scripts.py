@@ -132,6 +132,53 @@ INIT_TEMPLATE = r"""
     }
 
     // ── full snapshot serialization (rrweb FullSnapshot node) ────────────
+    // Per-node computational features. Captured once per serialized element
+    // so discovery can reason about geometry, typography and truncation
+    // without a browser. Kept compact: primitives only.
+    function nodeFeatures(el) {
+        let rect = null;
+        try {
+            const r = el.getBoundingClientRect();
+            rect = { x: r.x, y: r.y, w: r.width, h: r.height };
+        } catch (_) {}
+        let style = null;
+        try {
+            const cs = getComputedStyle(el);
+            style = {
+                fontSize: cs.fontSize,
+                fontWeight: cs.fontWeight,
+                lineHeight: cs.lineHeight,
+                textTransform: cs.textTransform,
+                letterSpacing: cs.letterSpacing,
+                color: cs.color,
+                bgColor: cs.backgroundColor,
+                cursor: cs.cursor,
+            };
+        } catch (_) {}
+        let innerTextLen = 0;
+        try { innerTextLen = (el.innerText || '').length; } catch (_) {}
+        let truncated = false;
+        try {
+            truncated = el.scrollWidth > el.clientWidth + 1
+                || el.scrollHeight > el.clientHeight + 1;
+        } catch (_) {}
+        let isBold = false;
+        try {
+            const weight = parseInt(getComputedStyle(el).fontWeight, 10);
+            isBold = !isNaN(weight) && weight >= 600;
+        } catch (_) {}
+        return {
+            rect: rect,
+            style: style,
+            scrollWidth: el.scrollWidth || 0,
+            clientWidth: el.clientWidth || 0,
+            offsetParentNull: el.offsetParent === null,
+            innerTextLen: innerTextLen,
+            isTruncated: truncated,
+            isBold: isBold,
+        };
+    }
+
     function serializeNode(node, depth) {
         const id = idFor(node);
         const nt = node.nodeType;
@@ -147,7 +194,11 @@ INIT_TEMPLATE = r"""
         } else {
             const attributes = {};
             for (const a of node.attributes || []) attributes[a.name] = a.value;
-            sn = { id, type: 2, tagName: node.tagName, attributes: attributes, childNodes: [] };
+            sn = {
+                id, type: 2, tagName: node.tagName,
+                attributes: attributes, childNodes: [],
+                features: nodeFeatures(node),
+            };
             // Remember every serialized node so later records can reference
             // it by id, and so replay can rebuild its HTML.
             window.__domtrack.nodes.set(id, sn);
@@ -276,6 +327,12 @@ COLLECT_SCRIPT = """
             title: document.title,
             ua: navigator.userAgent,
             viewport: { w: innerWidth, h: innerHeight },
+            html_lang: document.documentElement.lang || null,
+            html_dir: document.documentElement.dir || null,
+            viewport_width: innerWidth,
+            viewport_height: innerHeight,
+            device_pixel_ratio: window.devicePixelRatio || 1,
+            page_url: location.href,
             capturedAt: new Date().toISOString(),
         },
         count: window.capturedMutations.length,

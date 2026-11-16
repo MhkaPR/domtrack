@@ -9,6 +9,7 @@ from typing import Iterable, Optional, Union
 from ...trace import DomState
 from .columns import ColumnExtractor
 from .config import DiscoveryConfig
+from .features import cosine_similarity, feature_similarity, node_features, page_features
 from .labels import dedupe, table_fingerprint
 from .model import (
     Document,
@@ -17,6 +18,23 @@ from .model import (
     compute_ever_visible,
 )
 from .policy import Interfaces
+
+
+def _public_features(features: Optional[dict]) -> dict:
+    """JSON-safe, rounded copy of a feature dictionary."""
+    if not features:
+        return {}
+    public: dict = {}
+    for key, value in features.items():
+        if isinstance(value, bool):
+            public[key] = value
+        elif isinstance(value, (int, float)):
+            public[key] = round(float(value), 4)
+        elif isinstance(value, (list, tuple)):
+            public[key] = list(value)
+        else:
+            public[key] = value
+    return public
 
 
 # ── structural shape of a subtree ──────────────────────────────────────────
@@ -54,6 +72,28 @@ def shape_similarity(s1: frozenset, s2: frozenset, path_sim) -> float:
     return total / count if count else 0.0
 
 
+def row_similarity(
+    left: Node,
+    right: Node,
+    root: Node,
+    config: DiscoveryConfig,
+    interfaces: Interfaces,
+) -> float:
+    """Structural shape similarity blended with a row feature vector."""
+    structural = shape_similarity(
+        shape(left, interfaces), shape(right, interfaces), interfaces.path_sim
+    )
+    weight = config.row_feature_weight
+    if weight <= 0.0:
+        return structural
+    if structural < config.shape_threshold * 0.75:
+        return structural
+    left_features = node_features(left, root=root)
+    right_features = node_features(right, root=root)
+    feature_score = feature_similarity(left_features, right_features, kind="row")
+    return (1.0 - weight) * structural + weight * feature_score
+
+
 def group_similarity(rows: list[Node], interfaces: Interfaces) -> float:
     """Mean pairwise shape similarity of a row cluster."""
     shapes = [shape(row, interfaces) for row in rows]
@@ -86,11 +126,10 @@ def _has_similar_children(
     ]
     if len(kids) < 2:
         return False
-    shapes = [shape(k, interfaces) for k in kids]
-    base = shapes[0]
     return all(
-        shape_similarity(base, s, interfaces.path_sim) >= config.shape_threshold
-        for s in shapes[1:]
+        row_similarity(kids[0], kid, node, config, interfaces)
+        >= config.shape_threshold
+        for kid in kids[1:]
     )
 
 
@@ -100,8 +139,7 @@ def _count_similar_siblings(
     parent = node.parent
     if parent is None:
         return 0
-    node_shape = shape(node, interfaces)
-    if not node_shape:
+    if not shape(node, interfaces):
         return 0
     count = 0
     for sib in parent.children:
@@ -111,9 +149,8 @@ def _count_similar_siblings(
             continue
         if interfaces.sig(parent, sib) is None:
             continue
-        sib_shape = shape(sib, interfaces)
         if (
-            shape_similarity(node_shape, sib_shape, interfaces.path_sim)
+            row_similarity(node, sib, parent, config, interfaces)
             >= config.shape_threshold
         ):
             count += 1
@@ -137,11 +174,10 @@ def is_grouping(
     if len(kids) < 2:
         return False
 
-    shapes = [shape(k, interfaces) for k in kids]
-    base = shapes[0]
     if not all(
-        shape_similarity(base, s, interfaces.path_sim) >= config.shape_threshold
-        for s in shapes[1:]
+        row_similarity(kids[0], kid, node, config, interfaces)
+        >= config.shape_threshold
+        for kid in kids[1:]
     ):
         return False
 
@@ -196,7 +232,6 @@ def cluster_children(
     if len(elems) < config.min_rows:
         return []
 
-    shapes = [shape(c, interfaces) for c in elems]
     n = len(elems)
     find = list(range(n))
 
@@ -209,7 +244,7 @@ def cluster_children(
     for i in range(n):
         for j in range(i + 1, n):
             if (
-                shape_similarity(shapes[i], shapes[j], interfaces.path_sim)
+                row_similarity(elems[i], elems[j], parent, config, interfaces)
                 >= config.shape_threshold
             ):
                 ri, rj = root_of(i), root_of(j)
@@ -233,7 +268,7 @@ def build_table(
         record: dict = {}
         for column in columns:
             hits = [a.value for ri, a in column["entries"] if ri == i]
-            record[column["id"]] = hits[0] if hits else ""
+            record[column["id"]] = " | ".join(dict.fromkeys(hits)) if hits else ""
         table_rows.append(record)
 
     score = len(columns) * math.sqrt(len(rows)) * avg_sim
@@ -259,6 +294,7 @@ def build_table(
                 "slot": c["slot"],
                 "coverage": round(c["coverage_ratio"], 2),
                 "row_count": c["coverage"],
+                "features": _public_features(c.get("features")),
             }
             for c in columns
         ],
@@ -329,7 +365,8 @@ class TableDiscoverer:
                 if len(columns) < config.min_cols:
                     continue
                 avg_sim = group_similarity(cluster, interfaces)
-                tables.append(build_table(node, cluster, columns, avg_sim))
+                table = build_table(node, cluster, columns, avg_sim)
+                tables.append(table)
                 mark_covered(node, covered)
                 return
 
@@ -370,11 +407,13 @@ class TableDiscoverer:
         for table in tables:
             table.pop("_fingerprint", None)
 
-        return {
+        result = {
             "total_candidates": candidates,
             "tables_returned": len(tables),
             "tables": tables,
         }
+        result["page"] = page_features(raw)
+        return result
 
     def discover_documents(
         self, documents: Iterable[Union[Document, Node, dict]]
