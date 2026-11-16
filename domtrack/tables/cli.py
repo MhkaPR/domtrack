@@ -1,9 +1,10 @@
 """``domtrack tables`` — extract, label, and display HTML tables from a trace.
 
-Three subcommands over the :mod:`domtrack.tables` helpers:
+Four subcommands over the :mod:`domtrack.tables` helpers:
 
 * ``extract`` — discover repeated tabular structures in a trace (no browser).
 * ``label``   — attach semantic titles / column labels with an LLM.
+* ``normalize`` — split mixed columns into single-concept columns.
 * ``show``    — render labeled tables as rich / plain / markdown / csv.
 """
 
@@ -16,6 +17,7 @@ import sys
 from .. import trace as tf
 from .discovery import DiscoveryConfig, discover_tables
 from .labeling import API_KEY_ENV, LabelConfig, label_tables, resolve_api_key
+from .normalize import NormalizeConfig, normalize_table, normalize_tables
 from .render import RenderOptions, render
 
 
@@ -27,6 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = p.add_subparsers(dest="command", required=True)
     _add_extract(sub)
     _add_label(sub)
+    _add_normalize(sub)
     _add_show(sub)
     return p
 
@@ -79,12 +82,40 @@ def _add_show(sub) -> None:
                    help="max cell length (default: 80)")
 
 
+def _add_normalize(sub) -> None:
+    p = sub.add_parser(
+        "normalize",
+        help="split heterogeneous columns into single-concept columns",
+    )
+    p.add_argument("input", help="JSON from `tables extract` or a single table")
+    p.add_argument("-o", "--output", default="tables_normalized.json",
+                   help="output file (default: tables_normalized.json)")
+    p.add_argument("--model", default=None, help="embedding model name")
+    p.add_argument("--device", default=None, help="torch device, e.g. cuda/cpu")
+    p.add_argument("--batch-size", type=int, default=64,
+                   help="embedding batch size (default: 64)")
+    p.add_argument("--threshold", type=float, default=0.04,
+                   help="cosine distance threshold (default: 0.04)")
+    p.add_argument("--homogeneity-threshold", type=float, default=0.04,
+                   help="max mean distance from centroid (default: 0.04)")
+    p.add_argument("--min-cluster-size", type=int, default=3,
+                   help="clusters smaller than this are rare (default: 3)")
+    p.add_argument("--max-workers", type=int, default=None,
+                   help="parallel column embedding workers")
+    p.add_argument("--no-merge", action="store_true",
+                   help="do not merge related split columns")
+    p.add_argument("--no-half", action="store_true",
+                   help="disable half precision on GPU")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.command == "extract":
         return _run_extract(args)
     if args.command == "label":
         return _run_label(args)
+    if args.command == "normalize":
+        return _run_normalize(args)
     if args.command == "show":
         return _run_show(args)
     return 2
@@ -192,6 +223,49 @@ def _print_label_summary(merged: dict) -> None:
             f"rows={meta.get('row_count')}  cols={meta.get('columns')}",
             file=sys.stderr,
         )
+
+
+# ── normalize ──────────────────────────────────────────────────────────────
+
+
+def _run_normalize(args) -> int:
+    with open(args.input, encoding="utf-8") as f:
+        data = json.load(f)
+
+    config = NormalizeConfig(
+        model_name=args.model or NormalizeConfig.model_name,
+        batch_size=args.batch_size,
+        device=args.device,
+        half_precision=not args.no_half,
+        max_workers=args.max_workers,
+        distance_threshold=args.threshold,
+        homogeneity_threshold=args.homogeneity_threshold,
+        min_cluster_size=args.min_cluster_size,
+        merge_related=not args.no_merge,
+    )
+
+    if isinstance(data, dict) and data.get("tables"):
+        result = normalize_tables(data, config)
+        tables = result["tables"]
+    else:
+        result = normalize_table(data, config)
+        tables = [result]
+
+    with open(args.output, "w", encoding="utf-8") as f:
+        json.dump(result, f, ensure_ascii=False, indent=2)
+
+    print(f"[out] wrote {args.output}", file=sys.stderr)
+    for index, table in enumerate(tables, 1):
+        report = table.get("report", {})
+        validation = table.get("validation", {})
+        print(
+            f"  {index:2d}. rows={report.get('rows')} "
+            f"cols={report.get('input_columns')}→{report.get('output_columns')} "
+            f"coverage={report.get('coverage')} "
+            f"ok={validation.get('ok')}",
+            file=sys.stderr,
+        )
+    return 0
 
 
 # ── show ───────────────────────────────────────────────────────────────────

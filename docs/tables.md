@@ -6,12 +6,13 @@ browser and no duplicate code. It reuses the same folding core as
 `domtrack html` and `domtrack diff` (`domtrack.trace.DomState`), so the DOM it
 sees is exactly the DOM the records describe.
 
-Three stages, each usable as a library call or a subcommand:
+Four stages, each usable as a library call or a subcommand:
 
 | Stage | Subcommand | Module | Browser? | Network? |
 | --- | --- | --- | --- | --- |
 | Discover | `domtrack tables extract` | `domtrack.tables.discovery` | no | no |
 | Label | `domtrack tables label` | `domtrack.tables.labeling` | no | yes (LLM API) |
+| Normalize | `domtrack tables normalize` | `domtrack.tables.normalize` | no | yes (model download) |
 | Display | `domtrack tables show` | `domtrack.tables.render` | no | no |
 
 ## How discovery works
@@ -197,6 +198,78 @@ domtrack tables show labeled.json --max-rows 5 --max-chars 60
 
 `rich` needs the `rich` extra and `plain` uses `tabulate` when present; both
 fall back gracefully when the optional packages are missing.
+
+## Normalizing heterogeneous columns
+
+Discovery finds structural columns, but a source column may still mix unrelated
+concepts (a city, a phone number, and a postal code in the same column).
+`normalize_table` splits each source column semantically:
+
+1. Every non-empty cell is embedded together with its source column identity, so
+   the same value in two different columns does not receive the same vector.
+   Columns are embedded concurrently and each column is encoded in GPU-sized
+   batches. Vectors are L2-normalized, so cosine distance is the metric.
+2. Cells inside one source column are clustered with scikit-learn
+   `AgglomerativeClustering` (cosine distance, average linkage). The threshold
+   is chosen per column from the clearest gap in its pairwise distances, and a
+   split is accepted only when the two largest clusters are separated by more
+   than their internal spread. Columns whose `atype` is `href` or `src` are
+   kept as one structural concept instead of being clustered by URL meaning.
+3. Clusters whose members are still far from their centroid are recursively
+   split with a stricter threshold. Clusters smaller than `min_cluster_size`
+   are marked `rare`. A rare cluster is folded into the concept it clearly
+   belongs to — the nearest same-column concept when it is separated from the
+   runner-up by `min_centroid_separation_ratio`, or a single concept whose
+   radius contains it. Otherwise it stays in its own traceable rare column, so
+   unrelated values are never swallowed.
+4. Split columns get neutral structural names such as `source__c0`; the name is
+   tied to the source column and cluster identity, never to a centroid or a
+   representative value. Existing `semantic_label` values from `tables label`
+   are carried through unchanged.
+5. Related split columns from different source columns are merged when their
+   centroids are not distinguishable in semantic space: each centroid must lie
+   inside the other cluster's own radius (mean distance to centroid). This
+   rule is scale-free — it uses only the geometry of the pair, so there is no
+   absolute cosine cutoff to tune per page. Merges use complete linkage, so a
+   column cannot be pulled into a concept through a chain of coincidences.
+   Unrelated columns stay separate.
+
+The output preserves row order with an explicit `_row_index` field. Empty cells
+mean the row did not contain that concept. A `report` records, per source
+column, the number of concepts, each concept's cell count, coverage, and
+homogeneity; `validation` flags mixed clusters, excessive splitting, and low
+clean-cluster coverage.
+
+```python
+from domtrack.tables import NormalizeConfig, normalize_table
+
+normalized = normalize_table(
+    table,
+    NormalizeConfig(distance_threshold=0.04, min_cluster_size=3),
+)
+print(normalized["report"]["source_columns"])
+```
+
+```bash
+domtrack tables normalize tables.json -o normalized.json
+domtrack tables normalize tables.json --threshold 0.04 --min-cluster-size 3
+domtrack tables normalize tables.json --device cuda --batch-size 128
+domtrack tables normalize tables.json --no-merge
+```
+
+| Flag | Default | Meaning |
+| --- | --- | --- |
+| `input` (positional) | — | JSON from `tables extract`, or one table |
+| `-o`, `--output` | `tables_normalized.json` | Output file |
+| `--model` | `intfloat/multilingual-e5-small` | Sentence-transformers model |
+| `--device` | auto | `cuda` / `cpu` / other torch device |
+| `--batch-size` | `64` | Cells per embedding batch |
+| `--threshold` | `0.04` | Cosine distance threshold (stricter = more splits) |
+| `--homogeneity-threshold` | `0.04` | Max mean distance from centroid |
+| `--min-cluster-size` | `3` | Smaller clusters are marked rare |
+| `--max-workers` | auto | Parallel column embedding workers |
+| `--no-merge` | off | Keep related split columns separate |
+| `--no-half` | off | Disable half precision on GPU |
 
 ## Optional dependencies
 

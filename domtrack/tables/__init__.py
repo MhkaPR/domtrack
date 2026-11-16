@@ -1,10 +1,11 @@
-"""``domtrack tables`` — extract, label, and display HTML tables from a trace.
+"""``domtrack tables`` — extract, label, normalize, and display HTML tables.
 
 Browser-free discovery over a folded trace
 (:mod:`domtrack.tables.discovery`), optional LLM semantic labeling
-(:mod:`domtrack.tables.labeling`), and rich / plain / markdown / csv rendering
+(:mod:`domtrack.tables.labeling`), embedding-based column normalization
+(:mod:`domtrack.tables.normalize`), and rich / plain / markdown / csv rendering
 (:mod:`domtrack.tables.render`). The command-line surface is
-``domtrack tables <extract|label|show>``.
+``domtrack tables <extract|label|normalize|show>``.
 
 The provider SDKs (``openai`` / ``anthropic``) and the display helpers
 (``rich`` / ``tabulate``) are imported lazily, so importing this package never
@@ -29,6 +30,15 @@ from .discovery import (
     lcs_path_sim,
 )
 from .labeling import LabelConfig, label_tables
+from .normalize import (
+    CellEmbedder,
+    NormalizeConfig,
+    cluster_vectors,
+    neutral_column_name,
+    normalize_table,
+    normalize_tables,
+    validate_normalization,
+)
 from .render import RenderOptions, render as render_tables
 
 __all__ = [
@@ -37,5 +47,8 @@ __all__ = [
     "build_tree", "default_sig", "default_values", "default_path_sim",
     "lcs_path_sim", "discover", "discover_across_documents", "discover_tables",
     "LabelConfig", "label_tables",
+    "CellEmbedder", "NormalizeConfig", "cluster_vectors",
+    "neutral_column_name", "normalize_table", "normalize_tables",
+    "validate_normalization",
     "RenderOptions", "render_tables",
 ]
